@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight } from "lucide-react";
 import { useEffect } from "react";
 
 const conditionLabels: Record<number, string> = {

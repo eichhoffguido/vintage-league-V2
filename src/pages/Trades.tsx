@@ -44,7 +44,7 @@ const Trades = () => {
   });
 
   const updateTrade = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status }: { id: string; status: "pending" | "accepted" | "declined" | "completed" }) => {
       const { error } = await supabase
         .from("trade_requests")
         .update({ status })
