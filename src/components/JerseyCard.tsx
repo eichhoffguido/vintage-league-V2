@@ -110,9 +110,9 @@ const JerseyCard = ({
           {size}
         </Badge>
         {vintageBonus > 1.0 && (
-          <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-accent/90 px-2 py-1 backdrop-blur-sm">
-            <Gem className="h-3 w-3 text-accent-foreground" />
-            <span className="text-xs font-bold text-accent-foreground">
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm">
+            <Gem className="h-3 w-3 text-primary" />
+            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary">
               {vintageBonus >= 1.8 ? "Klassiker" : vintageBonus >= 1.4 ? "Retro" : "Vintage"}
             </span>
           </div>
