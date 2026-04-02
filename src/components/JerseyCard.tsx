@@ -146,7 +146,7 @@ const JerseyCard = ({
               <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
                 <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
                   <span>Bewertung: {condition}/5 · {conditionLabels[condition]}</span>
-                  <span>Marktwert: €{fairValue}</span>
+                  <span>Marktwert: €{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
                 </div>
 
                 {/* The spectrum bar */}
@@ -174,7 +174,7 @@ const JerseyCard = ({
                 {/* Scale labels */}
                 <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
                   <span>€{spectrumMin}</span>
-                  <span className="text-green-500 font-medium">€{fairValue}</span>
+                  <span className="text-green-500 font-medium">€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
                   <span>€{spectrumMax}</span>
                 </div>
               </div>
@@ -183,7 +183,7 @@ const JerseyCard = ({
               <p className="text-xs">
                 Bewertung {condition}/5 ({conditionLabels[condition]}). 
                 Alter: {new Date().getFullYear() - parseInt(year)} Jahre. 
-                Der grüne Bereich markiert den fairen Marktwert.
+                Der grüne Bereich markiert die faire Preisspanne (€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}).
               </p>
             </TooltipContent>
           </Tooltip>
