@@ -233,25 +233,29 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Trade CTA Section */}
       <section className="grain relative border-y border-border bg-secondary/30 py-16 md:py-24">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="container mx-auto px-4 text-center">
           <div className="mb-4 flex items-center justify-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            <span className="font-display text-xs tracking-[0.2em] text-primary">ZERTIFIZIERT & VERSICHERT</span>
+            <ArrowLeftRight className="h-5 w-5 text-primary" />
+            <span className="font-display text-xs tracking-[0.2em] text-primary">TRIKOTTAUSCH</span>
           </div>
           <h2 className="font-display text-3xl font-bold md:text-5xl">
-            Dein Trikot verdient{" "}
-            <span className="text-gradient">einen neuen Sammler</span>
+            Tausche Trikots{" "}
+            <span className="text-gradient">mit anderen Sammlern</span>
           </h2>
           <p className="mx-auto mt-4 max-w-lg font-serif italic text-muted-foreground">
-            Liste dein Trikot in wenigen Minuten. Unsere Experten verifizieren die Echtheit und verbinden dich mit Sammlern weltweit.
+            Der klassische Trikottausch — digital. Finde Sammler mit den Raritäten, die dir fehlen,
+            und biete deine eigenen Schätze zum Tausch an.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <Button variant="hero" size="lg" className="uppercase tracking-wider">
-              Jetzt verkaufen
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/trade"}>
+              <ArrowLeftRight className="mr-2 h-5 w-5" />
+              Tauschbörse entdecken
+            </Button>
+            <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10" onClick={() => window.location.href = "/auth"}>
+              Jetzt registrieren
             </Button>
           </div>
         </div>
