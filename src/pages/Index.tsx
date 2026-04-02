@@ -157,10 +157,6 @@ const Index = () => {
             <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
               Legendäre{" "}
               <span className="text-gradient">Trikots</span>
-              <br />
-              <span className="text-3xl font-normal tracking-wider text-muted-foreground md:text-4xl">
-                für echte Sammler
-              </span>
             </h1>
             <p className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl">
               Entdecke authentische Fußballtrikots — von seltenen Retro-Klassikern bis zu limitierten Editionen. 
