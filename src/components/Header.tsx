@@ -30,9 +30,7 @@ const Header = () => {
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-primary/30 bg-primary/10">
-              <span className="font-display text-lg font-bold text-primary">VL</span>
-            </div>
+            <img src={vlLogo} alt="Vintage League Logo" className="h-10 w-10 object-contain" />
             <div className="flex flex-col">
               <span className="font-display text-xl font-bold leading-none tracking-wider">
                 VINTAGE LEAGUE

@@ -28,9 +28,7 @@ const Footer = () => {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-sm border border-primary/30 bg-primary/10">
-                <span className="font-display text-sm font-bold text-primary">VL</span>
-              </div>
+              <img src={vlLogo} alt="Vintage League Logo" className="h-9 w-9 object-contain" loading="lazy" width={512} height={512} />
               <div>
                 <span className="font-display text-lg font-bold leading-none tracking-wider">
                   VINTAGE LEAGUE
