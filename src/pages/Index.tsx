@@ -121,8 +121,8 @@ const mockJerseys = [
 ];
 
 const stats = [
-  { label: "Verifizierte Trikots", value: "12.500+" },
-  { label: "Aktive Verkäufer", value: "3.200+" },
+  { label: "Zertifizierte Trikots", value: "12.500+" },
+  { label: "Sammler & Händler", value: "3.200+" },
   { label: "Erfolgreiche Trades", value: "45.000+" },
 ];
 
