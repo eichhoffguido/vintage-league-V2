@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, TrendingUp, Award, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -121,8 +121,8 @@ const mockJerseys = [
 ];
 
 const stats = [
-  { label: "Verifizierte Trikots", value: "12.500+" },
-  { label: "Aktive Verkäufer", value: "3.200+" },
+  { label: "Zertifizierte Trikots", value: "12.500+" },
+  { label: "Sammler & Händler", value: "3.200+" },
   { label: "Erfolgreiche Trades", value: "45.000+" },
 ];
 
@@ -134,37 +134,48 @@ const Index = () => {
       <Header />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="grain relative overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
+          className="absolute inset-0 bg-cover bg-center opacity-20"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
+        {/* Vintage decorative lines */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
         <div className="relative container mx-auto px-4 py-24 md:py-36">
           <div className="max-w-2xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Trending: Retro Trikots +45%</span>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/10 px-4 py-1.5">
+              <Award className="h-4 w-4 text-primary" />
+              <span className="font-display text-xs tracking-[0.15em] text-primary">
+                AUTHENTISCHE SAMMLERSTÜCKE
+              </span>
             </div>
             <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
-              Dein Marktplatz für{" "}
-              <span className="text-gradient">Fußballtrikots</span>
+              Legendäre{" "}
+              <span className="text-gradient">Trikots</span>
+              <br />
+              <span className="text-3xl font-normal tracking-wider text-muted-foreground md:text-4xl">
+                für echte Sammler
+              </span>
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-              Kaufe, verkaufe und sammle verifizierte Trikots. Von aktuellen Saison-Trikots bis zu seltenen Retro-Schätzen.
+            <p className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl">
+              Entdecke authentische Fußballtrikots — von seltenen Retro-Klassikern bis zu limitierten Editionen. 
+              Jedes Stück zertifiziert und mit Geschichte.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button variant="hero" size="lg">
-                Jetzt entdecken
+              <Button variant="hero" size="lg" className="uppercase tracking-wider">
+                Kollektion entdecken
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="lg" className="font-semibold">
+              <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10">
                 Trikot verkaufen
               </Button>
             </div>
 
             {/* Stats */}
-            <div className="mt-12 flex gap-8 md:gap-12">
+            <div className="mt-14 flex gap-8 md:gap-12">
               {stats.map((stat) => (
                 <div key={stat.label}>
                   <p className="font-display text-2xl font-bold text-primary md:text-3xl">
@@ -183,16 +194,20 @@ const Index = () => {
       {/* Featured Listings */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
+              <div className="mb-2 flex items-center gap-2">
+                <div className="h-px w-6 bg-primary/50" />
+                <span className="font-display text-xs tracking-[0.2em] text-primary">NEUESTE FUNDSTÜCKE</span>
+              </div>
               <h2 className="font-display text-3xl font-bold md:text-4xl">
-                Aktuelle <span className="text-primary">Angebote</span>
+                Aktuelle <span className="text-gradient">Kollektion</span>
               </h2>
-              <p className="mt-2 text-muted-foreground">
-                Entdecke die neuesten Trikots auf dem Marktplatz
+              <p className="mt-2 font-serif italic text-muted-foreground">
+                Handverlesene Trikots — frisch kuratiert für Sammler
               </p>
             </div>
-            <Button variant="ghost" className="self-start text-primary md:self-auto">
+            <Button variant="ghost" className="self-start text-primary uppercase tracking-wider md:self-auto">
               Alle anzeigen <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -217,17 +232,22 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="border-y border-border bg-secondary/30 py-16 md:py-24">
+      <section className="grain relative border-y border-border bg-secondary/30 py-16 md:py-24">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="container mx-auto px-4 text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="font-display text-xs tracking-[0.2em] text-primary">ZERTIFIZIERT & VERSICHERT</span>
+          </div>
           <h2 className="font-display text-3xl font-bold md:text-5xl">
-            Bereit dein Trikot zu{" "}
-            <span className="text-gradient">verkaufen</span>?
+            Dein Trikot verdient{" "}
+            <span className="text-gradient">einen neuen Sammler</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-            Liste dein Trikot in wenigen Minuten. Wir verifizieren die Echtheit und verbinden dich mit Käufern weltweit.
+          <p className="mx-auto mt-4 max-w-lg font-serif italic text-muted-foreground">
+            Liste dein Trikot in wenigen Minuten. Unsere Experten verifizieren die Echtheit und verbinden dich mit Sammlern weltweit.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" className="uppercase tracking-wider">
               Jetzt verkaufen
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>

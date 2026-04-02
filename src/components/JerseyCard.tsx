@@ -92,7 +92,7 @@ const JerseyCard = ({
   const verdict = getPriceVerdict(price, spectrumMin, spectrumMax, fairValue);
 
   return (
-    <div className="group card-hover cursor-pointer overflow-hidden rounded-lg border border-border bg-card">
+    <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <img
@@ -101,18 +101,18 @@ const JerseyCard = ({
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {verified && (
-          <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-primary px-2 py-1">
+          <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1">
             <ShieldCheck className="h-3 w-3 text-primary-foreground" />
-            <span className="text-xs font-bold text-primary-foreground">Verifiziert</span>
+            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute right-3 top-3 text-xs">
+        <Badge variant="secondary" className="absolute right-3 top-3 rounded-sm font-display text-[10px] uppercase tracking-wider">
           {size}
         </Badge>
         {vintageBonus > 1.0 && (
-          <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-accent/90 px-2 py-1 backdrop-blur-sm">
-            <Gem className="h-3 w-3 text-accent-foreground" />
-            <span className="text-xs font-bold text-accent-foreground">
+          <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm">
+            <Gem className="h-3 w-3 text-primary" />
+            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary">
               {vintageBonus >= 1.8 ? "Klassiker" : vintageBonus >= 1.4 ? "Retro" : "Vintage"}
             </span>
           </div>
