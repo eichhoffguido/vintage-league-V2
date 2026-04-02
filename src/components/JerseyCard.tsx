@@ -92,7 +92,7 @@ const JerseyCard = ({
   const verdict = getPriceVerdict(price, spectrumMin, spectrumMax, fairValue);
 
   return (
-    <div className="group card-hover cursor-pointer overflow-hidden rounded-lg border border-border bg-card">
+    <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border">
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <img
