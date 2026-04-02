@@ -232,17 +232,22 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="border-y border-border bg-secondary/30 py-16 md:py-24">
+      <section className="grain relative border-y border-border bg-secondary/30 py-16 md:py-24">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="container mx-auto px-4 text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="font-display text-xs tracking-[0.2em] text-primary">ZERTIFIZIERT & VERSICHERT</span>
+          </div>
           <h2 className="font-display text-3xl font-bold md:text-5xl">
-            Bereit dein Trikot zu{" "}
-            <span className="text-gradient">verkaufen</span>?
+            Dein Trikot verdient{" "}
+            <span className="text-gradient">einen neuen Sammler</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-            Liste dein Trikot in wenigen Minuten. Wir verifizieren die Echtheit und verbinden dich mit Käufern weltweit.
+          <p className="mx-auto mt-4 max-w-lg font-serif italic text-muted-foreground">
+            Liste dein Trikot in wenigen Minuten. Unsere Experten verifizieren die Echtheit und verbinden dich mit Sammlern weltweit.
           </p>
           <div className="mt-8 flex justify-center gap-4">
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" className="uppercase tracking-wider">
               Jetzt verkaufen
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
