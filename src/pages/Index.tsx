@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -7,6 +7,8 @@ import JerseyCard from "@/components/JerseyCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import TrustBanner from "@/components/TrustBanner";
 import heroImage from "@/assets/hero-jersey.jpg";
+import heroCollectibles from "@/assets/hero-collectibles.jpg";
+import heroRarity from "@/assets/hero-rarity.jpg";
 import jersey1 from "@/assets/jersey-1.jpg";
 import jersey2 from "@/assets/jersey-2.jpg";
 import jersey3 from "@/assets/jersey-3.jpg";
