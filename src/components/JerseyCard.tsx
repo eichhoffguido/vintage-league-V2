@@ -101,9 +101,9 @@ const JerseyCard = ({
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {verified && (
-          <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-primary px-2 py-1">
+          <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1">
             <ShieldCheck className="h-3 w-3 text-primary-foreground" />
-            <span className="text-xs font-bold text-primary-foreground">Verifiziert</span>
+            <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
         <Badge variant="secondary" className="absolute right-3 top-3 text-xs">
