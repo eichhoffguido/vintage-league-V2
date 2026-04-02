@@ -148,20 +148,21 @@ const Index = () => {
 
         <div className="relative container mx-auto px-4 py-24 md:py-36">
           <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-sm border border-foreground/15 px-4 py-1.5">
-              <Award className="h-4 w-4 text-foreground/60" />
-              <span className="font-display text-xs tracking-[0.15em] text-foreground/60">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/10 px-4 py-1.5">
+              <Award className="h-4 w-4 text-primary" />
+              <span className="font-display text-xs tracking-[0.15em] text-primary">
                 AUTHENTISCHE SAMMLERSTÜCKE
               </span>
             </div>
-            <h1 className="font-display text-5xl font-bold leading-tight text-foreground md:text-7xl">
-              Legendäre Trikots
+            <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
+              Legendäre{" "}
+              <span className="text-gradient">Trikots</span>
               <br />
-              <span className="text-3xl font-normal tracking-wider text-foreground/50 md:text-4xl">
+              <span className="text-3xl font-normal tracking-wider text-muted-foreground md:text-4xl">
                 für echte Sammler
               </span>
             </h1>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-foreground/50 md:text-lg">
+            <p className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl">
               Entdecke authentische Fußballtrikots — von seltenen Retro-Klassikern bis zu limitierten Editionen. 
               Jedes Stück zertifiziert und mit Geschichte.
             </p>
@@ -170,7 +171,7 @@ const Index = () => {
                 Kollektion entdecken
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="lg" className="border-foreground/15 font-semibold uppercase tracking-wider text-foreground/70 hover:bg-foreground/5 hover:text-foreground">
+              <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10">
                 Trikot verkaufen
               </Button>
             </div>
@@ -179,10 +180,10 @@ const Index = () => {
             <div className="mt-14 flex gap-8 md:gap-12">
               {stats.map((stat) => (
                 <div key={stat.label}>
-                  <p className="font-display text-2xl font-bold text-foreground md:text-3xl">
+                  <p className="font-display text-2xl font-bold text-primary md:text-3xl">
                     {stat.value}
                   </p>
-                  <p className="text-xs text-foreground/40 md:text-sm">{stat.label}</p>
+                  <p className="text-xs text-muted-foreground md:text-sm">{stat.label}</p>
                 </div>
               ))}
             </div>
