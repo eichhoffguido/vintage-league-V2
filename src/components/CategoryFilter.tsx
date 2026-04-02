@@ -1,4 +1,7 @@
-import { Badge } from "@/components/ui/badge";
+interface CategoryFilterProps {
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
+}
 
 const categories = [
   { label: "Alle", value: "all" },
@@ -6,16 +9,10 @@ const categories = [
   { label: "Premier League", value: "premier-league" },
   { label: "La Liga", value: "la-liga" },
   { label: "Serie A", value: "serie-a" },
-  { label: "Ligue 1", value: "ligue-1" },
   { label: "Nationalteams", value: "national" },
-  { label: "Retro", value: "retro" },
-  { label: "Limited Edition", value: "limited" },
+  { label: "Retro & Vintage", value: "retro" },
+  { label: "Raritäten", value: "limited" },
 ];
-
-interface CategoryFilterProps {
-  activeCategory: string;
-  onCategoryChange: (category: string) => void;
-}
 
 const CategoryFilter = ({ activeCategory, onCategoryChange }: CategoryFilterProps) => {
   return (
@@ -24,10 +21,10 @@ const CategoryFilter = ({ activeCategory, onCategoryChange }: CategoryFilterProp
         <button
           key={cat.value}
           onClick={() => onCategoryChange(cat.value)}
-          className={`rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+          className={`rounded-sm border px-4 py-2 font-display text-xs font-medium uppercase tracking-wider transition-all duration-200 ${
             activeCategory === cat.value
               ? "border-primary bg-primary text-primary-foreground"
-              : "border-border bg-secondary text-secondary-foreground hover:border-primary/50 hover:text-foreground"
+              : "border-border bg-secondary/50 text-secondary-foreground hover:border-primary/50 hover:text-primary"
           }`}
         >
           {cat.label}
