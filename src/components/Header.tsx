@@ -77,7 +77,7 @@ const Header = () => {
       </div>
 
       {/* Category bar - desktop */}
-      <div className="hidden border-b border-border bg-secondary/40 backdrop-blur-sm lg:block">
+      <div className="hidden border-b border-border bg-secondary lg:block">
         <div className="container mx-auto flex items-center gap-6 px-4 py-2">
           {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams", "Klassiker", "Raritäten"].map((cat) => (
             <Link
