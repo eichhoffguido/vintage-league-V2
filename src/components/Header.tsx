@@ -1,10 +1,12 @@
-import { Search, User, ShoppingBag, Menu, X, ShieldCheck } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50">
@@ -45,28 +47,42 @@ const Header = () => {
             <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
               Entdecken
             </Link>
-            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Trikots
+            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Tauschbörse
             </Link>
-            <Link to="/shop?cat=retro" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Retro & Vintage
-            </Link>
-            <Link to="/sell" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Verkaufen
-            </Link>
+            {user && (
+              <>
+                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                  Sammlung
+                </Link>
+                <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                  Tausch-Anfragen
+                </Link>
+              </>
+            )}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-              <ShoppingBag className="h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/collection")}>
+                  <User className="mr-2 h-4 w-4" />
+                  Sammlung
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={async () => { await signOut(); navigate("/"); }}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground" onClick={() => navigate("/auth")}>
+                <User className="mr-2 h-4 w-4" />
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -96,17 +112,26 @@ const Header = () => {
         <div className="border-t border-border bg-background px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-3 pt-4">
             <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Entdecken</Link>
-            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Trikots</Link>
-            <Link to="/shop?cat=retro" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Retro & Vintage</Link>
-            <Link to="/sell" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Verkaufen</Link>
+            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
+            {user && (
+              <>
+                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
+                <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tausch-Anfragen</Link>
+              </>
+            )}
             <div className="vintage-divider my-2" />
             {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams"].map((cat) => (
-              <Link key={cat} to={`/shop?cat=${cat.toLowerCase()}`} className="text-xs text-muted-foreground">{cat}</Link>
+              <Link key={cat} to={`/trade?cat=${cat.toLowerCase()}`} className="text-xs text-muted-foreground">{cat}</Link>
             ))}
-            <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Button>
+            {user ? (
+              <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide" onClick={async () => { await signOut(); navigate("/"); }}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/auth")}>
+                <User className="mr-2 h-4 w-4" /> Login
+              </Button>
+            )}
           </nav>
         </div>
       )}

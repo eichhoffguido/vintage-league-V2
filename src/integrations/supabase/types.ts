@@ -14,16 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trade_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          owner_jersey_id: string
+          requester_jersey_id: string
+          status: Database["public"]["Enums"]["trade_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_jersey_id: string
+          requester_jersey_id: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_jersey_id?: string
+          requester_jersey_id?: string
+          status?: Database["public"]["Enums"]["trade_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_requests_owner_jersey_id_fkey"
+            columns: ["owner_jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_requests_requester_jersey_id_fkey"
+            columns: ["requester_jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_jerseys: {
+        Row: {
+          available_for_trade: boolean
+          condition: number
+          created_at: string
+          id: string
+          image_url: string | null
+          league: string
+          name: string
+          price_estimate: number | null
+          size: string
+          team: string
+          updated_at: string
+          user_id: string
+          year: string
+        }
+        Insert: {
+          available_for_trade?: boolean
+          condition?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          league?: string
+          name: string
+          price_estimate?: number | null
+          size?: string
+          team: string
+          updated_at?: string
+          user_id: string
+          year?: string
+        }
+        Update: {
+          available_for_trade?: boolean
+          condition?: number
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          league?: string
+          name?: string
+          price_estimate?: number | null
+          size?: string
+          team?: string
+          updated_at?: string
+          user_id?: string
+          year?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      trade_status: "pending" | "accepted" | "declined" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +269,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      trade_status: ["pending", "accepted", "declined", "completed"],
+    },
   },
 } as const
