@@ -37,7 +37,7 @@ const Trade = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_jerseys")
-        .select("*, profiles!user_jerseys_user_id_fkey(display_name)")
+        .select("*, profiles(display_name)")
         .eq("available_for_trade", true)
         .neq("user_id", user!.id)
         .order("created_at", { ascending: false });
