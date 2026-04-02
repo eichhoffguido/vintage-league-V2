@@ -194,16 +194,20 @@ const Index = () => {
       {/* Featured Listings */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
+              <div className="mb-2 flex items-center gap-2">
+                <div className="h-px w-6 bg-primary/50" />
+                <span className="font-display text-xs tracking-[0.2em] text-primary">NEUESTE FUNDSTÜCKE</span>
+              </div>
               <h2 className="font-display text-3xl font-bold md:text-4xl">
-                Aktuelle <span className="text-primary">Angebote</span>
+                Aktuelle <span className="text-gradient">Kollektion</span>
               </h2>
-              <p className="mt-2 text-muted-foreground">
-                Entdecke die neuesten Trikots auf dem Marktplatz
+              <p className="mt-2 font-serif italic text-muted-foreground">
+                Handverlesene Trikots — frisch kuratiert für Sammler
               </p>
             </div>
-            <Button variant="ghost" className="self-start text-primary md:self-auto">
+            <Button variant="ghost" className="self-start text-primary uppercase tracking-wider md:self-auto">
               Alle anzeigen <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
