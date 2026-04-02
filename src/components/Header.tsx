@@ -1,8 +1,8 @@
-import { Search, User, ShoppingBag, Menu, X, ShieldCheck } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
