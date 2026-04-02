@@ -134,12 +134,14 @@ const Index = () => {
       <Header />
 
       {/* Hero */}
-      <section className="grain relative overflow-hidden">
+      <section className="grain relative overflow-hidden min-h-[70vh] flex items-center">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
+        {/* Cinematic gradient overlay - dark from left for text readability, fading to reveal image */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
         {/* Vintage decorative lines */}
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
