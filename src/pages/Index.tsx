@@ -128,8 +128,40 @@ const stats = [
   { label: "Erfolgreiche Trades", value: "45.000+" },
 ];
 
+const heroSlides = [
+  {
+    image: heroImage,
+    badge: "AUTHENTISCHE SAMMLERSTÜCKE",
+    headline: "Legendäre",
+    headlineAccent: "Trikots",
+    description: "Entdecke authentische Fußballtrikots — von seltenen Retro-Klassikern bis zu limitierten Editionen. Jedes Stück zertifiziert und mit Geschichte.",
+  },
+  {
+    image: heroCollectibles,
+    badge: "KURATIERTE KOLLEKTION",
+    headline: "Historische",
+    headlineAccent: "Sammlerstücke",
+    description: "Memorabilia aus den goldenen Ären des Fußballs — Schals, Programme, Medaillen und mehr. Jedes Stück ein Zeugnis großer Momente.",
+  },
+  {
+    image: heroRarity,
+    badge: "EXKLUSIVE RARITÄTEN",
+    headline: "Unvergessene",
+    headlineAccent: "Raritäten",
+    description: "Einzigartige Fundstücke, die Geschichte geschrieben haben — museumsreif präsentiert und für wahre Kenner kuratiert.",
+  },
+];
+
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -137,11 +169,18 @@ const Index = () => {
 
       {/* Hero */}
       <section className="grain relative overflow-hidden min-h-[70vh] flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-        {/* Cinematic gradient overlay - dark from left for text readability, fading to reveal image */}
+        {/* Slide backgrounds */}
+        {heroSlides.map((slide, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+            style={{
+              backgroundImage: `url(${slide.image})`,
+              opacity: activeSlide === index ? 1 : 0,
+            }}
+          />
+        ))}
+        {/* Cinematic gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40" />
         {/* Vintage decorative lines */}
@@ -152,17 +191,20 @@ const Index = () => {
           <div className="max-w-2xl">
             <div className="mb-6 inline-flex items-center gap-2 rounded-sm border border-primary/30 bg-primary/10 px-4 py-1.5">
               <Award className="h-4 w-4 text-primary" />
-              <span className="font-display text-xs tracking-[0.15em] text-primary">
-                AUTHENTISCHE SAMMLERSTÜCKE
+              <span className="font-display text-xs tracking-[0.15em] text-primary transition-opacity duration-500">
+                {heroSlides[activeSlide].badge}
               </span>
             </div>
             <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
-              Legendäre{" "}
-              <span className="text-gradient">Trikots</span>
+              <span key={`headline-${activeSlide}`} className="inline-block animate-fade-in">
+                {heroSlides[activeSlide].headline}{" "}
+              </span>
+              <span key={`accent-${activeSlide}`} className="text-gradient inline-block animate-fade-in">
+                {heroSlides[activeSlide].headlineAccent}
+              </span>
             </h1>
-            <p className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl">
-              Entdecke authentische Fußballtrikots — von seltenen Retro-Klassikern bis zu limitierten Editionen. 
-              Jedes Stück zertifiziert und mit Geschichte.
+            <p key={`desc-${activeSlide}`} className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl animate-fade-in">
+              {heroSlides[activeSlide].description}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button variant="hero" size="lg" className="uppercase tracking-wider">
@@ -183,6 +225,21 @@ const Index = () => {
                   </p>
                   <p className="text-xs text-muted-foreground md:text-sm">{stat.label}</p>
                 </div>
+              ))}
+            </div>
+
+            {/* Slide indicators */}
+            <div className="mt-8 flex gap-2">
+              {heroSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveSlide(index)}
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    activeSlide === index
+                      ? "w-8 bg-primary"
+                      : "w-4 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }`}
+                />
               ))}
             </div>
           </div>
