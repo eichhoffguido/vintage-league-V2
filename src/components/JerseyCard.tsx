@@ -174,7 +174,7 @@ const JerseyCard = ({
                 {/* Scale labels */}
                 <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
                   <span>€{spectrumMin}</span>
-                  <span className="text-green-500 font-medium">€{fairValue}</span>
+                  <span className="text-green-500 font-medium">€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
                   <span>€{spectrumMax}</span>
                 </div>
               </div>
