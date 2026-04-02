@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -7,58 +7,103 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl font-bold tracking-tight">
-            VINTAGE<span className="text-primary"> LEAGUE</span>
-          </span>
-        </Link>
+    <header className="sticky top-0 z-50">
+      {/* Top bar */}
+      <div className="border-b border-border bg-secondary/80 backdrop-blur-sm">
+        <div className="container mx-auto flex h-8 items-center justify-between px-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <ShieldCheck className="h-3 w-3 text-primary" />
+            <span className="font-medium text-primary">Authentizitätsgarantie</span>
+            <span className="hidden sm:inline"> auf jedes Trikot</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden md:inline">Weltweit versicherter Versand</span>
+            <span>Hilfe</span>
+          </div>
+        </div>
+      </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link to="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Entdecken
+      {/* Main header */}
+      <div className="border-b border-border bg-background/90 backdrop-blur-xl">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-primary/30 bg-primary/10">
+              <span className="font-display text-lg font-bold text-primary">VL</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-display text-xl font-bold leading-none tracking-wider">
+                VINTAGE LEAGUE
+              </span>
+              <span className="text-[10px] tracking-[0.2em] text-muted-foreground">
+                SPORTS COLLECTIBLES
+              </span>
+            </div>
           </Link>
-          <Link to="/shop" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Shop
-          </Link>
-          <Link to="/sell" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Verkaufen
-          </Link>
-          <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            So funktioniert's
-          </Link>
-        </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-            <ShoppingBag className="h-5 w-5" />
-          </Button>
-          <Button variant="outline" size="sm" className="font-medium">
-            <User className="mr-2 h-4 w-4" />
-            Login
+          {/* Desktop Nav */}
+          <nav className="hidden items-center gap-8 lg:flex">
+            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Entdecken
+            </Link>
+            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Trikots
+            </Link>
+            <Link to="/shop?cat=retro" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Retro & Vintage
+            </Link>
+            <Link to="/sell" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Verkaufen
+            </Link>
+          </nav>
+
+          <div className="hidden items-center gap-3 lg:flex">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+              <ShoppingBag className="h-5 w-5" />
+            </Button>
+            <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground">
+              <User className="mr-2 h-4 w-4" />
+              Login
+            </Button>
+          </div>
+
+          {/* Mobile toggle */}
+          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
+      </div>
 
-        {/* Mobile toggle */}
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+      {/* Category bar - desktop */}
+      <div className="hidden border-b border-border bg-secondary/40 backdrop-blur-sm lg:block">
+        <div className="container mx-auto flex items-center gap-6 px-4 py-2">
+          {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams", "Klassiker", "Raritäten"].map((cat) => (
+            <Link
+              key={cat}
+              to={`/shop?cat=${cat.toLowerCase()}`}
+              className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+            >
+              {cat}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Mobile Nav */}
       {menuOpen && (
-        <div className="border-t border-border bg-background px-4 pb-4 md:hidden">
+        <div className="border-t border-border bg-background px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-3 pt-4">
-            <Link to="/" className="text-sm font-medium text-muted-foreground">Entdecken</Link>
-            <Link to="/shop" className="text-sm font-medium text-muted-foreground">Shop</Link>
-            <Link to="/sell" className="text-sm font-medium text-muted-foreground">Verkaufen</Link>
-            <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground">So funktioniert's</Link>
-            <Button variant="outline" size="sm" className="mt-2 w-full font-medium">
+            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Entdecken</Link>
+            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Trikots</Link>
+            <Link to="/shop?cat=retro" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Retro & Vintage</Link>
+            <Link to="/sell" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Verkaufen</Link>
+            <div className="vintage-divider my-2" />
+            {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams"].map((cat) => (
+              <Link key={cat} to={`/shop?cat=${cat.toLowerCase()}`} className="text-xs text-muted-foreground">{cat}</Link>
+            ))}
+            <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide">
               <User className="mr-2 h-4 w-4" />
               Login
             </Button>
