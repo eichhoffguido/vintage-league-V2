@@ -146,7 +146,7 @@ const JerseyCard = ({
               <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
                 <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
                   <span>Bewertung: {condition}/5 · {conditionLabels[condition]}</span>
-                  <span>Marktwert: €{fairValue}</span>
+                  <span>Marktwert: €{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
                 </div>
 
                 {/* The spectrum bar */}
