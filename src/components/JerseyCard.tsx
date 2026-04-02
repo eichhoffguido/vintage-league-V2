@@ -106,7 +106,7 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute right-3 top-3 text-xs">
+        <Badge variant="secondary" className="absolute right-3 top-3 rounded-sm font-display text-[10px] uppercase tracking-wider">
           {size}
         </Badge>
         {vintageBonus > 1.0 && (
