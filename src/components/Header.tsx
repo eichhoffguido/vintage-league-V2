@@ -47,28 +47,42 @@ const Header = () => {
             <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
               Entdecken
             </Link>
-            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Trikots
+            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Tauschbörse
             </Link>
-            <Link to="/shop?cat=retro" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Retro & Vintage
-            </Link>
-            <Link to="/sell" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
-              Verkaufen
-            </Link>
+            {user && (
+              <>
+                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                  Sammlung
+                </Link>
+                <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                  Tausch-Anfragen
+                </Link>
+              </>
+            )}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
               <Search className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-              <ShoppingBag className="h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Button>
+            {user ? (
+              <>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/collection")}>
+                  <User className="mr-2 h-4 w-4" />
+                  Sammlung
+                </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={async () => { await signOut(); navigate("/"); }}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground" onClick={() => navigate("/auth")}>
+                <User className="mr-2 h-4 w-4" />
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile toggle */}
