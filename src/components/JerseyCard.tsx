@@ -183,7 +183,7 @@ const JerseyCard = ({
               <p className="text-xs">
                 Bewertung {condition}/5 ({conditionLabels[condition]}). 
                 Alter: {new Date().getFullYear() - parseInt(year)} Jahre. 
-                Der grüne Bereich markiert den fairen Marktwert.
+                Der grüne Bereich markiert die faire Preisspanne (€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}).
               </p>
             </TooltipContent>
           </Tooltip>
