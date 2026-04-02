@@ -11,21 +11,6 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Top bar */}
-      <div className="border-b border-border bg-secondary/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-8 items-center justify-between px-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <ShieldCheck className="h-3 w-3 text-primary" />
-            <span className="font-medium text-primary">Authentizitätsgarantie</span>
-            <span className="hidden sm:inline"> auf jedes Trikot</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="hidden md:inline">Weltweit versicherter Versand</span>
-            <span>Hilfe</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main header */}
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
