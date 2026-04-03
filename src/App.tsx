@@ -9,6 +9,8 @@ import Auth from "./pages/Auth.tsx";
 import Collection from "./pages/Collection.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
+import Community from "./pages/Community.tsx";
+import CommunityPost from "./pages/CommunityPost.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
