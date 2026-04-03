@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight } from "lucide-react";
+import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -311,6 +311,44 @@ const Index = () => {
             </Button>
             <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10" onClick={() => window.location.href = "/auth"}>
               Jetzt registrieren
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Community CTA */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <span className="font-display text-xs tracking-[0.2em] text-primary">COMMUNITY</span>
+          </div>
+          <h2 className="text-center font-display text-3xl font-bold md:text-5xl">
+            Wissen teilen,{" "}
+            <span className="text-gradient">voneinander lernen</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-center font-serif italic text-muted-foreground">
+            Restaurierung, Pflege, Echtheitsprüfung — unsere Community teilt ihr Expertenwissen rund um Vintage Trikots.
+          </p>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {[
+              { icon: <Wrench className="h-6 w-6" />, title: "Restaurierung", desc: "Anleitungen und Tipps zur fachgerechten Restaurierung von Vintage Trikots." },
+              { icon: <ShieldCheck className="h-6 w-6" />, title: "Echtheitsprüfung", desc: "Lerne, Originale von Fälschungen zu unterscheiden — mit Experten-Tipps." },
+              { icon: <BookOpen className="h-6 w-6" />, title: "Pflege & Lagerung", desc: "So bewahrst du deine Sammlerstücke für die Ewigkeit auf." },
+            ].map((item) => (
+              <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  {item.icon}
+                </div>
+                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/community"}>
+              <MessageSquare className="mr-2 h-5 w-5" />
+              Community entdecken
             </Button>
           </div>
         </div>

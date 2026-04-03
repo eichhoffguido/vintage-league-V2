@@ -9,6 +9,8 @@ import Auth from "./pages/Auth.tsx";
 import Collection from "./pages/Collection.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
+import Community from "./pages/Community.tsx";
+import CommunityPost from "./pages/CommunityPost.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/collection" element={<Collection />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/community/:id" element={<CommunityPost />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
