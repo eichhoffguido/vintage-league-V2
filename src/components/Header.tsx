@@ -100,6 +100,7 @@ const Header = () => {
           <nav className="flex flex-col gap-3 pt-4">
             <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Entdecken</Link>
             <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
+            <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Community</Link>
             {user && (
               <>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
