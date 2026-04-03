@@ -288,6 +288,59 @@ const Index = () => {
 
       <TrustBanner />
 
+      {/* Händler Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <span className="font-display text-xs tracking-[0.2em] text-primary">FÜR HÄNDLER</span>
+          </div>
+          <h2 className="text-center font-display text-3xl font-bold md:text-5xl">
+            Deine Bühne für{" "}
+            <span className="text-gradient">besondere Trikots</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-center font-serif italic text-muted-foreground">
+            Präsentiere deine Raritäten einer leidenschaftlichen Community — in einem Umfeld, das Qualität und Authentizität in den Mittelpunkt stellt.
+          </p>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                icon: <Award className="h-6 w-6" />,
+                title: "Reichweite & Community",
+                desc: "Erreiche tausende verifizierte Sammler und Liebhaber, die echtes Interesse an deinen Stücken haben.",
+              },
+              {
+                icon: <ShieldCheck className="h-6 w-6" />,
+                title: "Zertifizierung & Vertrauen",
+                desc: "Professionelle Echtheitsverifikation und ein verifiziertes Händler-Siegel stärken das Vertrauen deiner Käufer.",
+              },
+              {
+                icon: <TrendingUp className="h-6 w-6" />,
+                title: "Präsentation & Tools",
+                desc: "Hochwertige Produktpräsentation, Händler-Dashboard und detaillierte Verkaufsstatistiken für deinen Erfolg.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  {item.icon}
+                </div>
+                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 flex justify-center gap-4">
+            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/auth"}>
+              Händler werden
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10" onClick={() => window.location.href = "/collection"}>
+              Kollektion ansehen
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Trade CTA Section */}
       <section className="grain relative border-y border-border bg-secondary/30 py-16 md:py-24">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
