@@ -37,20 +37,29 @@ const CommunityPost = () => {
   const fetchPost = async () => {
     const { data } = await supabase
       .from("forum_posts")
-      .select("*, profiles(*), forum_categories(*)")
+      .select("*, forum_categories(*)")
       .eq("id", id!)
       .single();
-    setPost(data);
+    if (data) {
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user_id).single();
+      setPost({ ...data, profiles: profile });
+    }
     setLoading(false);
   };
 
   const fetchComments = async () => {
     const { data } = await supabase
       .from("forum_comments")
-      .select("*, profiles(*)")
+      .select("*")
       .eq("post_id", id!)
       .order("created_at", { ascending: true });
-    if (data) setComments(data);
+    if (data) {
+      const userIds = [...new Set(data.map((c) => c.user_id))];
+      const { data: profiles } = await supabase.from("profiles").select("*").in("id", userIds);
+      const profileMap: Record<string, Tables<"profiles">> = {};
+      profiles?.forEach((p) => { profileMap[p.id] = p; });
+      setComments(data.map((c) => ({ ...c, profiles: profileMap[c.user_id] || null })));
+    }
   };
 
   const handleAddComment = async () => {

@@ -47,7 +47,7 @@ const Community = () => {
     setLoading(true);
     let query = supabase
       .from("forum_posts")
-      .select("*, profiles(*), forum_categories(*)")
+      .select("*, forum_categories(*)")
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -57,19 +57,22 @@ const Community = () => {
 
     const { data } = await query;
     if (data) {
-      // Fetch comment counts
+      // Fetch profiles and comment counts
+      const userIds = [...new Set(data.map((p) => p.user_id))];
       const postIds = data.map((p) => p.id);
-      const { data: comments } = await supabase
-        .from("forum_comments")
-        .select("post_id")
-        .in("post_id", postIds);
+
+      const [{ data: profiles }, { data: comments }] = await Promise.all([
+        supabase.from("profiles").select("*").in("id", userIds),
+        supabase.from("forum_comments").select("post_id").in("post_id", postIds),
+      ]);
+
+      const profileMap: Record<string, Tables<"profiles">> = {};
+      profiles?.forEach((p) => { profileMap[p.id] = p; });
 
       const countMap: Record<string, number> = {};
-      comments?.forEach((c) => {
-        countMap[c.post_id] = (countMap[c.post_id] || 0) + 1;
-      });
+      comments?.forEach((c) => { countMap[c.post_id] = (countMap[c.post_id] || 0) + 1; });
 
-      setPosts(data.map((p) => ({ ...p, comment_count: countMap[p.id] || 0 })));
+      setPosts(data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 })));
     }
     setLoading(false);
   };
