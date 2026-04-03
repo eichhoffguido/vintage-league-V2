@@ -34,6 +34,9 @@ const Header = () => {
             <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
               Tauschbörse
             </Link>
+            <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+              Community
+            </Link>
             {user && (
               <>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
