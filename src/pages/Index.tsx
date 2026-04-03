@@ -246,8 +246,6 @@ const Index = () => {
         </div>
       </section>
 
-      <TrustBanner />
-
       {/* Featured Listings */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
@@ -287,6 +285,8 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      <TrustBanner />
 
       {/* Trade CTA Section */}
       <section className="grain relative border-y border-border bg-secondary/30 py-16 md:py-24">
