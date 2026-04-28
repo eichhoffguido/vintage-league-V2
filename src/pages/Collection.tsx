@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { eurosToCents, formatEuros } from "@/utils/currency";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,7 +64,7 @@ const Collection = () => {
         condition: parseInt(form.condition),
         size: form.size,
         image_url: form.image_url.trim() || null,
-        price_cents: form.price_cents ? parseFloat(form.price_cents) : null,
+        price_cents: eurosToCents(form.price_cents),
         available_for_trade: form.available_for_trade,
       });
       if (error) throw error;
@@ -209,7 +210,7 @@ const Collection = () => {
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_cents && <span className="font-semibold text-foreground">€{jersey.price_cents}</span>}
+                    {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <div className="flex items-center gap-2">

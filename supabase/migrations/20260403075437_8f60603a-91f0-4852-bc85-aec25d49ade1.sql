@@ -1,4 +1,3 @@
-
 -- Create categories for forum topics
 CREATE TABLE public.forum_categories (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -11,9 +10,8 @@ CREATE TABLE public.forum_categories (
 
 ALTER TABLE public.forum_categories ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone authenticated can view categories"
+CREATE POLICY "Public can view categories"
 ON public.forum_categories FOR SELECT
-TO authenticated
 USING (true);
 
 -- Create forum posts
@@ -25,13 +23,14 @@ CREATE TABLE public.forum_posts (
   content TEXT NOT NULL,
   pinned BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE NULL
 );
 
 ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone authenticated can view posts"
-ON public.forum_posts FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Public can view posts"
+ON public.forum_posts FOR SELECT USING (true);
 
 CREATE POLICY "Users can create own posts"
 ON public.forum_posts FOR INSERT TO authenticated
@@ -56,13 +55,14 @@ CREATE TABLE public.forum_comments (
   post_id UUID NOT NULL REFERENCES public.forum_posts(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE NULL
 );
 
 ALTER TABLE public.forum_comments ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone authenticated can view comments"
-ON public.forum_comments FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Public can view comments"
+ON public.forum_comments FOR SELECT USING (true);
 
 CREATE POLICY "Users can create own comments"
 ON public.forum_comments FOR INSERT TO authenticated

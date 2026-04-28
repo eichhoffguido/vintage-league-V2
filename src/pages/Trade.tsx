@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatEuros } from "@/utils/currency";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -123,7 +124,7 @@ const Trade = () => {
                     <span className="text-xs text-muted-foreground">{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
                   </div>
                   {jersey.price_cents && (
-                    <p className="mt-1 text-sm font-semibold text-primary">≈ €{jersey.price_cents}</p>
+                    <p className="mt-1 text-sm font-semibold text-primary">≈ {formatEuros(jersey.price_cents)}</p>
                   )}
                   <p className="mt-2 text-[10px] text-muted-foreground">
                     Sammler: {(jersey.profiles as any)?.display_name || "Anonym"}
