@@ -314,3 +314,43 @@ useCreateForumPost    — post to forum
 useGetUserProfile     — current user profile
 useUpdateProfile      — update user profile
 ```
+
+---
+
+## Agent Working Directory & Git Workflow
+
+**IMPORTANT: Always work in this exact directory:**
+/home/opencode/projects/vintage-league-V2
+
+Never clone the repository again. Never work in /app.
+
+First command of every task:
+cd /home/opencode/projects/vintage-league-V2 && git pull origin main && git status
+
+### Git workflow for every task
+
+1. cd /home/opencode/projects/vintage-league-V2
+2. git pull origin main
+3. git checkout -b feature/TASKID-short-description
+4. Make changes
+5. npm run build — must be green
+6. git add <changed files only>
+7. git diff --cached --name-only | grep "^\.env$" — must return nothing
+8. git commit -m "feat(TASKID): description"
+9. git push https://eichhoffguido:$GITHUB_TOKEN@github.com/eichhoffguido/vintage-league-V2.git feature/TASKID-short-description
+10. Report to Guido — STOP and wait for merge approval
+
+### Autonomous permissions
+
+Agents MAY do without asking:
+- Read and edit files
+- npm install, npm run build, npm run test
+- git add, git commit
+- git push feature branches
+
+Agents MUST NOT do without Guido's explicit approval:
+- git push to main
+- supabase db push
+- Any deployment
+- Changing .env files
+- Changing Supabase or Vercel settings
