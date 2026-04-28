@@ -33,8 +33,8 @@ const Trades = () => {
         .from("trade_requests")
         .select(`
           *,
-          requester_jersey:user_jerseys!trade_requests_requester_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_estimate, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
-          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_estimate, user_id, profiles!user_jerseys_user_id_fkey(display_name))
+          requester_jersey:user_jerseys!trade_requests_requester_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
+          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name))
         `)
         .order("created_at", { ascending: false });
       if (error) throw error;

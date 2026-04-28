@@ -122,8 +122,8 @@ const Trade = () => {
                     <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
                     <span className="text-xs text-muted-foreground">{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
                   </div>
-                  {jersey.price_estimate && (
-                    <p className="mt-1 text-sm font-semibold text-primary">≈ €{jersey.price_estimate}</p>
+                  {jersey.price_cents && (
+                    <p className="mt-1 text-sm font-semibold text-primary">≈ €{jersey.price_cents}</p>
                   )}
                   <p className="mt-2 text-[10px] text-muted-foreground">
                     Sammler: {(jersey.profiles as any)?.display_name || "Anonym"}
