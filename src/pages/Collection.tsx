@@ -31,7 +31,7 @@ const Collection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
-    image_url: "", price_estimate: "", available_for_trade: false,
+    image_url: "", price_cents: "", available_for_trade: false,
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const Collection = () => {
         condition: parseInt(form.condition),
         size: form.size,
         image_url: form.image_url.trim() || null,
-        price_estimate: form.price_estimate ? parseFloat(form.price_estimate) : null,
+        price_cents: form.price_cents ? parseFloat(form.price_cents) : null,
         available_for_trade: form.available_for_trade,
       });
       if (error) throw error;
@@ -71,7 +71,7 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_estimate: "", available_for_trade: false });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false });
       toast.success("Trikot hinzugefügt!");
     },
     onError: (e: any) => toast.error(e.message),
@@ -159,7 +159,7 @@ const Collection = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Schätzpreis (€)</Label>
-                    <Input type="number" placeholder="80" value={form.price_estimate} onChange={(e) => setForm(f => ({ ...f, price_estimate: e.target.value }))} min={0} max={100000} />
+                    <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -209,7 +209,7 @@ const Collection = () => {
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_estimate && <span className="font-semibold text-foreground">€{jersey.price_estimate}</span>}
+                    {jersey.price_cents && <span className="font-semibold text-foreground">€{jersey.price_cents}</span>}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <div className="flex items-center gap-2">
