@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       forum_categories: {
@@ -45,6 +70,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          deleted_at: string | null
           id: string
           post_id: string
           updated_at: string
@@ -53,6 +79,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           post_id: string
           updated_at?: string
@@ -61,6 +88,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           post_id?: string
           updated_at?: string
@@ -81,6 +109,7 @@ export type Database = {
           category_id: string
           content: string
           created_at: string
+          deleted_at: string | null
           id: string
           pinned: boolean
           title: string
@@ -91,6 +120,7 @@ export type Database = {
           category_id: string
           content: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           pinned?: boolean
           title: string
@@ -101,6 +131,7 @@ export type Database = {
           category_id?: string
           content?: string
           created_at?: string
+          deleted_at?: string | null
           id?: string
           pinned?: boolean
           title?: string
@@ -122,6 +153,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          deleted_at: string | null
           display_name: string | null
           id: string
           updated_at: string
@@ -130,6 +162,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          deleted_at?: string | null
           display_name?: string | null
           id: string
           updated_at?: string
@@ -138,6 +171,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          deleted_at?: string | null
           display_name?: string | null
           id?: string
           updated_at?: string
@@ -147,6 +181,7 @@ export type Database = {
       trade_requests: {
         Row: {
           created_at: string
+          deleted_at: string | null
           id: string
           message: string | null
           owner_jersey_id: string
@@ -156,6 +191,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           message?: string | null
           owner_jersey_id: string
@@ -165,6 +201,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
           id?: string
           message?: string | null
           owner_jersey_id?: string
@@ -194,45 +231,57 @@ export type Database = {
           available_for_trade: boolean
           condition: number
           created_at: string
+          deleted_at: string | null
           id: string
           image_url: string | null
           league: string
           name: string
-          price_estimate: number | null
+          price_cents: number | null
           size: string
           team: string
           updated_at: string
           user_id: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+          verified_at: string | null
+          verified_by: string | null
           year: string
         }
         Insert: {
           available_for_trade?: boolean
           condition?: number
           created_at?: string
+          deleted_at?: string | null
           id?: string
           image_url?: string | null
           league?: string
           name: string
-          price_estimate?: number | null
+          price_cents?: number | null
           size?: string
           team: string
           updated_at?: string
           user_id: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
           year?: string
         }
         Update: {
           available_for_trade?: boolean
           condition?: number
           created_at?: string
+          deleted_at?: string | null
           id?: string
           image_url?: string | null
           league?: string
           name?: string
-          price_estimate?: number | null
+          price_cents?: number | null
           size?: string
           team?: string
           updated_at?: string
           user_id?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
           year?: string
         }
         Relationships: []
@@ -246,6 +295,7 @@ export type Database = {
     }
     Enums: {
       trade_status: "pending" | "accepted" | "declined" | "completed"
+      verification_status: "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -371,9 +421,13 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       trade_status: ["pending", "accepted", "declined", "completed"],
+      verification_status: ["pending", "verified", "rejected"],
     },
   },
 } as const

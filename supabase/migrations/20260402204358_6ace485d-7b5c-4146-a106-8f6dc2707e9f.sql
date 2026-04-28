@@ -1,4 +1,3 @@
-
 -- Profiles table
 CREATE TABLE public.profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -6,8 +5,12 @@ CREATE TABLE public.profiles (
   avatar_url text,
   bio text,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz NULL
 );
+
+-- Verification status enum for jersey authenticity
+CREATE TYPE public.verification_status AS ENUM ('pending', 'verified', 'rejected');
 
 -- User jerseys table
 CREATE TABLE public.user_jerseys (
@@ -20,10 +23,14 @@ CREATE TABLE public.user_jerseys (
   condition smallint NOT NULL DEFAULT 3 CHECK (condition BETWEEN 1 AND 5),
   size text NOT NULL DEFAULT 'M',
   image_url text,
-  price_estimate numeric,
+  price_cents integer,
   available_for_trade boolean NOT NULL DEFAULT false,
+  verification_status public.verification_status NOT NULL DEFAULT 'pending',
+  verified_at timestamptz NULL,
+  verified_by uuid REFERENCES auth.users(id) NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz NULL
 );
 
 -- Trade requests table
@@ -37,6 +44,7 @@ CREATE TABLE public.trade_requests (
   message text,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz NULL,
   CONSTRAINT different_jerseys CHECK (requester_jersey_id != owner_jersey_id)
 );
 

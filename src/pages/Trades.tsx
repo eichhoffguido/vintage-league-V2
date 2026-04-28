@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { formatEuros } from "@/utils/currency";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -86,6 +87,9 @@ const Trades = () => {
             <p className="font-display text-sm font-semibold">{reqJersey?.team}</p>
             <p className="text-xs text-muted-foreground">{reqJersey?.name}</p>
             <p className="text-[10px] text-muted-foreground">{reqJersey?.size} · {reqJersey?.condition}/5</p>
+            {reqJersey?.price_cents && (
+              <p className="mt-1 text-xs font-semibold text-primary">≈ {formatEuros(reqJersey.price_cents)}</p>
+            )}
           </div>
 
           <ArrowLeftRight className="h-5 w-5 shrink-0 text-primary" />
@@ -98,6 +102,9 @@ const Trades = () => {
             <p className="font-display text-sm font-semibold">{ownJersey?.team}</p>
             <p className="text-xs text-muted-foreground">{ownJersey?.name}</p>
             <p className="text-[10px] text-muted-foreground">{ownJersey?.size} · {ownJersey?.condition}/5</p>
+            {ownJersey?.price_cents && (
+              <p className="mt-1 text-xs font-semibold text-primary">≈ {formatEuros(ownJersey.price_cents)}</p>
+            )}
           </div>
         </div>
 
