@@ -39,6 +39,9 @@ const Header = () => {
             </Link>
             {user && (
               <>
+                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                  Profil
+                </Link>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
                   Sammlung
                 </Link>
@@ -55,8 +58,12 @@ const Header = () => {
             </Button>
             {user ? (
               <>
-                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/collection")}>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/profile")}>
                   <User className="mr-2 h-4 w-4" />
+                  Profil
+                </Button>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/collection")}>
+                  <ShoppingBag className="mr-2 h-4 w-4" />
                   Sammlung
                 </Button>
                 <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={async () => { await signOut(); navigate("/"); }}>
@@ -103,6 +110,7 @@ const Header = () => {
             <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Community</Link>
             {user && (
               <>
+                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Profil</Link>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
                 <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tausch-Anfragen</Link>
               </>
