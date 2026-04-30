@@ -466,3 +466,16 @@ The CTO only contacts Guido in two situations:
 
 The CTO never asks Guido for permission to delegate to team members.
 The CTO never waits for Guido between internal team steps.
+clear
+cat >> /home/opencode/projects/vintage-league-V2/CLAUDE.md << 'EOF'
+
+---
+
+## Critical Rule for All Agents
+
+After completing any assigned task or subtask:
+1. Post your completion report as a comment on the issue
+2. Immediately mark the issue status as DONE
+3. Do not wait — closing the issue is what signals the CTO to proceed
+
+This applies to: Frontend Engineer, Supabase Backend Engineer, QA Engineer.
