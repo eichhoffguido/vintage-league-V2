@@ -13,8 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeftRight, Send } from "lucide-react";
+import { ArrowLeftRight, Send, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
 const conditionLabels: Record<number, string> = {
   5: "Neuwertig", 4: "Sehr gut", 3: "Gut erhalten", 2: "Gebraucht", 1: "Sammlerstück",
@@ -95,7 +96,11 @@ const Trade = () => {
         </div>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Lade verfügbare Trikots...</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <JerseyCardSkeleton key={i} />
+            ))}
+          </div>
         ) : availableJerseys.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <ArrowLeftRight className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
@@ -160,18 +165,32 @@ const Trade = () => {
 
               <div className="space-y-2">
                 <Label>Dein Trikot zum Tauschen *</Label>
-                <Select value={myOfferJerseyId} onValueChange={setMyOfferJerseyId}>
-                  <SelectTrigger><SelectValue placeholder="Wähle ein Trikot aus deiner Sammlung" /></SelectTrigger>
-                  <SelectContent>
-                    {myJerseys.map((j) => (
-                      <SelectItem key={j.id} value={j.id}>
-                        {j.team} — {j.name} ({j.size}, {j.condition}/5)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {myJerseys.length === 0 && (
-                  <p className="text-xs text-destructive">Du hast noch keine Trikots in deiner Sammlung.</p>
+                {myJerseys.length === 0 ? (
+                  <div className="rounded-sm border border-dashed border-border bg-secondary/30 p-4 text-center">
+                    <p className="text-sm text-muted-foreground mb-3">Du hast noch keine Trikots in deiner Sammlung.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedJersey(null);
+                        navigate("/collection");
+                      }}
+                      className="w-full"
+                    >
+                      <ArrowRight className="mr-2 h-4 w-4" /> Zur Sammlung
+                    </Button>
+                  </div>
+                ) : (
+                  <Select value={myOfferJerseyId} onValueChange={setMyOfferJerseyId}>
+                    <SelectTrigger><SelectValue placeholder="Wähle ein Trikot aus deiner Sammlung" /></SelectTrigger>
+                    <SelectContent>
+                      {myJerseys.map((j) => (
+                        <SelectItem key={j.id} value={j.id}>
+                          {j.team} — {j.name} ({j.size}, {j.condition}/5)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
 

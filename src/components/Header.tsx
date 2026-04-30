@@ -1,13 +1,16 @@
 import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { usePendingTradeCount } from "@/hooks/usePendingTradeCount";
 import vlLogo from "@/assets/vl-logo.png";
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const pendingTradeCount = usePendingTradeCount();
 
   return (
     <header className="sticky top-0 z-50">
@@ -45,8 +48,13 @@ const Header = () => {
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
                   Sammlung
                 </Link>
-                <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                <Link to="/trades" className="relative text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
                   Tausch-Anfragen
+                  {pendingTradeCount > 0 && (
+                    <Badge variant="destructive" className="absolute -right-6 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                      {pendingTradeCount}
+                    </Badge>
+                  )}
                 </Link>
               </>
             )}
@@ -112,7 +120,14 @@ const Header = () => {
               <>
                 <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Profil</Link>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
-                <Link to="/trades" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tausch-Anfragen</Link>
+                <Link to="/trades" className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  Tausch-Anfragen
+                  {pendingTradeCount > 0 && (
+                    <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                      {pendingTradeCount}
+                    </Badge>
+                  )}
+                </Link>
               </>
             )}
             <div className="vintage-divider my-2" />
