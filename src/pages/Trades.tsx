@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Check, X, ArrowLeftRight, ArrowRight } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "Ausstehend", variant: "outline" },
@@ -22,6 +22,7 @@ const Trades = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -61,8 +62,16 @@ const Trades = () => {
 
   if (authLoading) return null;
 
-  const incomingTrades = trades.filter((t: any) => (t.owner_jersey as any)?.user_id === user?.id);
-  const outgoingTrades = trades.filter((t: any) => (t.requester_jersey as any)?.user_id === user?.id);
+  const filterTrades = (trades: any[]) => {
+    let filtered = trades;
+    if (selectedStatusFilter) {
+      filtered = filtered.filter((t: any) => t.status === selectedStatusFilter);
+    }
+    return filtered;
+  };
+
+  const incomingTrades = filterTrades(trades.filter((t: any) => (t.owner_jersey as any)?.user_id === user?.id));
+  const outgoingTrades = filterTrades(trades.filter((t: any) => (t.requester_jersey as any)?.user_id === user?.id));
 
   const TradeCard = ({ trade, isIncoming }: { trade: any; isIncoming: boolean }) => {
     const reqJersey = trade.requester_jersey;
@@ -144,7 +153,30 @@ const Trades = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-12">
-        <h1 className="mb-8 font-display text-4xl font-bold">Meine Tausch-Anfragen</h1>
+        <div className="mb-8">
+          <h1 className="font-display text-4xl font-bold">Meine Tausch-Anfragen</h1>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button
+              variant={selectedStatusFilter === null ? "hero" : "outline"}
+              size="sm"
+              onClick={() => setSelectedStatusFilter(null)}
+              className="uppercase tracking-wider"
+            >
+              Alle
+            </Button>
+            {Object.entries(statusLabels).map(([status, { label }]) => (
+              <Button
+                key={status}
+                variant={selectedStatusFilter === status ? "hero" : "outline"}
+                size="sm"
+                onClick={() => setSelectedStatusFilter(status)}
+                className="uppercase tracking-wider"
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
 
         {isLoading ? (
           <p className="text-muted-foreground">Lade Anfragen...</p>
