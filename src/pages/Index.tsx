@@ -302,32 +302,44 @@ const Index = () => {
           <p className="mx-auto mt-4 max-w-lg text-center font-serif italic text-muted-foreground">
             Präsentiere deine Raritäten einer leidenschaftlichen Community — in einem Umfeld, das Qualität und Authentizität in den Mittelpunkt stellt.
           </p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {[
-              {
-                icon: <Award className="h-6 w-6" />,
-                title: "Reichweite & Community",
-                desc: "Erreiche tausende verifizierte Sammler und Liebhaber, die echtes Interesse an deinen Stücken haben.",
-              },
-              {
-                icon: <ShieldCheck className="h-6 w-6" />,
-                title: "Zertifizierung & Vertrauen",
-                desc: "Professionelle Echtheitsverifikation und ein verifiziertes Händler-Siegel stärken das Vertrauen deiner Käufer.",
-              },
-              {
-                icon: <TrendingUp className="h-6 w-6" />,
-                title: "Präsentation & Tools",
-                desc: "Hochwertige Produktpräsentation, Händler-Dashboard und detaillierte Verkaufsstatistiken für deinen Erfolg.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  {item.icon}
+          <div className="mt-10 grid gap-8 md:grid-cols-2 md:items-start">
+            {/* Jersey Image */}
+            <div className="hidden md:flex items-center justify-center">
+              <img
+                src={jersey4}
+                alt="Jersey showcase"
+                className="h-80 w-auto rounded-lg object-cover shadow-lg"
+              />
+            </div>
+
+            {/* Feature Cards */}
+            <div className="grid gap-6 md:grid-cols-1">
+              {[
+                {
+                  icon: <Award className="h-6 w-6" />,
+                  title: "Reichweite & Community",
+                  desc: "Erreiche tausende verifizierte Sammler und Liebhaber, die echtes Interesse an deinen Stücken haben.",
+                },
+                {
+                  icon: <ShieldCheck className="h-6 w-6" />,
+                  title: "Zertifizierung & Vertrauen",
+                  desc: "Professionelle Echtheitsverifikation und ein verifiziertes Händler-Siegel stärken das Vertrauen deiner Käufer.",
+                },
+                {
+                  icon: <TrendingUp className="h-6 w-6" />,
+                  title: "Präsentation & Tools",
+                  desc: "Hochwertige Produktpräsentation, Händler-Dashboard und detaillierte Verkaufsstatistiken für deinen Erfolg.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30 md:text-left">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary md:mx-0">
+                    {item.icon}
+                  </div>
+                  <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
                 </div>
-                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
           <div className="mt-8 flex justify-center gap-4">
             <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/auth"}>
@@ -357,6 +369,21 @@ const Index = () => {
             Der klassische Trikottausch — digital. Finde Sammler mit den Raritäten, die dir fehlen,
             und biete deine eigenen Schätze zum Tausch an.
           </p>
+          {/* Jersey Images with Glow */}
+          <div className="mt-8 flex justify-center gap-4">
+            <img
+              src={jersey2}
+              alt="Jersey trading showcase"
+              className="h-48 w-auto rounded-lg border border-primary/30 object-cover shadow-lg"
+              style={{ boxShadow: "0 0 30px hsl(142 72% 40% / 0.2)" }}
+            />
+            <img
+              src={jersey3}
+              alt="Jersey trading showcase"
+              className="h-48 w-auto rounded-lg border border-primary/30 object-cover shadow-lg"
+              style={{ boxShadow: "0 0 30px hsl(142 72% 40% / 0.2)" }}
+            />
+          </div>
           <div className="mt-8 flex justify-center gap-4">
             <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/trade"}>
               <ArrowLeftRight className="mr-2 h-5 w-5" />
@@ -372,37 +399,50 @@ const Index = () => {
       {/* Community CTA */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="mb-2 flex items-center justify-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            <span className="font-display text-xs tracking-[0.2em] text-primary">COMMUNITY</span>
-          </div>
-          <h2 className="text-center font-display text-3xl font-bold md:text-5xl">
-            Wissen teilen,{" "}
-            <span className="text-gradient">voneinander lernen</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-center font-serif italic text-muted-foreground">
-            Restaurierung, Pflege, Echtheitsprüfung — unsere Community teilt ihr Expertenwissen rund um Vintage Trikots.
-          </p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {[
-              { icon: <Wrench className="h-6 w-6" />, title: "Restaurierung", desc: "Anleitungen und Tipps zur fachgerechten Restaurierung von Vintage Trikots." },
-              { icon: <ShieldCheck className="h-6 w-6" />, title: "Echtheitsprüfung", desc: "Lerne, Originale von Fälschungen zu unterscheiden — mit Experten-Tipps." },
-              { icon: <BookOpen className="h-6 w-6" />, title: "Pflege & Lagerung", desc: "So bewahrst du deine Sammlerstücke für die Ewigkeit auf." },
-            ].map((item) => (
-              <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  {item.icon}
-                </div>
-                <h3 className="font-display text-lg font-semibold">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <div className="mb-2 flex items-center gap-2 md:justify-start">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <span className="font-display text-xs tracking-[0.2em] text-primary">COMMUNITY</span>
               </div>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/community"}>
-              <MessageSquare className="mr-2 h-5 w-5" />
-              Community entdecken
-            </Button>
+              <h2 className="font-display text-3xl font-bold md:text-5xl md:text-left">
+                Wissen teilen,{" "}
+                <span className="text-gradient">voneinander lernen</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-lg font-serif italic text-muted-foreground md:mx-0 md:text-left">
+                Restaurierung, Pflege, Echtheitsprüfung — unsere Community teilt ihr Expertenwissen rund um Vintage Trikots.
+              </p>
+              <div className="mt-10 grid gap-6 md:grid-cols-1">
+                {[
+                  { icon: <Wrench className="h-6 w-6" />, title: "Restaurierung", desc: "Anleitungen und Tipps zur fachgerechten Restaurierung von Vintage Trikots." },
+                  { icon: <ShieldCheck className="h-6 w-6" />, title: "Echtheitsprüfung", desc: "Lerne, Originale von Fälschungen zu unterscheiden — mit Experten-Tipps." },
+                  { icon: <BookOpen className="h-6 w-6" />, title: "Pflege & Lagerung", desc: "So bewahrst du deine Sammlerstücke für die Ewigkeit auf." },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-sm border border-border bg-card p-6 text-center transition-colors hover:border-primary/30 md:text-left">
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary md:mx-0">
+                      {item.icon}
+                    </div>
+                    <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 text-center md:text-left">
+                <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/community"}>
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Community entdecken
+                </Button>
+              </div>
+            </div>
+
+            {/* Jersey Image Panel - Hidden on Mobile */}
+            <div className="hidden md:flex items-center justify-center">
+              <img
+                src={jersey7}
+                alt="Community jersey showcase"
+                className="h-full w-auto rounded-lg object-cover shadow-lg"
+              />
+            </div>
           </div>
         </div>
       </section>

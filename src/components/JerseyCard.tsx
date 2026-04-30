@@ -43,13 +43,13 @@ const getVintageBonus = (year: string): number => {
 
 const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal: number) => {
   const range = maxVal - minVal;
-  if (range === 0) return { label: "Fairer Preis", color: "text-yellow-500", bg: "bg-yellow-500" };
-  
-  
+  if (range === 0) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
+
+
 
   if (price <= fairVal * 0.85) return { label: "Schnäppchen 🔥", color: "text-primary", bg: "bg-primary" };
   if (price <= fairVal * 1.05) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
-  if (price <= fairVal * 1.2) return { label: "Über Marktwert", color: "text-yellow-500", bg: "bg-yellow-500" };
+  if (price <= fairVal * 1.2) return { label: "Über Marktwert", color: "text-green-500", bg: "bg-green-500" };
   return { label: "Premium-Preis", color: "text-orange-400", bg: "bg-orange-400" };
 };
 
