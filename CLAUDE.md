@@ -498,3 +498,19 @@ To create a PR from command line:
 gh pr create --title "feat(TASKID): description" --body "Changes made" --base main --head feature/TASKID-description
 
 If gh is not available, report the branch name to CTO and ask CTO to notify Guido.
+
+---
+
+## Issue Status Rule — CRITICAL for all agents
+
+When you finish your work on a task:
+1. Post your completion report as a comment
+2. Mark the issue as DONE immediately — do not wait for anyone
+3. The CTO will pick up from there
+
+You do NOT need Guido's approval to mark an issue as done.
+You do NOT need anyone's approval to mark an issue as done.
+Marking done = "my work is finished, CTO take over".
+It does NOT mean "approved for production" or "merged".
+
+This applies to ALL agents: Frontend Engineer, Backend Engineer, QA Engineer.
