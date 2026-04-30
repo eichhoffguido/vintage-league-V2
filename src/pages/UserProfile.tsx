@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2, Loader2 } from "lucide-react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
 const conditionLabels: Record<number, string> = {
@@ -30,9 +30,11 @@ const UserProfile = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [editMode, setEditMode] = useState(false);
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [profileForm, setProfileForm] = useState({
     display_name: "",
     bio: "",
@@ -71,6 +73,52 @@ const UserProfile = () => {
       return data;
     },
     enabled: !!user,
+  });
+
+  // Upload avatar
+  const uploadAvatar = useMutation({
+    mutationFn: async (file: File) => {
+      // Validate file type
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error("Nur JPG, PNG und WebP sind erlaubt");
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error("Datei muss kleiner als 2MB sein");
+      }
+
+      // Upload to Supabase Storage
+      const filePath = `${user!.id}/avatar.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: data.publicUrl })
+        .eq("id", user!.id);
+
+      if (updateError) throw updateError;
+
+      return data.publicUrl;
+    },
+    onSuccess: (avatarUrl) => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      setProfileForm(f => ({ ...f, avatar_url: avatarUrl }));
+      setAvatarPreview(null);
+      toast.success("Avatar hochgeladen!");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   // Update profile
@@ -116,6 +164,25 @@ const UserProfile = () => {
     }
   }, [profile]);
 
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setAvatarPreview(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload
+      uploadAvatar.mutate(file);
+    }
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   if (authLoading || profileLoading) return null;
 
   const totalValue = jerseys.reduce((sum, jersey) => sum + (jersey.price_cents || 0), 0);
@@ -160,6 +227,49 @@ const UserProfile = () => {
           {editMode && (
             <div className="mt-8 space-y-4 border-t border-border pt-8">
               <div className="space-y-2">
+                <Label>Profilbild</Label>
+                <div className="flex items-end gap-4">
+                  <Avatar className="h-24 w-24 rounded-sm">
+                    {avatarPreview || profileForm.avatar_url ? (
+                      <AvatarImage src={avatarPreview || profileForm.avatar_url} />
+                    ) : null}
+                    <AvatarFallback className="rounded-sm bg-secondary text-lg font-bold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleAvatarSelect}
+                      className="hidden"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadAvatar.isPending}
+                    >
+                      {uploadAvatar.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Wird hochgeladen...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Ändern
+                        </>
+                      )}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      JPG, PNG oder WebP • Max. 2MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2">
                 <Label>Anzeigename</Label>
                 <Input
                   value={profileForm.display_name}
@@ -182,15 +292,18 @@ const UserProfile = () => {
                 <Button
                   variant="hero"
                   onClick={() => updateProfile.mutate()}
-                  disabled={updateProfile.isPending}
+                  disabled={updateProfile.isPending || uploadAvatar.isPending}
                   className="uppercase tracking-wider"
                 >
                   {updateProfile.isPending ? "Wird gespeichert..." : "Speichern"}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setEditMode(false)}
-                  disabled={updateProfile.isPending}
+                  onClick={() => {
+                    setEditMode(false);
+                    setAvatarPreview(null);
+                  }}
+                  disabled={updateProfile.isPending || uploadAvatar.isPending}
                 >
                   Abbrechen
                 </Button>
