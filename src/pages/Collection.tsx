@@ -248,16 +248,16 @@ const Collection = () => {
             ))}
           </div>
         ) : jerseys.length === 0 ? (
-          <div className="py-16 text-center">
-            <Shirt className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
-            <p className="font-display text-2xl font-semibold">Deine Sammlung ist noch leer</p>
-            <p className="mt-2 text-muted-foreground">Füge dein erstes Trikot hinzu und starte mit dem Tauschen und Sammeln!</p>
+          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+            <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
+            <p className="font-display text-xl text-muted-foreground">Noch keine Trikots in deiner Sammlung</p>
+            <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte deine Kollektion.</p>
             <Button
               variant="hero"
-              className="mt-6 uppercase tracking-wider"
+              className="mt-4 uppercase tracking-wider"
               onClick={() => setDialogOpen(true)}
             >
-              <Plus className="mr-2 h-4 w-4" /> Erstes Trikot hinzufügen
+              <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
             </Button>
           </div>
         ) : (
