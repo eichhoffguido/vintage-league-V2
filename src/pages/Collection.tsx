@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
@@ -44,7 +44,7 @@ const Collection = () => {
     if (!authLoading && !user) navigate("/auth");
   }, [authLoading, user, navigate]);
 
-  const { data: jerseys = [], isLoading } = useQuery({
+  const { data: jerseys = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-jerseys", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -246,6 +246,19 @@ const Collection = () => {
             {Array.from({ length: 8 }).map((_, i) => (
               <JerseyCardSkeleton key={i} />
             ))}
+          </div>
+        ) : isError ? (
+          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive/30" />
+            <p className="font-display text-xl text-muted-foreground">Fehler beim Laden deiner Sammlung</p>
+            <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Bitte versuche es später erneut"}</p>
+            <Button
+              variant="hero"
+              className="mt-4 uppercase tracking-wider"
+              onClick={() => refetch()}
+            >
+              Erneut versuchen
+            </Button>
           </div>
         ) : jerseys.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
