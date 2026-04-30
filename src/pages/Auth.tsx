@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Chrome } from "lucide-react";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,7 +15,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +44,15 @@ const Auth = () => {
       }
     }
     setLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      toast.error(error.message || "Google-Login fehlgeschlagen");
+      setLoading(false);
+    }
   };
 
   return (
@@ -118,6 +127,26 @@ const Auth = () => {
             <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={loading}>
               {loading ? "Laden..." : isLogin ? "Anmelden" : "Registrieren"}
               <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-card px-2 text-muted-foreground">oder</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+            >
+              <Chrome className="mr-2 h-4 w-4" />
+              Mit Google anmelden
             </Button>
 
             <div className="text-center">
