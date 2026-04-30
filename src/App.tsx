@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Collection from "./pages/Collection.tsx";
+import UserProfile from "./pages/UserProfile.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/collection" element={<Collection />} />
+            <Route path="/profile" element={<UserProfile />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />
