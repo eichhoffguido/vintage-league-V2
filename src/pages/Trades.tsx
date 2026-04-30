@@ -48,6 +48,27 @@ const Trades = () => {
 
   const updateTrade = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: "pending" | "accepted" | "declined" | "completed" }) => {
+      // If accepting a trade, deactivate both jerseys
+      if (status === "accepted") {
+        // Fetch the trade to get the jersey IDs
+        const { data: trade, error: fetchError } = await supabase
+          .from("trade_requests")
+          .select("requester_jersey_id, owner_jersey_id")
+          .eq("id", id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Deactivate both jerseys
+        const { error: updateError } = await supabase
+          .from("user_jerseys")
+          .update({ available_for_trade: false })
+          .in("id", [trade.requester_jersey_id, trade.owner_jersey_id]);
+
+        if (updateError) throw updateError;
+      }
+
+      // Update trade status
       const { error } = await supabase
         .from("trade_requests")
         .update({ status })
@@ -56,6 +77,9 @@ const Trades = () => {
     },
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["trade-requests"] });
+      if (status === "accepted") {
+        queryClient.invalidateQueries({ queryKey: ["trade-jerseys"] });
+      }
       toast.success(status === "accepted" ? "Tausch angenommen!" : "Tausch abgelehnt");
     },
     onError: (e: any) => toast.error(e.message),
