@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Check, X, ArrowLeftRight, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   pending: { label: "Ausstehend", variant: "outline" },
@@ -179,7 +180,29 @@ const Trades = () => {
         </div>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Lade Anfragen...</p>
+          <div className="grid gap-8 lg:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-sm border border-border bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-sm border border-border bg-secondary/50 p-3 space-y-2">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                  <div className="w-5 shrink-0" />
+                  <div className="flex-1 rounded-sm border border-border bg-secondary/50 p-3 space-y-2">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : trades.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <ArrowLeftRight className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
