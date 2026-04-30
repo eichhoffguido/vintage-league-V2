@@ -479,3 +479,22 @@ After completing any assigned task or subtask:
 3. Do not wait — closing the issue is what signals the CTO to proceed
 
 This applies to: Frontend Engineer, Supabase Backend Engineer, QA Engineer.
+
+---
+
+## CRITICAL: Branch Protection Rule
+
+NEVER push directly to main. This is an absolute rule with no exceptions.
+
+Every change must follow this exact flow:
+1. git checkout -b feature/TASKID-description
+2. Make changes
+3. git push origin feature/TASKID-description (NOT main)
+4. Create a PR: gh pr create --title "feat(TASKID): description" --body "Summary" --base main
+5. Report branch name and PR URL to CTO
+6. STOP — never merge your own PR
+
+To create a PR from command line:
+gh pr create --title "feat(TASKID): description" --body "Changes made" --base main --head feature/TASKID-description
+
+If gh is not available, report the branch name to CTO and ask CTO to notify Guido.
