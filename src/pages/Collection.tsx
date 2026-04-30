@@ -3,6 +3,7 @@ import { eurosToCents, formatEuros } from "@/utils/currency";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useJerseyImageUpload } from "@/hooks/useJerseyImageUpload";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X } from "lucide-react";
 import { useEffect } from "react";
 
 const conditionLabels: Record<number, string> = {
@@ -29,7 +30,10 @@ const Collection = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { upload: uploadImage, isUploading: isUploadingImage } = useJerseyImageUpload();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
@@ -55,6 +59,19 @@ const Collection = () => {
 
   const addJersey = useMutation({
     mutationFn: async () => {
+      let imageUrl: string | null = null;
+
+      // Upload image if selected
+      if (selectedFile && user) {
+        try {
+          const result = await uploadImage(selectedFile, user.id);
+          imageUrl = result.publicUrl;
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : "Image upload failed";
+          throw new Error(msg);
+        }
+      }
+
       const { error } = await supabase.from("user_jerseys").insert({
         user_id: user!.id,
         name: form.name.trim(),
@@ -63,7 +80,7 @@ const Collection = () => {
         year: form.year.trim(),
         condition: parseInt(form.condition),
         size: form.size,
-        image_url: form.image_url.trim() || null,
+        image_url: imageUrl || form.image_url.trim() || null,
         price_cents: eurosToCents(form.price_cents),
         available_for_trade: form.available_for_trade,
       });
@@ -73,6 +90,8 @@ const Collection = () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
       setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false });
+      setSelectedFile(null);
+      setImagePreview(null);
       toast.success("Trikot hinzugefügt!");
     },
     onError: (e: any) => toast.error(e.message),
@@ -108,7 +127,13 @@ const Collection = () => {
             <h1 className="font-display text-4xl font-bold">Meine Sammlung</h1>
             <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots in deiner Sammlung</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setSelectedFile(null);
+              setImagePreview(null);
+            }
+          }}>
             <DialogTrigger asChild>
               <Button variant="hero" className="uppercase tracking-wider">
                 <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
@@ -164,15 +189,51 @@ const Collection = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Bild-URL</Label>
-                  <Input placeholder="https://..." value={form.image_url} onChange={(e) => setForm(f => ({ ...f, image_url: e.target.value }))} maxLength={2000} />
+                  <Label>Bild</Label>
+                  {imagePreview ? (
+                    <div className="relative aspect-square overflow-hidden rounded-sm border border-border bg-secondary">
+                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedFile(null);
+                          setImagePreview(null);
+                        }}
+                        className="absolute right-2 top-2 rounded-full bg-background/80 p-1 hover:bg-background"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-border bg-secondary/50 px-4 py-8 hover:border-primary hover:bg-secondary/80 transition">
+                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <span className="text-sm font-medium">Bild hochladen</span>
+                      <span className="text-xs text-muted-foreground mt-1">JPG, PNG oder WebP (max. 5MB)</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setSelectedFile(file);
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setImagePreview(event.target?.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <Switch checked={form.available_for_trade} onCheckedChange={(v) => setForm(f => ({ ...f, available_for_trade: v }))} />
                   <Label>Zum Tausch verfügbar</Label>
                 </div>
-                <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending}>
-                  {addJersey.isPending ? "Wird hinzugefügt..." : "Trikot speichern"}
+                <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending || isUploadingImage}>
+                  {addJersey.isPending || isUploadingImage ? "Wird verarbeitet..." : "Trikot speichern"}
                 </Button>
               </form>
             </DialogContent>
