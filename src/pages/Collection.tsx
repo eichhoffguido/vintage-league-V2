@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeftRight } from "lucide-react";
 import { useEffect } from "react";
+import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
 const conditionLabels: Record<number, string> = {
   5: "Neuwertig",
@@ -180,7 +181,11 @@ const Collection = () => {
         </div>
 
         {isLoading ? (
-          <p className="text-muted-foreground">Lade Sammlung...</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <JerseyCardSkeleton key={i} />
+            ))}
+          </div>
         ) : jerseys.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <p className="font-display text-xl text-muted-foreground">Deine Sammlung ist noch leer</p>
