@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
@@ -249,8 +249,16 @@ const Collection = () => {
           </div>
         ) : jerseys.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <p className="font-display text-xl text-muted-foreground">Deine Sammlung ist noch leer</p>
-            <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte mit dem Tauschen!</p>
+            <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
+            <p className="font-display text-xl text-muted-foreground">Noch keine Trikots in deiner Sammlung</p>
+            <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte deine Kollektion.</p>
+            <Button
+              variant="hero"
+              className="mt-4 uppercase tracking-wider"
+              onClick={() => setDialogOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
+            </Button>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
