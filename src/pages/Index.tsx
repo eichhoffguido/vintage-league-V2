@@ -306,8 +306,8 @@ const Index = () => {
             {/* Jersey Image */}
             <div className="hidden md:flex items-center justify-center">
               <img
-                src={jersey4}
-                alt="Jersey showcase"
+                src="/images/mood-haendler.jpg"
+                alt="Händler mood image"
                 className="h-80 w-auto rounded-lg object-cover shadow-lg"
               />
             </div>
@@ -372,14 +372,8 @@ const Index = () => {
           {/* Jersey Images with Glow */}
           <div className="mt-8 flex justify-center gap-4">
             <img
-              src={jersey2}
-              alt="Jersey trading showcase"
-              className="h-48 w-auto rounded-lg border border-primary/30 object-cover shadow-lg"
-              style={{ boxShadow: "0 0 30px hsl(142 72% 40% / 0.2)" }}
-            />
-            <img
-              src={jersey3}
-              alt="Jersey trading showcase"
+              src="/images/mood-tausch.jpg"
+              alt="Trade mood image"
               className="h-48 w-auto rounded-lg border border-primary/30 object-cover shadow-lg"
               style={{ boxShadow: "0 0 30px hsl(142 72% 40% / 0.2)" }}
             />
@@ -438,8 +432,8 @@ const Index = () => {
             {/* Jersey Image Panel - Hidden on Mobile */}
             <div className="hidden md:flex items-center justify-center">
               <img
-                src={jersey7}
-                alt="Community jersey showcase"
+                src="/images/mood-community.jpg"
+                alt="Community mood image"
                 className="h-full w-auto rounded-lg object-cover shadow-lg"
               />
             </div>
