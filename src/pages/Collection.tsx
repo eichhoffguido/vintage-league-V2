@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle } from "lucide-react";
@@ -35,6 +36,8 @@ const Collection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedJersey, setSelectedJersey] = useState<any>(null);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
@@ -276,7 +279,14 @@ const Collection = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {jerseys.map((jersey) => (
-              <div key={jersey.id} className="overflow-hidden rounded-sm border border-border bg-card">
+              <div
+                key={jersey.id}
+                className="overflow-hidden rounded-sm border border-border bg-card cursor-pointer transition-shadow hover:shadow-md"
+                onClick={() => {
+                  setSelectedJersey(jersey);
+                  setDetailSheetOpen(true);
+                }}
+              >
                 {jersey.image_url ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
                     <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
@@ -300,7 +310,10 @@ const Collection = () => {
                     {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                    <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Switch
                         checked={jersey.available_for_trade}
                         onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
@@ -313,7 +326,15 @@ const Collection = () => {
                         ) : "Privat"}
                       </span>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => deleteJersey.mutate(jersey.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteJersey.mutate(jersey.id);
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -322,6 +343,74 @@ const Collection = () => {
             ))}
           </div>
         )}
+
+        {/* Jersey Detail Sheet */}
+        <Sheet open={detailSheetOpen} onOpenChange={setDetailSheetOpen}>
+          <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+            {selectedJersey && (
+              <>
+                <SheetHeader>
+                  <SheetTitle className="font-display text-2xl">{selectedJersey.team}</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6 space-y-6">
+                  {/* Jersey Image */}
+                  {selectedJersey.image_url ? (
+                    <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                      <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
+                      <span className="font-display text-6xl text-muted-foreground/30">{selectedJersey.team.charAt(0)}</span>
+                    </div>
+                  )}
+
+                  {/* Jersey Info */}
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Name</p>
+                      <p className="font-semibold">{selectedJersey.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Liga</p>
+                      <p className="font-semibold">{selectedJersey.league || "—"}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Jahr</p>
+                      <p className="font-semibold">{selectedJersey.year || "—"}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Größe</p>
+                        <p className="font-semibold">{selectedJersey.size}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Zustand</p>
+                        <p className="font-semibold">{selectedJersey.condition}/5</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Preis</p>
+                        <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3 border-t border-border pt-6">
+                    {selectedJersey.available_for_trade ? (
+                      <Badge variant="default" className="w-full justify-center py-2">
+                        <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
+                      </Badge>
+                    ) : (
+                      <Button variant="hero" className="w-full uppercase tracking-wider">
+                        Zum Tausch anbieten
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
       <Footer />
     </div>
