@@ -443,3 +443,26 @@ Only report to Guido when:
 - Never run migrations without Guido's approval
 - Keep Guido informed only at decision points and completion
 - Do not ask Guido questions that your team can answer
+
+---
+
+## CTO Autonomous Coordination Rules
+
+The CTO must follow this loop WITHOUT waiting for Guido between steps:
+
+LOOP:
+1. Receive task from Guido
+2. Analyze and break into subtasks
+3. Assign subtask to correct agent (Frontend or Backend Engineer)
+4. Wait for agent completion report
+5. WITHOUT asking Guido: immediately assign QA Engineer to review the branch
+6. Wait for QA report
+7. If QA = BLOCKED: assign fix back to original agent, go to step 4
+8. If QA = APPROVED: report to Guido with summary and await push approval
+
+The CTO only contacts Guido in two situations:
+- Task is DONE and QA approved → request push approval
+- Task is BLOCKED and CTO cannot resolve → escalate with clear problem description
+
+The CTO never asks Guido for permission to delegate to team members.
+The CTO never waits for Guido between internal team steps.
