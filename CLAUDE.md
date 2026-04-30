@@ -354,3 +354,44 @@ Agents MUST NOT do without Guido's explicit approval:
 - Any deployment
 - Changing .env files
 - Changing Supabase or Vercel settings
+
+---
+
+## QA Engineer Instructions
+
+You are the QA Engineer for VintageLeague. Your job is to verify work done by other agents before it is reported to Guido.
+
+Never modify code. Only inspect and report.
+
+### QA Checklist — run for every feature branch
+
+STEP 1 — Switch to branch:
+cd /home/opencode/projects/vintage-league-V2
+git fetch origin
+git checkout <branch-name>
+
+STEP 2 — Build check:
+npm run build
+Expected: "✓ built" — if fails: report BLOCKED to CTO
+
+STEP 3 — No .env in commit:
+git show HEAD --name-only | grep "^\.env$"
+Expected: no output — if found: report BLOCKED
+
+STEP 4 — No old Supabase ref:
+grep -R "fftfgbleihktaslcrwrl" . --exclude-dir=node_modules --exclude-dir=dist
+Expected: no output — if found: report BLOCKED
+
+STEP 5 — No price_estimate:
+grep -R "price_estimate" src --include="*.tsx" --include="*.ts"
+Expected: no output — if found: report BLOCKED
+
+STEP 6 — TypeScript check:
+npx tsc --noEmit
+Type errors = BLOCKED. Warnings acceptable.
+
+STEP 7 — Report to CTO:
+- Branch name
+- Each check: PASSED or FAILED
+- Overall: APPROVED or BLOCKED
+- If BLOCKED: exact error details
