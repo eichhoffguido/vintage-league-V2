@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,6 +12,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -24,39 +26,38 @@ const iconMap: Record<string, React.ReactNode> = {
 const Community = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [categories, setCategories] = useState<Tables<"forum_categories">[]>([]);
-  const [posts, setPosts] = useState<(Tables<"forum_posts"> & { profiles?: Tables<"profiles"> | null; forum_categories?: Tables<"forum_categories"> | null; comment_count?: number })[]>([]);
+  const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "" });
-  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchCategories();
-    fetchPosts();
-  }, [activeCategory]);
+  const { data: categories = [] } = useQuery({
+    queryKey: ["forum-categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("forum_categories").select("*").order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  const fetchCategories = async () => {
-    const { data } = await supabase.from("forum_categories").select("*").order("sort_order");
-    if (data) setCategories(data);
-  };
+  const { data: posts = [], isLoading } = useQuery({
+    queryKey: ["forum-posts", activeCategory],
+    queryFn: async () => {
+      let query = supabase
+        .from("forum_posts")
+        .select("*, forum_categories(*)")
+        .order("pinned", { ascending: false })
+        .order("created_at", { ascending: false });
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    let query = supabase
-      .from("forum_posts")
-      .select("*, forum_categories(*)")
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false });
+      if (activeCategory !== "all") {
+        query = query.eq("category_id", activeCategory);
+      }
 
-    if (activeCategory !== "all") {
-      query = query.eq("category_id", activeCategory);
-    }
+      const { data, error } = await query;
+      if (error) throw error;
 
-    const { data } = await query;
-    if (data) {
+      if (!data) return [];
+
       // Fetch profiles and comment counts
       const userIds = [...new Set(data.map((p) => p.user_id))];
       const postIds = data.map((p) => p.id);
@@ -72,33 +73,38 @@ const Community = () => {
       const countMap: Record<string, number> = {};
       comments?.forEach((c) => { countMap[c.post_id] = (countMap[c.post_id] || 0) + 1; });
 
-      setPosts(data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 })));
-    }
-    setLoading(false);
-  };
+      return data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 }));
+    },
+  });
 
-  const handleCreatePost = async () => {
-    if (!user) { navigate("/auth"); return; }
-    if (!newPost.title.trim() || !newPost.content.trim() || !newPost.category_id) {
-      toast({ title: "Bitte alle Felder ausfüllen", variant: "destructive" });
-      return;
-    }
-    setSubmitting(true);
-    const { error } = await supabase.from("forum_posts").insert({
-      title: newPost.title.trim(),
-      content: newPost.content.trim(),
-      category_id: newPost.category_id,
-      user_id: user.id,
-    });
-    setSubmitting(false);
-    if (error) {
-      toast({ title: "Fehler beim Erstellen", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Beitrag erstellt!" });
+  const createPostMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Not authenticated");
+      if (!newPost.title.trim() || !newPost.content.trim() || !newPost.category_id) {
+        throw new Error("Bitte alle Felder ausfüllen");
+      }
+      const { error } = await supabase.from("forum_posts").insert({
+        title: newPost.title.trim(),
+        content: newPost.content.trim(),
+        category_id: newPost.category_id,
+        user_id: user.id,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Beitrag erstellt!");
       setNewPost({ title: "", content: "", category_id: "" });
       setDialogOpen(false);
-      fetchPosts();
-    }
+      queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Erstellen");
+    },
+  });
+
+  const handleCreatePost = () => {
+    if (!user) { navigate("/auth"); return; }
+    createPostMutation.mutate();
   };
 
   const formatDate = (dateStr: string) => {
@@ -145,8 +151,8 @@ const Community = () => {
                     </Select>
                     <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
                     <Textarea placeholder="Dein Beitrag..." value={newPost.content} onChange={(e) => setNewPost((p) => ({ ...p, content: e.target.value }))} rows={6} maxLength={5000} />
-                    <Button onClick={handleCreatePost} disabled={submitting} className="w-full uppercase tracking-wider">
-                      {submitting ? "Wird erstellt..." : "Veröffentlichen"}
+                    <Button onClick={handleCreatePost} disabled={createPostMutation.isPending} className="w-full uppercase tracking-wider">
+                      {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
                     </Button>
                   </div>
                 </DialogContent>
@@ -184,7 +190,7 @@ const Community = () => {
           </div>
 
           {/* Posts list */}
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-24 animate-pulse rounded-sm border border-border bg-secondary/30" />
