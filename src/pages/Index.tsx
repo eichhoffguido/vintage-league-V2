@@ -255,7 +255,7 @@ const Index = () => {
                 <div className="h-px w-6 bg-primary/50" />
                 <span className="font-display text-xs tracking-[0.2em] text-primary">NEUESTE FUNDSTÜCKE</span>
               </div>
-              <h2 className="font-display text-3xl font-bold md:text-4xl">
+              <h2 className="font-display text-3xl font-bold md:text-5xl">
                 Aktuelle <span className="text-gradient">Kollektion</span>
               </h2>
               <p className="mt-2 font-serif italic text-muted-foreground">
@@ -335,7 +335,7 @@ const Index = () => {
                   <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary md:mx-0">
                     {item.icon}
                   </div>
-                  <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                  <h3 className="font-display text-xl font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
                 </div>
               ))}
@@ -416,7 +416,7 @@ const Index = () => {
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary md:mx-0">
                       {item.icon}
                     </div>
-                    <h3 className="font-display text-lg font-semibold">{item.title}</h3>
+                    <h3 className="font-display text-xl font-semibold">{item.title}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
                   </div>
                 ))}

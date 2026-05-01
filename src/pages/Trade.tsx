@@ -91,7 +91,7 @@ const Trade = () => {
       <Header />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
-          <h1 className="font-display text-4xl font-bold">Tauschbörse</h1>
+          <h1 className="font-display text-5xl font-bold md:text-7xl">Tauschbörse</h1>
           <p className="mt-1 text-muted-foreground">Finde Trikots anderer Sammler und schlage einen Tausch vor</p>
         </div>
 
@@ -122,7 +122,7 @@ const Trade = () => {
                 )}
                 <div className="p-4">
                   <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                  <h3 className="font-display text-lg font-semibold">{jersey.team}</h3>
+                  <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
                   <p className="text-sm text-muted-foreground">{jersey.name}</p>
                   <div className="mt-2 flex items-center gap-2">
                     <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>

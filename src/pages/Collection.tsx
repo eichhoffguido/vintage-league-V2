@@ -128,7 +128,7 @@ const Collection = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-4xl font-bold">Meine Sammlung</h1>
+            <h1 className="font-display text-5xl font-bold md:text-7xl">Meine Sammlung</h1>
             <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots in deiner Sammlung</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -300,7 +300,7 @@ const Collection = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-lg font-semibold">{jersey.team}</h3>
+                      <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
                       <p className="text-sm text-muted-foreground">{jersey.name}</p>
                     </div>
                     <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>

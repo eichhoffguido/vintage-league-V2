@@ -122,7 +122,7 @@ const Community = () => {
             <div className="h-px w-6 bg-primary/50" />
             <span className="font-display text-xs tracking-[0.2em] text-primary">COMMUNITY</span>
           </div>
-          <h1 className="font-display text-4xl font-bold md:text-5xl">
+          <h1 className="font-display text-5xl font-bold md:text-7xl">
             Wissen <span className="text-gradient">teilen</span>
           </h1>
           <p className="mt-3 max-w-lg font-serif italic text-muted-foreground">
@@ -222,7 +222,7 @@ const Community = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-display text-base font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="font-display text-xl font-semibold group-hover:text-primary transition-colors line-clamp-1">
                       {post.title}
                     </h3>
                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content}</p>
