@@ -300,7 +300,7 @@ const Collection = () => {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-lg font-semibold">{jersey.team}</h3>
+                      <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
                       <p className="text-sm text-muted-foreground">{jersey.name}</p>
                     </div>
                     <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
