@@ -14,8 +14,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2, CheckCircle2 } from "lucide-react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
 const conditionLabels: Record<number, string> = {
@@ -121,6 +122,16 @@ const UserProfile = () => {
   const totalValue = jerseys.reduce((sum, jersey) => sum + (jersey.price_cents || 0), 0);
   const initials = (profileForm.display_name || user?.email || "U").split(" ").map(n => n[0]).join("").toUpperCase();
 
+  // Calculate profile completion
+  const profileFields = [
+    { name: "Anzeigename", filled: !!profileForm.display_name },
+    { name: "Bio", filled: !!profileForm.bio },
+    { name: "Profilbild", filled: !!profileForm.avatar_url },
+  ];
+  const completedFields = profileFields.filter(f => f.filled).length;
+  const completionPercentage = (completedFields / profileFields.length) * 100;
+  const incompleteFields = profileFields.filter(f => !f.filled).map(f => f.name);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -135,7 +146,7 @@ const UserProfile = () => {
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-1">
                 <h1 className="font-display text-3xl font-bold">
                   {profileForm.display_name || user?.email?.split("@")[0] || "Benutzer"}
                 </h1>
@@ -143,6 +154,22 @@ const UserProfile = () => {
                   <p className="mt-2 max-w-md text-muted-foreground">{profileForm.bio}</p>
                 )}
                 <p className="mt-3 text-sm text-muted-foreground">{user?.email}</p>
+
+                {/* Profile Completion Indicator */}
+                <div className="mt-6 w-full max-w-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-muted-foreground">Profil {completionPercentage === 100 ? "vollständig" : "zu " + Math.round(completionPercentage) + "% fertig"}</span>
+                    {completionPercentage === 100 && (
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    )}
+                  </div>
+                  <Progress value={completionPercentage} className="h-2" />
+                  {incompleteFields.length > 0 && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Noch fehlend: {incompleteFields.join(", ")}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
             {!editMode ? (
