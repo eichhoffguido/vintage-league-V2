@@ -125,13 +125,14 @@ const UserProfile = () => {
 
   // Calculate profile completion
   const profileFields = [
-    { name: "Anzeigename", filled: !!profileForm.display_name },
-    { name: "Bio", filled: !!profileForm.bio },
-    { name: "Profilbild", filled: !!profileForm.avatar_url },
+    { name: "Anzeigename", filled: !!profileForm.display_name, nudge: "Füge deinen Anzeigenamen hinzu" },
+    { name: "Bio", filled: !!profileForm.bio, nudge: "Erzähl uns etwas über dich" },
+    { name: "Profilbild", filled: !!profileForm.avatar_url, nudge: "Lade ein Profilfoto hoch" },
+    { name: "Trikot", filled: jerseys.length > 0, nudge: "Füge dein erstes Trikot hinzu" },
   ];
   const completedFields = profileFields.filter(f => f.filled).length;
   const completionPercentage = (completedFields / profileFields.length) * 100;
-  const incompleteFields = profileFields.filter(f => !f.filled).map(f => f.name);
+  const incompleteFields = profileFields.filter(f => !f.filled);
 
   return (
     <div className="min-h-screen bg-background">
@@ -160,16 +161,22 @@ const UserProfile = () => {
                 {/* Profile Completion Indicator */}
                 <div className="mt-6 w-full max-w-md">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-muted-foreground">Profil {completionPercentage === 100 ? "vollständig" : "zu " + Math.round(completionPercentage) + "% fertig"}</span>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {completionPercentage === 100 ? "Dein Profil ist vollständig! 🎉" : "Profil zu " + Math.round(completionPercentage) + "% fertig"}
+                    </span>
                     {completionPercentage === 100 && (
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
                     )}
                   </div>
                   <Progress value={completionPercentage} className="h-2" />
                   {incompleteFields.length > 0 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Noch fehlend: {incompleteFields.join(", ")}
-                    </p>
+                    <div className="mt-2 space-y-1">
+                      {incompleteFields.map(field => (
+                        <p key={field.name} className="text-xs text-muted-foreground">
+                          {field.nudge}
+                        </p>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
