@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -177,6 +178,7 @@ const Trades = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="font-display text-4xl font-bold">Meine Tausch-Anfragen</h1>
