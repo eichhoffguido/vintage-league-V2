@@ -26,17 +26,7 @@ Open [https://console.cloud.google.com](https://console.cloud.google.com) and si
   - Click **Create** and wait for the project to be created (~10 seconds).
   - Then select the new project from the dropdown.
 
-### Step 1.3 — Enable the Google+ API (required for OAuth)
-
-1. In the left sidebar, go to **APIs & Services → Library**.
-2. Search for **"Google+ API"**.
-3. Click on **Google+ API** in the results.
-4. Click the blue **Enable** button.
-5. Wait for it to activate.
-
-> **Note:** Even though Google+ is deprecated, this API entry is still required for OAuth user profile access.
-
-### Step 1.4 — Configure the OAuth Consent Screen
+### Step 1.3 — Configure the OAuth Consent Screen
 
 Before creating credentials, you must set up the consent screen (what users see when they log in).
 
@@ -51,7 +41,7 @@ Before creating credentials, you must set up the consent screen (what users see 
 6. On the **Test users** screen, click **Save and Continue**.
 7. Review the summary and click **Back to Dashboard**.
 
-### Step 1.5 — Create OAuth 2.0 Credentials
+### Step 1.4 — Create OAuth 2.0 Credentials
 
 1. Go to **APIs & Services → Credentials**.
 2. Click **+ Create Credentials** at the top.
@@ -68,7 +58,7 @@ Before creating credentials, you must set up the consent screen (what users see 
 
 7. Click **Create**.
 
-### Step 1.6 — Copy your credentials
+### Step 1.5 — Copy your credentials
 
 A popup will appear showing:
 
@@ -108,7 +98,7 @@ Select the **VintageLeague** project:
    ```
    https://napzgxpxkoiujjqwtzvz.supabase.co/auth/v1/callback
    ```
-   This must match exactly what you entered in Google Cloud Console in Step 1.5.
+   This must match exactly what you entered in Google Cloud Console in Step 1.4.
 6. Click **Save**.
 
 Google OAuth is now active on your Supabase project.
@@ -118,11 +108,12 @@ Google OAuth is now active on your Supabase project.
 1. Still in **Authentication**, click **URL Configuration**.
 2. Check that **Site URL** is set to your production domain:
    ```
-   https://vintageleague.app
+   https://vintage-league-v2.vercel.app
    ```
+   > If you later set up a custom domain, update this to match.
 3. Under **Redirect URLs**, add if not already present:
    ```
-   https://vintageleague.app/**
+   https://vintage-league-v2.vercel.app/**
    ```
    This allows Supabase to redirect users back to your app after login.
 4. Click **Save**.
@@ -159,12 +150,11 @@ Supabase handles the OAuth exchange using the credentials you set in Part 2. You
 | Step | Action | Status |
 |---|---|---|
 | 1.2 | Google Cloud project created/selected | ☐ |
-| 1.3 | Google+ API enabled | ☐ |
-| 1.4 | OAuth consent screen configured | ☐ |
-| 1.5 | OAuth client ID created with correct redirect URI | ☐ |
-| 1.6 | Client ID and Client Secret copied | ☐ |
+| 1.3 | OAuth consent screen configured | ☐ |
+| 1.4 | OAuth client ID created with correct redirect URI | ☐ |
+| 1.5 | Client ID and Client Secret copied | ☐ |
 | 2.3 | Google provider enabled in Supabase | ☐ |
-| 2.4 | Site URL set to `https://vintageleague.app` | ☐ |
+| 2.4 | Site URL set to `https://vintage-league-v2.vercel.app` | ☐ |
 | 3.1 | Vercel env vars confirmed present | ☐ |
 
 ---
@@ -185,7 +175,7 @@ This value must be identical in both Google Cloud Console and confirmed in Supab
 
 | Error | Likely Cause | Fix |
 |---|---|---|
-| `redirect_uri_mismatch` | URI in Google Cloud Console does not match | Re-check Step 1.5 — copy the URI exactly |
+| `redirect_uri_mismatch` | URI in Google Cloud Console does not match | Re-check Step 1.4 — copy the URI exactly |
 | `Error 400: invalid_client` | Wrong Client ID or Secret in Supabase | Re-check Step 2.3 |
 | User redirected to blank page | Site URL not set in Supabase | Check Step 2.4 |
 | Button shows but nothing happens | Google provider not saved in Supabase | Re-do Step 2.3 and click Save |
