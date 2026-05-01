@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
+import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
 import Trade from "./pages/Trade.tsx";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/trade" element={<Trade />} />
