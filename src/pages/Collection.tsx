@@ -7,6 +7,7 @@ import { useJerseyImageUpload } from "@/hooks/useJerseyImageUpload";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,6 +126,7 @@ const Collection = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8 flex items-center justify-between">
           <div>

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import TrustBanner from "@/components/TrustBanner";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import heroImage from "@/assets/hero-jersey.jpg";
 import heroCollectibles from "@/assets/hero-collectibles.jpg";
 import heroRarity from "@/assets/hero-rarity.jpg";
@@ -166,6 +167,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <EmailVerificationBanner />
 
       {/* Hero */}
       <section className="grain relative overflow-hidden min-h-[70vh] flex items-center">

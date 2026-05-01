@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -120,6 +121,7 @@ const CommunityPost = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <EmailVerificationBanner />
 
       <section className="py-8">
         <div className="container mx-auto max-w-3xl px-4">
