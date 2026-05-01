@@ -31,27 +31,27 @@ const Header = () => {
 
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-8 lg:flex">
-            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Entdecken
             </Link>
-            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Tauschbörse
             </Link>
-            <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+            <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Community
             </Link>
             {user && (
               <>
-                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Profil
                 </Link>
-                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Sammlung
                 </Link>
-                <Link to="/trades" className="relative text-sm font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary">
+                <Link to="/trades" className="relative text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Tausch-Anfragen
                   {pendingTradeCount > 0 && (
-                    <Badge variant="destructive" className="absolute -right-6 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    <Badge variant="destructive" className="absolute -right-6 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-bounce-in">
                       {pendingTradeCount}
                     </Badge>
                   )}
@@ -61,26 +61,26 @@ const Header = () => {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate icon-rotate">
               <Search className="h-5 w-5" />
             </Button>
             {user ? (
               <>
-                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/profile")}>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide btn-animate" onClick={() => navigate("/profile")}>
                   <User className="mr-2 h-4 w-4" />
                   Profil
                 </Button>
-                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide" onClick={() => navigate("/collection")}>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide btn-animate" onClick={() => navigate("/collection")}>
                   <ShoppingBag className="mr-2 h-4 w-4" />
                   Sammlung
                 </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={async () => { await signOut(); navigate("/"); }}>
+                <Button variant="ghost" size="sm" className="text-muted-foreground btn-animate" onClick={async () => { await signOut(); navigate("/"); }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>
               </>
             ) : (
-              <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide hover:bg-primary hover:text-primary-foreground" onClick={() => navigate("/auth")}>
+              <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide btn-animate hover:bg-primary hover:text-primary-foreground" onClick={() => navigate("/auth")}>
                 <User className="mr-2 h-4 w-4" />
                 Login
               </Button>

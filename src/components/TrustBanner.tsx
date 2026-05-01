@@ -42,10 +42,14 @@ const TrustBanner = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {features.map((feature) => (
-            <div key={feature.title} className="flex flex-col items-center text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-sm border border-primary/20 bg-primary/5">
-                <feature.icon className="h-6 w-6 text-primary" />
+          {features.map((feature, index) => (
+            <div
+              key={feature.title}
+              className="flex flex-col items-center text-center stagger-item hover:scale-105 transition-transform duration-300"
+              style={{ animationDelay: `${index * 75}ms` }}
+            >
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-sm border border-primary/20 bg-primary/5 transition-all duration-300 group hover:bg-primary/10">
+                <feature.icon className="h-6 w-6 text-primary transition-transform duration-300 hover:rotate-12" />
               </div>
               <h3 className="font-display text-sm font-semibold tracking-wider">
                 {feature.title}

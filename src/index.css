@@ -131,4 +131,115 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.3), transparent);
   }
+
+  /* Button micro-animations */
+  .btn-animate {
+    @apply transition-all duration-200;
+  }
+
+  .btn-animate:hover {
+    @apply -translate-y-0.5;
+  }
+
+  .btn-animate:active {
+    @apply translate-y-0;
+  }
+
+  /* Link hover animations */
+  .link-animate {
+    @apply transition-all duration-300 relative;
+    text-decoration: none;
+  }
+
+  .link-animate::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: hsl(var(--primary));
+    transition: width 0.3s ease-out;
+  }
+
+  .link-animate:hover::after {
+    width: 100%;
+  }
+
+  /* Icon animations */
+  .icon-rotate {
+    @apply transition-transform duration-300;
+  }
+
+  .icon-rotate:hover {
+    @apply rotate-12;
+  }
+
+  .icon-scale {
+    @apply transition-transform duration-300;
+  }
+
+  .icon-scale:hover {
+    @apply scale-110;
+  }
+
+  /* Input focus animation */
+  .input-focus {
+    @apply transition-all duration-300;
+  }
+
+  .input-focus:focus {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+  }
+
+  /* Badge entrance animation */
+  .badge-enter {
+    @apply animate-bounce-in;
+  }
+
+  /* Staggered list animations */
+  .stagger-item {
+    @apply animate-fade-in;
+  }
+
+  .stagger-item:nth-child(1) {
+    animation-delay: 0ms;
+  }
+
+  .stagger-item:nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  .stagger-item:nth-child(3) {
+    animation-delay: 100ms;
+  }
+
+  .stagger-item:nth-child(4) {
+    animation-delay: 150ms;
+  }
+
+  .stagger-item:nth-child(5) {
+    animation-delay: 200ms;
+  }
+
+  .stagger-item:nth-child(n + 6) {
+    animation-delay: 250ms;
+  }
+
+  /* Smooth transitions */
+  .smooth-transition {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  /* Shimmer loading effect */
+  .shimmer-loader {
+    @apply animate-shimmer;
+    background: linear-gradient(
+      90deg,
+      hsl(222 24% 11%) 0%,
+      hsl(222 24% 15%) 50%,
+      hsl(222 24% 11%) 100%
+    );
+    background-size: 1000px 100%;
+  }
 }
