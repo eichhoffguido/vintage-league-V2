@@ -41,6 +41,7 @@ const Auth = () => {
         toast.error(error.message);
       } else {
         toast.success("Registrierung erfolgreich! Bitte bestätige deine E-Mail.");
+        navigate("/onboarding");
       }
     }
     setLoading(false);
