@@ -304,11 +304,11 @@ const Index = () => {
           </p>
           <div className="mt-10 grid gap-8 md:grid-cols-2 md:items-start">
             {/* Jersey Image */}
-            <div className="hidden md:flex items-center justify-center">
+            <div className="hidden md:block w-full">
               <img
                 src="/images/mood-haendler.jpg"
                 alt="Händler mood image"
-                className="h-80 w-auto rounded-lg object-cover shadow-lg"
+                className="w-full aspect-[4/3] rounded-lg object-cover shadow-lg"
               />
             </div>
 
@@ -370,11 +370,11 @@ const Index = () => {
             und biete deine eigenen Schätze zum Tausch an.
           </p>
           {/* Jersey Images with Glow */}
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-8 max-w-xl mx-auto">
             <img
               src="/images/mood-tausch.jpg"
-              alt="Trade mood image"
-              className="h-48 w-auto rounded-lg border border-primary/30 object-cover shadow-lg"
+              alt="Tausch mood image"
+              className="w-full aspect-[16/9] rounded-lg border border-primary/30 object-cover shadow-lg"
               style={{ boxShadow: "0 0 30px hsl(142 72% 40% / 0.2)" }}
             />
           </div>
