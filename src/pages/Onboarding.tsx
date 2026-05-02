@@ -10,14 +10,31 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowRight, Shirt, Users, TrendingUp, Plus } from "lucide-react";
 
-type Step = "welcome" | "profile" | "complete";
+type Step = "welcome" | "profile" | "favorite" | "add-jersey";
+
+interface OnboardingState {
+  displayName: string;
+  favoriteTeam: string;
+}
 
 const Onboarding = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("welcome");
-  const [displayName, setDisplayName] = useState("");
+  const [formData, setFormData] = useState<OnboardingState>({
+    displayName: "",
+    favoriteTeam: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
+
+  const currentStepNumber = {
+    welcome: 1,
+    profile: 2,
+    favorite: 3,
+    "add-jersey": 4,
+  }[step];
+
+  const totalSteps = 4;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -30,7 +47,7 @@ const Onboarding = () => {
   }
 
   const handleUpdateProfile = async () => {
-    if (!displayName.trim()) {
+    if (!formData.displayName.trim()) {
       toast.error("Bitte gib einen Anzeigenamen ein");
       return;
     }
@@ -40,14 +57,14 @@ const Onboarding = () => {
       const { error } = await supabase
         .from("profiles")
         .update({
-          display_name: displayName.trim(),
+          display_name: formData.displayName.trim(),
         })
         .eq("id", user.id);
 
       if (error) throw error;
 
       toast.success("Profil aktualisiert!");
-      setStep("complete");
+      setStep("favorite");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Fehler beim Aktualisieren des Profils";
       toast.error(message);
@@ -56,17 +73,36 @@ const Onboarding = () => {
     }
   };
 
-  const handleSkipProfile = () => {
-    setStep("complete");
+  const handleSkipStep = () => {
+    if (step === "profile") setStep("favorite");
+    else if (step === "favorite") setStep("add-jersey");
+  };
+
+  const handleNavigateToAddJersey = () => {
+    navigate("/collection", { state: { openAddJerseyDialog: true } });
   };
 
   const handleNavigateToCollection = () => {
     navigate("/collection");
   };
 
-  const handleNavigateToProfile = () => {
-    navigate("/profile");
-  };
+  const ProgressIndicator = () => (
+    <div className="mb-8 text-center">
+      <p className="text-sm text-muted-foreground">
+        Schritt {currentStepNumber} von {totalSteps}
+      </p>
+      <div className="mt-3 flex gap-2 justify-center">
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-2 w-8 rounded-full ${
+              i < currentStepNumber ? "bg-primary" : "bg-secondary"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   // Welcome Step
   if (step === "welcome") {
@@ -75,6 +111,8 @@ const Onboarding = () => {
         <Header />
         <div className="container mx-auto flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-2xl">
+            <ProgressIndicator />
+
             <div className="mb-12 text-center">
               <h1 className="font-display text-5xl font-bold">
                 Willkommen bei VintageLeague!
@@ -125,13 +163,13 @@ const Onboarding = () => {
                 className="flex-1 uppercase tracking-wider"
                 onClick={() => setStep("profile")}
               >
-                Profil erstellen
+                Los geht's
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
                 className="flex-1 uppercase tracking-wider"
-                onClick={() => setStep("complete")}
+                onClick={() => setStep("add-jersey")}
               >
                 Überspringen
               </Button>
@@ -150,6 +188,8 @@ const Onboarding = () => {
         <Header />
         <div className="container mx-auto flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md">
+            <ProgressIndicator />
+
             <div className="mb-8 text-center">
               <h1 className="font-display text-4xl font-bold">
                 Erstelle dein Profil
@@ -172,8 +212,10 @@ const Onboarding = () => {
                   id="displayName"
                   type="text"
                   placeholder="z.B. Jersey Collector 92"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
+                  value={formData.displayName}
+                  onChange={(e) =>
+                    setFormData((f) => ({ ...f, displayName: e.target.value }))
+                  }
                   maxLength={100}
                   required
                 />
@@ -188,7 +230,7 @@ const Onboarding = () => {
                 className="w-full uppercase tracking-wider"
                 disabled={isLoading}
               >
-                {isLoading ? "Wird gespeichert..." : "Profil erstellen"}
+                {isLoading ? "Wird gespeichert..." : "Weiter"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
@@ -196,7 +238,7 @@ const Onboarding = () => {
                 type="button"
                 variant="outline"
                 className="w-full uppercase tracking-wider"
-                onClick={handleSkipProfile}
+                onClick={handleSkipStep}
                 disabled={isLoading}
               >
                 Überspringen
@@ -209,56 +251,109 @@ const Onboarding = () => {
     );
   }
 
-  // Complete Step
-  if (step === "complete") {
+  // Favorite Team Step
+  if (step === "favorite") {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto flex items-center justify-center px-4 py-20">
+          <div className="w-full max-w-md">
+            <ProgressIndicator />
+
+            <div className="mb-8 text-center">
+              <h1 className="font-display text-4xl font-bold">
+                Dein Lieblingsverein
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                Welcher Verein oder Liga ist dein Favorit? (optional)
+              </p>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep("add-jersey");
+              }}
+              className="space-y-4 rounded-sm border border-border bg-card p-6"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="favoriteTeam">Lieblingsverein oder Liga</Label>
+                <Input
+                  id="favoriteTeam"
+                  type="text"
+                  placeholder="z.B. Bayern München, Champions League"
+                  value={formData.favoriteTeam}
+                  onChange={(e) =>
+                    setFormData((f) => ({ ...f, favoriteTeam: e.target.value }))
+                  }
+                  maxLength={100}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Du kannst dies später jederzeit in deinem Profil ändern
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                variant="hero"
+                className="w-full uppercase tracking-wider"
+              >
+                Weiter
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full uppercase tracking-wider"
+                onClick={handleSkipStep}
+              >
+                Überspringen
+              </Button>
+            </form>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Add Jersey Step
+  if (step === "add-jersey") {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md text-center">
-            <div className="mb-8">
+            <ProgressIndicator />
+
+            <div className="mb-12">
+              <Shirt className="mx-auto mb-4 h-16 w-16 text-primary" />
               <h1 className="font-display text-4xl font-bold">
-                Du bist dabei!
+                Deine Sammlung
               </h1>
-              <p className="mt-2 text-muted-foreground">
-                Dein VintageLeague-Konto ist ready. Jetzt geht's los!
+              <p className="mt-4 text-muted-foreground">
+                Möchtest du gleich dein erstes Trikot hinzufügen?
               </p>
             </div>
 
-            <div className="rounded-sm border border-border bg-card p-8 mb-6">
-              <p className="text-muted-foreground mb-6">
-                Was möchtest du als nächstes tun?
-              </p>
-              <div className="space-y-3">
-                <Button
-                  variant="hero"
-                  className="w-full uppercase tracking-wider"
-                  onClick={handleNavigateToCollection}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Erstes Trikot hinzufügen
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full uppercase tracking-wider"
-                  onClick={handleNavigateToProfile}
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Mein Profil bearbeiten
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full uppercase tracking-wider"
-                  onClick={() => navigate("/")}
-                >
-                  Zur Startseite
-                </Button>
-              </div>
+            <div className="space-y-3">
+              <Button
+                variant="hero"
+                className="w-full uppercase tracking-wider"
+                onClick={handleNavigateToAddJersey}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Trikot hinzufügen
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full uppercase tracking-wider"
+                onClick={handleNavigateToCollection}
+              >
+                Später
+              </Button>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              Du kannst jederzeit zur Registerkarte „Profil" gehen und deine Informationen aktualisieren.
-            </p>
           </div>
         </div>
         <Footer />
