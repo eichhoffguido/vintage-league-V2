@@ -1,68 +1,81 @@
-import { useState } from "react";
-import { AlertCircle, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Mail, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const EmailVerificationBanner = () => {
-  const { user } = useAuth();
+  const { session, loading } = useAuth();
+  const location = useLocation();
+  const { toast } = useToast();
   const [dismissed, setDismissed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  // Don't show banner if user is not logged in, email is verified, or banner is dismissed
-  if (!user || user.email_confirmed_at || dismissed) {
-    return null;
-  }
+  const shouldShow =
+    !loading &&
+    session &&
+    !session.user.email_confirmed_at &&
+    location.pathname !== "/auth" &&
+    location.pathname !== "/onboarding" &&
+    !dismissed;
+
+  useEffect(() => {
+    setDismissed(false);
+  }, [session?.user?.id]);
 
   const handleResendEmail = async () => {
+    if (!session?.user?.email) return;
+    setSending(true);
     try {
-      setIsLoading(true);
       const { error } = await supabase.auth.resend({
         type: "signup",
-        email: user.email!,
+        email: session.user.email,
       });
-
-      if (error) throw error;
-      toast.success("Verifizierungs-E-Mail erneut gesendet! Bitte überprüfen Sie Ihren Posteingang.");
-    } catch (error: any) {
-      toast.error(error.message || "Fehler beim Erneut senden der E-Mail");
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Fehler",
+          description: "Die E-Mail konnte nicht erneut gesendet werden.",
+        });
+      } else {
+        toast({
+          title: "E-Mail gesendet",
+          description: "Eine neue Bestätigungs-E-Mail wurde an deine Adresse gesendet.",
+        });
+      }
     } finally {
-      setIsLoading(false);
+      setSending(false);
     }
   };
 
+  if (!shouldShow) return null;
+
   return (
-    <div className="bg-background border-b border-border">
-      <div className="container mx-auto px-4 py-3">
-        <Alert variant="default" className="border-amber-200/50 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/20">
-          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-500" />
-          <div className="flex items-center justify-between gap-4 ml-3">
-            <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
-              Bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr Konto vollständig zu aktivieren.
-            </AlertDescription>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleResendEmail}
-                disabled={isLoading}
-                className="text-amber-700 hover:text-amber-900 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/40"
-              >
-                {isLoading ? "Wird gesendet..." : "Erneut senden"}
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setDismissed(true)}
-                className="h-6 w-6 text-amber-700 hover:text-amber-900 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/40"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </Alert>
+    <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-3">
+      <div className="container mx-auto flex items-center gap-3">
+        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+        <p className="text-sm flex-1">
+          Bitte bestätige deine E-Mail-Adresse. Wir haben dir eine E-Mail an{" "}
+          <span className="font-semibold">{session?.user?.email}</span> geschickt.
+        </p>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleResendEmail}
+            disabled={sending}
+            className="text-sm font-medium text-amber-800 hover:text-amber-950 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+          >
+            <Mail className="h-4 w-4" />
+            {sending ? "Senden..." : "E-Mail erneut senden"}
+          </button>
+          <button
+            onClick={() => setDismissed(true)}
+            className="text-amber-600 hover:text-amber-800 transition-colors"
+            aria-label="Banner schließen"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

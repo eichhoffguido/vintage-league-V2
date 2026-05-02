@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePendingTradeCount } from "@/hooks/usePendingTradeCount";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import vlLogo from "@/assets/vl-logo.png";
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50">
+      <EmailVerificationBanner />
       {/* Main header */}
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
