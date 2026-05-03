@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
@@ -154,6 +156,8 @@ const heroSlides = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -209,11 +213,11 @@ const Index = () => {
               {heroSlides[activeSlide].description}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button variant="hero" size="lg" className="uppercase tracking-wider">
+              <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => navigate("/trade")}>
                 Kollektion entdecken
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10">
+              <Button variant="outline" size="lg" className="border-primary/30 font-semibold uppercase tracking-wider hover:bg-primary/10" onClick={() => navigate(user ? "/collection" : "/auth")}>
                 Trikot verkaufen
               </Button>
             </div>
@@ -264,7 +268,7 @@ const Index = () => {
                 Handverlesene Trikots — frisch kuratiert für Sammler
               </p>
             </div>
-            <Button variant="ghost" className="self-start text-primary uppercase tracking-wider md:self-auto">
+            <Button variant="ghost" className="self-start text-primary uppercase tracking-wider md:self-auto" onClick={() => navigate("/trade")}>
               Alle anzeigen <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
