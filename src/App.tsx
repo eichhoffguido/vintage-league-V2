@@ -13,6 +13,7 @@ import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
 import CommunityPost from "./pages/CommunityPost.tsx";
+import Shop from "./pages/Shop.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />
