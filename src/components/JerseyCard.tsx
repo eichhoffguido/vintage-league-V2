@@ -15,6 +15,7 @@ interface JerseyCardProps {
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
   estimatedValue?: number;
+  onClick?: () => void;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -66,6 +67,7 @@ const JerseyCard = ({
   condition,
   size,
   estimatedValue: estimatedValueProp,
+  onClick,
 }: JerseyCardProps) => {
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
@@ -92,7 +94,7 @@ const JerseyCard = ({
   const verdict = getPriceVerdict(price, spectrumMin, spectrumMax, fairValue);
 
   return (
-    <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in">
+    <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
         <img

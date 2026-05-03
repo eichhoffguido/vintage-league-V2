@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
+import JerseyDetailSheet from "@/components/JerseyDetailSheet";
 import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import heroImage from "@/assets/hero-jersey.jpg";
@@ -188,6 +189,8 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedJersey, setSelectedJersey] = useState<(typeof allJerseys)[0] | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get("cat");
@@ -360,7 +363,10 @@ const Shop = () => {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} />
+                  <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} onClick={() => {
+                    setSelectedJersey(jersey);
+                    setIsDetailOpen(true);
+                  }} />
                 </div>
               ))}
             </div>
@@ -381,6 +387,12 @@ const Shop = () => {
           )}
         </div>
       </section>
+
+      <JerseyDetailSheet
+        jersey={selectedJersey}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
 
       <Footer />
     </div>
