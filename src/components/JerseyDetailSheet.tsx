@@ -115,13 +115,13 @@ const JerseyDetailSheet = ({ jersey, open, onOpenChange }: JerseyDetailSheetProp
                 {jersey.lowestAsk && (
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Niedrigstes Angebot</p>
-                    <p className="text-sm font-semibold">€{jersey.lowestAsk}</p>
+                    <p className="text-sm font-semibold">{formatEuros(jersey.lowestAsk)}</p>
                   </div>
                 )}
                 {jersey.highestBid && (
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Höchstes Gebot</p>
-                    <p className="text-sm font-semibold text-primary">€{jersey.highestBid}</p>
+                    <p className="text-sm font-semibold text-primary">{formatEuros(jersey.highestBid)}</p>
                   </div>
                 )}
               </div>

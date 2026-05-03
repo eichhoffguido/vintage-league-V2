@@ -199,13 +199,13 @@ const JerseyCard = ({
             {lowestAsk && (
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Niedrigstes Angebot</p>
-                <p className="text-sm font-semibold">€{lowestAsk}</p>
+                <p className="text-sm font-semibold">{formatEuros(lowestAsk)}</p>
               </div>
             )}
             {highestBid && (
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Höchstes Gebot</p>
-                <p className="text-sm font-semibold text-primary">€{highestBid}</p>
+                <p className="text-sm font-semibold text-primary">{formatEuros(highestBid)}</p>
               </div>
             )}
           </div>
