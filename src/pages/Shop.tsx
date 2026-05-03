@@ -221,7 +221,7 @@ const Shop = () => {
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       searchMatch = jersey.name.toLowerCase().includes(query) ||
-                   jersey.team.toLowerCase().includes(query);
+                    jersey.team.toLowerCase().includes(query);
     }
 
     return categoryMatch && searchMatch;
@@ -300,7 +300,7 @@ const Shop = () => {
                   {cat.label}
                 </Button>
               ))}
-            </div>
+             </div>
 
             {/* Sort and View Controls */}
             <div className="flex items-center gap-3">
