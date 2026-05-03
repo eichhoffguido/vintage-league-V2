@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { formatEuros } from "@/utils/currency";
 
 interface JerseyDetailSheetProps {
   jersey: {
@@ -11,7 +12,7 @@ interface JerseyDetailSheetProps {
     team: string;
     league: string;
     year: string;
-    price: number;
+    price_cents: number;
     lowestAsk?: number;
     highestBid?: number;
     imageUrl: string;
@@ -102,7 +103,7 @@ const JerseyDetailSheet = ({ jersey, open, onOpenChange }: JerseyDetailSheetProp
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-xs text-muted-foreground">Preis</p>
-                <p className="font-display text-3xl font-bold text-foreground">€{jersey.price}</p>
+                <p className="font-display text-3xl font-bold text-foreground">{formatEuros(jersey.price_cents)}</p>
               </div>
               <Badge variant="outline" className="text-xs font-bold">
                 {conditionLabels[jersey.condition]}

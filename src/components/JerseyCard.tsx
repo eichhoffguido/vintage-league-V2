@@ -1,13 +1,14 @@
 import { ShieldCheck, Gem } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatEuros } from "@/utils/currency";
 
 interface JerseyCardProps {
   name: string;
   team: string;
   league: string;
   year: string;
-  price: number;
+  price_cents: number;
   lowestAsk?: number;
   highestBid?: number;
   imageUrl: string;
@@ -59,7 +60,7 @@ const JerseyCard = ({
   team,
   league,
   year,
-  price,
+  price_cents,
   lowestAsk,
   highestBid,
   imageUrl,
@@ -71,26 +72,27 @@ const JerseyCard = ({
 }: JerseyCardProps) => {
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
-  
+  const price = price_cents / 100;
+
   // Calculate price spectrum
   const baseValue = estimatedValueProp ?? price;
   const topValue = Math.round(baseValue * 1.0 * vintageBonus); // "Neu" value
   const bottomValue = Math.round(baseValue * 0.35 * vintageBonus); // below "Akzeptabel"
   const fairValue = Math.round(baseValue * condMult * vintageBonus);
-  
+
   // Spectrum range
   const spectrumMin = Math.round(bottomValue * 0.9);
   const spectrumMax = Math.round(topValue * 1.15);
   const range = spectrumMax - spectrumMin;
-  
+
   // Positions as percentages on the bar
-  
+
   const pricePos = range > 0 ? Math.max(2, Math.min(98, ((price - spectrumMin) / range) * 100)) : 50;
-  
+
   // Fair zone (±10% of fair value)
   const fairZoneLeft = range > 0 ? Math.max(0, ((fairValue * 0.9 - spectrumMin) / range) * 100) : 40;
   const fairZoneRight = range > 0 ? Math.min(100, ((fairValue * 1.1 - spectrumMin) / range) * 100) : 60;
-  
+
   const verdict = getPriceVerdict(price, spectrumMin, spectrumMax, fairValue);
 
   return (
@@ -131,7 +133,7 @@ const JerseyCard = ({
         <div className="mt-3 flex items-end justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Preis</p>
-            <p className="font-display text-xl font-bold text-foreground">€{price}</p>
+            <p className="font-display text-xl font-bold text-foreground">{formatEuros(price_cents)}</p>
           </div>
           <Badge 
             variant="outline" 
