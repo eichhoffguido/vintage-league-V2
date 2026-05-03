@@ -105,7 +105,7 @@ const Header = () => {
           {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams", "Klassiker", "Raritäten"].map((cat) => (
             <Link
               key={cat}
-              to={`/shop?cat=${cat.toLowerCase()}`}
+              to={`/trade?cat=${cat.toLowerCase()}`}
               className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
             >
               {cat}
