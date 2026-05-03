@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Filter, Grid3X3, List, SlidersHorizontal } from "lucide-react";
+import { Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -177,7 +177,7 @@ const categories = [
   { id: "la-liga", label: "La Liga" },
   { id: "serie-a", label: "Serie A" },
   { id: "nationalteam", label: "Nationalteams" },
-  { id: "retro", label: "Retro & Vintage" },
+  { id: "klassiker", label: "Klassiker" },
   { id: "rarities", label: "Raritäten" },
 ];
 
@@ -187,6 +187,7 @@ const Shop = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const cat = searchParams.get("cat");
@@ -199,14 +200,31 @@ const Shop = () => {
     setLoading(true);
     const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
-  }, [activeCategory, sortBy]);
+  }, [activeCategory, sortBy, searchQuery]);
 
   const filteredJerseys = allJerseys.filter((jersey) => {
-    if (activeCategory === "all") return true;
-    if (activeCategory === "retro") return parseInt(jersey.year) < 2010;
-    if (activeCategory === "rarities") return jersey.price > 200;
-    return jersey.league.toLowerCase().includes(activeCategory.toLowerCase()) ||
-           jersey.league.toLowerCase().replace(" ", "-") === activeCategory;
+    // Filter by category
+    let categoryMatch = true;
+    if (activeCategory !== "all") {
+      if (activeCategory === "klassiker") {
+        categoryMatch = parseInt(jersey.year) < 2010;
+      } else if (activeCategory === "rarities") {
+        categoryMatch = jersey.price > 200;
+      } else {
+        categoryMatch = jersey.league.toLowerCase().includes(activeCategory.toLowerCase()) ||
+                       jersey.league.toLowerCase().replace(" ", "-") === activeCategory;
+      }
+    }
+
+    // Filter by search query (name or team, case-insensitive)
+    let searchMatch = true;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      searchMatch = jersey.name.toLowerCase().includes(query) ||
+                    jersey.team.toLowerCase().includes(query);
+    }
+
+    return categoryMatch && searchMatch;
   });
 
   const sortedJerseys = [...filteredJerseys].sort((a, b) => {
@@ -251,8 +269,19 @@ const Shop = () => {
       </section>
 
       {/* Filters and Controls */}
-      <section className="border-b border-border bg-secondary/30">
-        <div className="container mx-auto px-4 py-4">
+      <section className="border-b border-border bg-secondary/50">
+        <div className="container mx-auto px-4 py-6">
+          {/* Search Input */}
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Suche nach Team oder Trikot…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-sm border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+            />
+          </div>
+
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             {/* Category Pills */}
             <div className="flex flex-wrap gap-2">
@@ -261,17 +290,17 @@ const Shop = () => {
                   key={cat.id}
                   variant={activeCategory === cat.id ? "default" : "outline"}
                   size="sm"
-                  className={`rounded-full text-xs uppercase tracking-wider ${
+                  className={`rounded-full text-xs uppercase tracking-wider transition-colors ${
                     activeCategory === cat.id
                       ? "bg-primary text-primary-foreground"
-                      : "border-primary/30 hover:bg-primary/10"
+                      : "border-muted-foreground/30 text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
                   onClick={() => handleCategoryChange(cat.id)}
                 >
                   {cat.label}
                 </Button>
               ))}
-            </div>
+             </div>
 
             {/* Sort and View Controls */}
             <div className="flex items-center gap-3">
