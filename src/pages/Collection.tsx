@@ -118,7 +118,11 @@ const Collection = () => {
       const { error } = await supabase.from("user_jerseys").update({ available_for_trade: available }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-jerseys"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
+      toast.success("Trikot ist jetzt zum Tausch verfügbar!");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   if (authLoading) return null;
@@ -410,8 +414,9 @@ const Collection = () => {
                           e.stopPropagation();
                           toggleTrade.mutate({ id: selectedJersey.id, available: true });
                         }}
+                        disabled={toggleTrade.isPending}
                       >
-                        Zum Tausch anbieten
+                        {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
                       </Button>
                     )}
                   </div>
