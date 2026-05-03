@@ -1,7 +1,32 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import vlLogo from "@/assets/vl-logo.png";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setSubscriptionStatus("error");
+      setTimeout(() => setSubscriptionStatus("idle"), 3000);
+      return;
+    }
+
+    setSubscriptionStatus("loading");
+
+    // Simulate subscription (in a real app, this would call an API)
+    setTimeout(() => {
+      setSubscriptionStatus("success");
+      setEmail("");
+      setTimeout(() => setSubscriptionStatus("idle"), 3000);
+    }, 800);
+  };
+
   return (
     <footer className="grain border-t border-border bg-card">
       {/* Newsletter / CTA strip */}
@@ -11,16 +36,29 @@ const Footer = () => {
             <h4 className="font-display text-sm tracking-wider text-primary">SAMMLER-NEWSLETTER</h4>
             <p className="mt-1 text-xs text-muted-foreground">Erhalte exklusive Angebote und seltene Fundstücke direkt in dein Postfach.</p>
           </div>
-          <div className="flex w-full max-w-sm gap-2">
+          <form onSubmit={handleNewsletterSubmit} className="flex w-full max-w-sm gap-2">
             <input
               type="email"
               placeholder="deine@email.de"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="flex-1 rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              disabled={subscriptionStatus === "loading"}
             />
-            <button className="rounded-sm bg-primary px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider text-primary-foreground transition-colors hover:bg-primary/90">
-              Anmelden
+            <button
+              type="submit"
+              disabled={subscriptionStatus === "loading"}
+              className={`rounded-sm px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider transition-colors ${
+                subscriptionStatus === "success"
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : subscriptionStatus === "error"
+                    ? "bg-red-600 text-white hover:bg-red-700"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+              } disabled:opacity-50`}
+            >
+              {subscriptionStatus === "loading" ? "..." : subscriptionStatus === "success" ? "✓" : subscriptionStatus === "error" ? "!" : "Anmelden"}
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
@@ -44,8 +82,8 @@ const Footer = () => {
             <nav className="mt-4 flex flex-col gap-2.5">
               <Link to="/shop" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Alle Trikots</Link>
               <Link to="/shop?cat=retro" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Retro & Vintage</Link>
-              <Link to="/sell" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Verkaufen</Link>
-              <Link to="/how-it-works" className="text-sm text-muted-foreground transition-colors hover:text-foreground">So funktioniert's</Link>
+              <Link to="/trades" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Trades</Link>
+              <Link to="/community" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Community</Link>
             </nav>
           </div>
           <div>
@@ -53,15 +91,15 @@ const Footer = () => {
             <nav className="mt-4 flex flex-col gap-2.5">
               <Link to="/shop?cat=bundesliga" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Bundesliga Klassiker</Link>
               <Link to="/shop?cat=premier-league" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Premier League Legenden</Link>
-              <Link to="/shop?cat=national" className="text-sm text-muted-foreground transition-colors hover:text-foreground">WM & EM Trikots</Link>
-              <Link to="/shop?cat=limited" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Limited Editions</Link>
+              <Link to="/shop?cat=nationalteam" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Nationalteams</Link>
+              <Link to="/shop?cat=rarities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Raritäten</Link>
             </nav>
           </div>
           <div>
             <h4 className="font-display text-xs font-semibold tracking-[0.2em] text-primary">VERTRAUEN</h4>
             <nav className="mt-4 flex flex-col gap-2.5">
-              <Link to="/authenticity" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Echtheitszertifikat</Link>
-              <Link to="/help" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Hilfe & Kontakt</Link>
+              <Link to="/collection" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Meine Sammlung</Link>
+              <Link to="/profile" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Mein Profil</Link>
               <Link to="/imprint" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Impressum</Link>
               <Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Datenschutz</Link>
             </nav>

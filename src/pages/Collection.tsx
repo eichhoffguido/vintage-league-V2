@@ -118,7 +118,11 @@ const Collection = () => {
       const { error } = await supabase.from("user_jerseys").update({ available_for_trade: available }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-jerseys"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
+      toast.success("Trikot ist jetzt zum Tausch verfügbar!");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   if (authLoading) return null;
@@ -403,8 +407,16 @@ const Collection = () => {
                         <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
                       </Badge>
                     ) : (
-                      <Button variant="hero" className="w-full uppercase tracking-wider">
-                        Zum Tausch anbieten
+                      <Button
+                        variant="hero"
+                        className="w-full uppercase tracking-wider"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTrade.mutate({ id: selectedJersey.id, available: true });
+                        }}
+                        disabled={toggleTrade.isPending}
+                      >
+                        {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
                       </Button>
                     )}
                   </div>
