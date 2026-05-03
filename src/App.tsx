@@ -13,6 +13,7 @@ import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
 import CommunityPost from "./pages/CommunityPost.tsx";
+import Shop from "./pages/Shop.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />
             <Route path="/community/:id" element={<CommunityPost />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="/imprint" element={<Imprint />} />
             <Route path="/privacy" element={<Privacy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
