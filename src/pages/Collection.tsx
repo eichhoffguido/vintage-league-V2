@@ -403,7 +403,14 @@ const Collection = () => {
                         <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
                       </Badge>
                     ) : (
-                      <Button variant="hero" className="w-full uppercase tracking-wider">
+                      <Button
+                        variant="hero"
+                        className="w-full uppercase tracking-wider"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleTrade.mutate({ id: selectedJersey.id, available: true });
+                        }}
+                      >
                         Zum Tausch anbieten
                       </Button>
                     )}
