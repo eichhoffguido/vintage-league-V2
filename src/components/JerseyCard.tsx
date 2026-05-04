@@ -72,7 +72,8 @@ const JerseyCard = ({
 }: JerseyCardProps) => {
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
-  const price = price_cents / 100;
+  const priceCents = price_cents ?? 0;
+  const price = priceCents / 100;
 
   // Calculate price spectrum
   const baseValue = estimatedValueProp ?? price;
@@ -133,7 +134,7 @@ const JerseyCard = ({
         <div className="mt-3 flex items-end justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Preis</p>
-            <p className="font-display text-xl font-bold text-foreground">{price_cents != null ? formatEuros(price_cents) : '–'}</p>
+            <p className="font-display text-xl font-bold text-foreground">{priceCents > 0 ? formatEuros(priceCents) : '–'}</p>
           </div>
           <Badge 
             variant="outline" 
