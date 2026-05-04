@@ -148,6 +148,63 @@ export type Database = {
           },
         ]
       }
+      sales_history: {
+        Row: {
+          buyer_user_id: string | null
+          condition: number
+          id: string
+          jersey_id: string
+          league: string
+          sale_price_cents: number
+          seller_user_id: string
+          sold_at: string
+          team: string
+          trade_request_id: string | null
+          year: string
+        }
+        Insert: {
+          buyer_user_id?: string | null
+          condition: number
+          id?: string
+          jersey_id: string
+          league: string
+          sale_price_cents: number
+          seller_user_id: string
+          sold_at?: string
+          team: string
+          trade_request_id?: string | null
+          year: string
+        }
+        Update: {
+          buyer_user_id?: string | null
+          condition?: number
+          id?: string
+          jersey_id?: string
+          league?: string
+          sale_price_cents?: number
+          seller_user_id?: string
+          sold_at?: string
+          team?: string
+          trade_request_id?: string | null
+          year?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_history_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_history_trade_request_id_fkey"
+            columns: ["trade_request_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -332,6 +389,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_recent_sales_by_team_year: {
+        Args: { p_team: string; p_year: string; p_limit?: number }
+        Returns: {
+          id: string
+          jersey_id: string
+          sale_price_cents: number
+          team: string
+          league: string
+          year: string
+          condition: number
+          sold_at: string
+        }[]
+      }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
     }
     Enums: {
