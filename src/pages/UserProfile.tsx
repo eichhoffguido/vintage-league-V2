@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2, CheckCircle2 } from "lucide-react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
+import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 
 const conditionLabels: Record<number, string> = {
   5: "Neuwertig",
@@ -118,7 +119,23 @@ const UserProfile = () => {
     }
   }, [profile]);
 
-  if (authLoading || profileLoading) return null;
+  if (authLoading) return null;
+
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
+
+  if (profileLoading || jerseysLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <EmailVerificationBanner />
+        <ProfilePageSkeleton />
+        <Footer />
+      </div>
+    );
+  }
 
   const totalValue = jerseys.reduce((sum, jersey) => sum + (jersey.price_cents || 0), 0);
   const initials = (profileForm.display_name || user?.email || "U").split(" ").map(n => n[0]).join("").toUpperCase();
