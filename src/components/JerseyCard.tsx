@@ -1,9 +1,11 @@
-import { ShieldCheck, Gem } from "lucide-react";
+import { ShieldCheck, Gem, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
 
 interface JerseyCardProps {
+  id: string;
   name: string;
   team: string;
   league: string;
@@ -16,6 +18,8 @@ interface JerseyCardProps {
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
   estimatedValue?: number;
+  isFavorited?: boolean;
+  onFavoriteToggle?: (jerseyId: string) => void;
   onClick?: () => void;
 }
 
@@ -59,6 +63,7 @@ const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal:
 };
 
 const JerseyCard = ({
+  id,
   name,
   team,
   league,
@@ -71,6 +76,8 @@ const JerseyCard = ({
   condition,
   size,
   estimatedValue: estimatedValueProp,
+  isFavorited = false,
+  onFavoriteToggle,
   onClick,
 }: JerseyCardProps) => {
   const vintageBonus = getVintageBonus(year);
@@ -114,9 +121,28 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute right-3 top-3 rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
-          {size}
-        </Badge>
+        <div className="absolute right-3 top-3 flex gap-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full hover:bg-background/90"
+            onClick={(e) => {
+              e.stopPropagation();
+              onFavoriteToggle?.(id);
+            }}
+          >
+            <Heart
+              className={`h-4 w-4 transition-colors ${
+                isFavorited
+                  ? "fill-red-500 text-red-500"
+                  : "text-muted-foreground hover:text-red-500"
+              }`}
+            />
+          </Button>
+          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
+            {size}
+          </Badge>
+        </div>
         {vintageBonus > 1.0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm animate-slide-up">
             <Gem className="h-3 w-3 text-primary" />
