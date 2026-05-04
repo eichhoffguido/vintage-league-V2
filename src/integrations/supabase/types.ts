@@ -214,6 +214,7 @@ export type Database = {
           deleted_at: string | null
           display_name: string | null
           id: string
+          is_admin: boolean
           updated_at: string
         }
         Insert: {
@@ -224,6 +225,7 @@ export type Database = {
           deleted_at?: string | null
           display_name?: string | null
           id: string
+          is_admin?: boolean
           updated_at?: string
         }
         Update: {
@@ -234,6 +236,7 @@ export type Database = {
           deleted_at?: string | null
           display_name?: string | null
           id?: string
+          is_admin?: boolean
           updated_at?: string
         }
         Relationships: []
