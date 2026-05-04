@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
@@ -302,53 +302,70 @@ const Collection = () => {
                     <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
                   </div>
                 )}
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
-                      <p className="text-sm text-muted-foreground">{jersey.name}</p>
-                    </div>
-                    <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Switch
-                        checked={jersey.available_for_trade}
-                        onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {jersey.available_for_trade ? (
-                          <span className="flex items-center gap-1 text-primary">
-                            <ArrowLeftRight className="h-3 w-3" /> Tauschbar
-                          </span>
-                        ) : "Privat"}
-                      </span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteJersey.mutate(jersey.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                 <div className="p-4">
+                   <div className="flex items-start justify-between">
+                     <div>
+                       <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
+                       <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
+                       <p className="text-sm text-muted-foreground">{jersey.name}</p>
+                     </div>
+                     <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
+                   </div>
+                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
+                     {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
+                   </div>
+                   <div className="mt-2 flex items-center gap-2">
+                     {jersey.verification_status === "verified" && (
+                       <Badge variant="default" className="bg-green-600 text-[10px]">
+                         <ShieldCheck className="mr-1 h-3 w-3" /> Verifiziert
+                       </Badge>
+                     )}
+                     {jersey.verification_status === "pending" && (
+                       <Badge variant="secondary" className="text-[10px]">
+                         <Clock className="mr-1 h-3 w-3" /> Wartet auf Prüfung
+                       </Badge>
+                     )}
+                     {jersey.verification_status === "rejected" && (
+                       <Badge variant="destructive" className="text-[10px]">
+                         <XCircle className="mr-1 h-3 w-3" /> Nicht verifiziert
+                       </Badge>
+                     )}
+                   </div>
+                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                     <div
+                       className="flex items-center gap-2"
+                       onClick={(e) => e.stopPropagation()}
+                     >
+                       <Switch
+                         checked={jersey.available_for_trade}
+                         onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
+                       />
+                       <span className="text-xs text-muted-foreground">
+                         {jersey.available_for_trade ? (
+                           <span className="flex items-center gap-1 text-primary">
+                             <ArrowLeftRight className="h-3 w-3" /> Tauschbar
+                           </span>
+                         ) : "Privat"}
+                       </span>
+                     </div>
+                     <Button
+                       variant="ghost"
+                       size="icon"
+                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         deleteJersey.mutate(jersey.id);
+                       }}
+                     >
+                       <Trash2 className="h-4 w-4" />
+                     </Button>
+                   </div>
+                 </div>
+               </div>
+             ))}
+           </div>
+         )}
 
         {/* Jersey Detail Sheet */}
         <Sheet open={detailSheetOpen} onOpenChange={setDetailSheetOpen}>

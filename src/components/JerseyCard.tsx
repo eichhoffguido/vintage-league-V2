@@ -13,6 +13,7 @@ interface JerseyCardProps {
   highestBid?: number;
   imageUrl: string;
   verified?: boolean;
+  verification_status?: "pending" | "verified" | "rejected";
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
   estimatedValue?: number;
@@ -68,11 +69,14 @@ const JerseyCard = ({
   highestBid,
   imageUrl,
   verified = false,
+  verification_status,
   condition,
   size,
   estimatedValue: estimatedValueProp,
   onClick,
 }: JerseyCardProps) => {
+  // Use verification_status if provided, otherwise fall back to verified prop
+  const isVerified = verification_status ? verification_status === "verified" : verified;
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
   const priceCents = price_cents ?? 0;
@@ -108,7 +112,7 @@ const JerseyCard = ({
           alt={`${team} ${name}`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        {verified && (
+        {isVerified && (
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1 animate-slide-down">
             <ShieldCheck className="h-3 w-3 text-primary-foreground" />
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
