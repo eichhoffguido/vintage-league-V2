@@ -14,6 +14,7 @@ import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
 import CommunityPost from "./pages/CommunityPost.tsx";
 import Shop from "./pages/Shop.tsx";
+import Watchlist from "./pages/Watchlist.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/collection" element={<Collection />} />
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />

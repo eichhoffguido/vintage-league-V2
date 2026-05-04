@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -53,6 +53,9 @@ const Header = () => {
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Sammlung
                 </Link>
+                <Link to="/watchlist" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                  Beobachtungsliste
+                </Link>
                 <Link to="/trades" className="relative text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Tausch-Anfragen
                   {pendingTradeCount > 0 && (
@@ -71,6 +74,9 @@ const Header = () => {
             </Button>
             {user ? (
               <>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate" onClick={() => navigate("/watchlist")}>
+                  <Heart className="h-5 w-5" />
+                </Button>
                 <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide btn-animate" onClick={() => navigate("/profile")}>
                   <User className="mr-2 h-4 w-4" />
                   Profil
@@ -126,6 +132,10 @@ const Header = () => {
               <>
                 <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Profil</Link>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
+                <Link to="/watchlist" className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  <Heart className="h-4 w-4" />
+                  Beobachtungsliste
+                </Link>
                 <Link to="/trades" className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
                   Tausch-Anfragen
                   {pendingTradeCount > 0 && (
