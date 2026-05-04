@@ -12,7 +12,7 @@ export const eurosToCents = (euros: number | string | null | undefined): number 
 };
 
 export const centsToEuros = (cents: number | null | undefined): number | null => {
-  if (cents === null || cents === undefined) return null;
+  if (cents === null || cents === undefined || Number.isNaN(cents)) return null;
   return Math.round((cents / 100) * 100) / 100;
 };
 
