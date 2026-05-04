@@ -17,6 +17,9 @@ interface JerseyCardProps {
   size: string;
   estimatedValue?: number;
   onClick?: () => void;
+  is_for_sale?: boolean;
+  sale_price_cents?: number;
+  available_for_trade?: boolean;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -72,6 +75,9 @@ const JerseyCard = ({
   size,
   estimatedValue: estimatedValueProp,
   onClick,
+  is_for_sale = false,
+  sale_price_cents,
+  available_for_trade = false,
 }: JerseyCardProps) => {
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
@@ -114,9 +120,16 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <Badge variant="secondary" className="absolute right-3 top-3 rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
-          {size}
-        </Badge>
+        <div className="absolute right-3 top-3 flex flex-col gap-2 items-end">
+          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
+            {size}
+          </Badge>
+          {is_for_sale && (
+            <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
+              Kaufen
+            </Badge>
+          )}
+        </div>
         {vintageBonus > 1.0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm animate-slide-up">
             <Gem className="h-3 w-3 text-primary" />
@@ -136,15 +149,26 @@ const JerseyCard = ({
         {/* Price + Verdict */}
         <div className="mt-3 flex items-end justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Preis</p>
-            <p className="font-display text-xl font-bold text-foreground">{priceCents > 0 ? formatEuros(priceCents) : '–'}</p>
+            {is_for_sale && sale_price_cents ? (
+              <>
+                <p className="text-xs text-muted-foreground">Verkaufspreis</p>
+                <p className="font-display text-xl font-bold text-primary">{formatEuros(sale_price_cents)}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">Preis</p>
+                <p className="font-display text-xl font-bold text-foreground">{priceCents > 0 ? formatEuros(priceCents) : '–'}</p>
+              </>
+            )}
           </div>
-          <Badge 
-            variant="outline" 
-            className={`text-xs font-bold ${verdict.color} border-current`}
-          >
-            {verdict.label}
-          </Badge>
+          {!is_for_sale && (
+            <Badge
+              variant="outline"
+              className={`text-xs font-bold ${verdict.color} border-current`}
+            >
+              {verdict.label}
+            </Badge>
+          )}
         </div>
 
         {/* Price Spectrum */}
