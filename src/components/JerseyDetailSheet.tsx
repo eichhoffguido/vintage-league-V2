@@ -8,6 +8,7 @@ import { formatEuros } from "@/utils/currency";
 
 interface JerseyDetailSheetProps {
   jersey: {
+    id?: string;
     name: string;
     team: string;
     league: string;
@@ -75,6 +76,13 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
       navigate("/auth");
     } else {
       navigate("/trade");
+    }
+  };
+
+  const handleViewFullPage = () => {
+    if (jersey.id) {
+      navigate(`/jersey/${jersey.id}`);
+      onClose();
     }
   };
 
@@ -199,6 +207,17 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
           )}
         </div>
       </div>
+
+      {/* Full Page View Button */}
+      {jersey.id && (
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleViewFullPage}
+        >
+          Vollständige Ansicht
+        </Button>
+      )}
 
       {/* Tausch vorschlagen Button */}
       <Button
