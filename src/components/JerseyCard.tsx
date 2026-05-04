@@ -11,7 +11,7 @@ interface JerseyCardProps {
   price_cents: number;
   lowestAsk?: number;
   highestBid?: number;
-  imageUrl: string;
+  imageUrl?: string;
   verified?: boolean;
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
@@ -103,11 +103,17 @@ const JerseyCard = ({
     <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-secondary">
-        <img
-          src={imageUrl}
-          alt={`${team} ${name}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={`${team} ${name}`}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="font-display text-6xl text-muted-foreground/30">{team.charAt(0)}</span>
+          </div>
+        )}
         {verified && (
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1 animate-slide-down">
             <ShieldCheck className="h-3 w-3 text-primary-foreground" />
