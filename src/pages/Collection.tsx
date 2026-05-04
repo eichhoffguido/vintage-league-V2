@@ -42,6 +42,7 @@ const Collection = () => {
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
+    listingType: "trade" as "trade" | "sell" | "both",
   });
 
   useEffect(() => {
@@ -77,6 +78,10 @@ const Collection = () => {
         }
       }
 
+      const isForSale = form.listingType === "sell" || form.listingType === "both";
+      const availableForTrade = form.listingType === "trade" || form.listingType === "both";
+      const salePriceCents = isForSale ? eurosToCents(form.price_cents) : null;
+
       const { error } = await supabase.from("user_jerseys").insert({
         user_id: user!.id,
         name: form.name.trim(),
@@ -87,14 +92,16 @@ const Collection = () => {
         size: form.size,
         image_url: imageUrl || form.image_url.trim() || null,
         price_cents: eurosToCents(form.price_cents),
-        available_for_trade: form.available_for_trade,
+        available_for_trade: availableForTrade,
+        is_for_sale: isForSale,
+        sale_price_cents: salePriceCents,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false, listingType: "trade" });
       setSelectedFile(null);
       setImagePreview(null);
       toast.success("Trikot hinzugefügt!");
@@ -121,6 +128,18 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       toast.success("Trikot ist jetzt zum Tausch verfügbar!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const toggleSale = useMutation({
+    mutationFn: async ({ id, forSale }: { id: string; forSale: boolean }) => {
+      const { error } = await supabase.from("user_jerseys").update({ is_for_sale: forSale }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
+      toast.success("Trikot ist jetzt zum Verkauf verfügbar!");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -238,10 +257,32 @@ const Collection = () => {
                     </label>
                   )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <Switch checked={form.available_for_trade} onCheckedChange={(v) => setForm(f => ({ ...f, available_for_trade: v }))} />
-                  <Label>Zum Tausch verfügbar</Label>
+                <div className="space-y-3">
+                  <Label>Listingtyp</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: "trade" as const, label: "Zum Tauschen" },
+                      { value: "sell" as const, label: "Zum Verkaufen" },
+                      { value: "both" as const, label: "Beides" },
+                    ].map((option) => (
+                      <Button
+                        key={option.value}
+                        type="button"
+                        variant={form.listingType === option.value ? "default" : "outline"}
+                        onClick={() => setForm(f => ({ ...f, listingType: option.value }))}
+                        className="text-xs"
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
+                {(form.listingType === "sell" || form.listingType === "both") && (
+                  <div className="space-y-2">
+                    <Label>Verkaufspreis (€) *</Label>
+                    <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} step={0.01} required />
+                  </div>
+                )}
                 <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending || isUploadingImage}>
                   {addJersey.isPending || isUploadingImage ? "Wird verarbeitet..." : "Trikot speichern"}
                 </Button>
@@ -309,11 +350,14 @@ const Collection = () => {
                       <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
                       <p className="text-sm text-muted-foreground">{jersey.name}</p>
                     </div>
-                    <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
+                    <div className="flex flex-col gap-1 items-end">
+                      <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
+                      {jersey.is_for_sale && <Badge variant="default" className="text-[10px]">Kaufen</Badge>}
+                    </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
+                    {jersey.sale_price_cents && jersey.is_for_sale && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <div
@@ -394,10 +438,16 @@ const Collection = () => {
                         <p className="font-semibold">{selectedJersey.condition}/5</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Preis</p>
+                        <p className="text-xs text-muted-foreground">Schätzpreis</p>
                         <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
                       </div>
                     </div>
+                    {selectedJersey.is_for_sale && selectedJersey.sale_price_cents && (
+                      <div>
+                        <p className="text-xs text-muted-foreground">Verkaufspreis</p>
+                        <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -408,8 +458,8 @@ const Collection = () => {
                       </Badge>
                     ) : (
                       <Button
-                        variant="hero"
-                        className="w-full uppercase tracking-wider"
+                        variant="outline"
+                        className="w-full"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleTrade.mutate({ id: selectedJersey.id, available: true });
@@ -417,6 +467,23 @@ const Collection = () => {
                         disabled={toggleTrade.isPending}
                       >
                         {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
+                      </Button>
+                    )}
+                    {selectedJersey.is_for_sale ? (
+                      <Badge variant="default" className="w-full justify-center py-2">
+                        Zum Verkauf
+                      </Badge>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSale.mutate({ id: selectedJersey.id, forSale: true });
+                        }}
+                        disabled={toggleSale.isPending}
+                      >
+                        {toggleSale.isPending ? "Wird verarbeitet..." : "Zum Verkauf anbieten"}
                       </Button>
                     )}
                   </div>

@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface JerseyCardProps {
   id: string;
@@ -21,6 +22,9 @@ interface JerseyCardProps {
   isFavorited?: boolean;
   onFavoriteToggle?: (jerseyId: string) => void;
   onClick?: () => void;
+  is_for_sale?: boolean;
+  sale_price_cents?: number;
+  available_for_trade?: boolean;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -55,7 +59,6 @@ const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal:
   if (range === 0) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
 
 
-
   if (price <= fairVal * 0.85) return { label: "Schnäppchen 🔥", color: "text-primary", bg: "bg-primary" };
   if (price <= fairVal * 1.05) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
   if (price <= fairVal * 1.2) return { label: "Über Marktwert", color: "text-green-500", bg: "bg-green-500" };
@@ -79,7 +82,11 @@ const JerseyCard = ({
   isFavorited = false,
   onFavoriteToggle,
   onClick,
+  is_for_sale = false,
+  sale_price_cents,
+  available_for_trade = false,
 }: JerseyCardProps) => {
+  const { isFavorited, toggleFavorite } = useWatchlist();
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
   const priceCents = price_cents ?? 0;
@@ -121,27 +128,31 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <div className="absolute right-3 top-3 flex gap-2">
+<<<<<<< HEAD
+        <div className="absolute right-3 top-3 flex flex-col gap-2 animate-slide-down" style={{ animationDelay: "100ms" }}>
           <Button
-            size="icon"
             variant="ghost"
-            className="h-8 w-8 rounded-full hover:bg-background/90"
+            size="icon"
+            className="h-8 w-8 rounded-sm bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              onFavoriteToggle?.(id);
+              toggleFavorite(id);
             }}
           >
             <Heart
-              className={`h-4 w-4 transition-colors ${
-                isFavorited
-                  ? "fill-red-500 text-red-500"
-                  : "text-muted-foreground hover:text-red-500"
-              }`}
+              className="h-4 w-4"
+              fill={isFavorited(id) ? "currentColor" : "none"}
+              color={isFavorited(id) ? "currentColor" : "currentColor"}
             />
           </Button>
-          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
+          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
+          {is_for_sale && (
+            <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
+              Kaufen
+            </Badge>
+          )}
         </div>
         {vintageBonus > 1.0 && (
           <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm animate-slide-up">
@@ -162,15 +173,26 @@ const JerseyCard = ({
         {/* Price + Verdict */}
         <div className="mt-3 flex items-end justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Preis</p>
-            <p className="font-display text-xl font-bold text-foreground">{priceCents > 0 ? formatEuros(priceCents) : '–'}</p>
+            {is_for_sale && sale_price_cents ? (
+              <>
+                <p className="text-xs text-muted-foreground">Verkaufspreis</p>
+                <p className="font-display text-xl font-bold text-primary">{formatEuros(sale_price_cents)}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">Preis</p>
+                <p className="font-display text-xl font-bold text-foreground">{priceCents > 0 ? formatEuros(priceCents) : '–'}</p>
+              </>
+            )}
           </div>
-          <Badge 
-            variant="outline" 
-            className={`text-xs font-bold ${verdict.color} border-current`}
-          >
-            {verdict.label}
-          </Badge>
+          {!is_for_sale && (
+            <Badge
+              variant="outline"
+              className={`text-xs font-bold ${verdict.color} border-current`}
+            >
+              {verdict.label}
+            </Badge>
+          )}
         </div>
 
         {/* Price Spectrum */}
@@ -198,10 +220,10 @@ const JerseyCard = ({
                     className="absolute -translate-x-1/2 flex flex-col items-center"
                     style={{ left: `${pricePos}%` }}
                   >
-                    <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`} 
+                    <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`}
                       style={{ borderBottomColor: 'currentColor' }}
                     />
-                    <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>€{price}</span>
+                    <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>{Number.isFinite(price) ? `€${price}` : '–'}</span>
                   </div>
                 </div>
 
