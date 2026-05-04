@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { centsToEuros, formatEuros } from "@/utils/currency";
 import heroImage from "@/assets/hero-jersey.jpg";
 
+
 const categories = [
   { id: "all", label: "Alle" },
   { id: "bundesliga", label: "Bundesliga" },
