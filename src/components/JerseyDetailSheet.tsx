@@ -34,7 +34,10 @@ const conditionLabels: Record<number, string> = {
 };
 
 const getVintageBonus = (year: string): number => {
-  const age = new Date().getFullYear() - parseInt(year);
+  if (!year || year.trim() === "") return 1.0;
+  const yearNum = parseInt(year, 10);
+  if (Number.isNaN(yearNum)) return 1.0;
+  const age = new Date().getFullYear() - yearNum;
   if (age >= 25) return 1.8;
   if (age >= 15) return 1.4;
   if (age >= 5) return 1.1;
@@ -162,7 +165,10 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
           </div>
           <div>
             <p className="text-muted-foreground">Alter</p>
-            <p className="font-medium">{new Date().getFullYear() - parseInt(jersey.year)} Jahre</p>
+            <p className="font-medium">{(() => {
+              const yearNum = parseInt(jersey.year, 10);
+              return Number.isNaN(yearNum) ? '—' : new Date().getFullYear() - yearNum;
+            })()} Jahre</p>
           </div>
           <div>
             <p className="text-muted-foreground">Vintage Faktor</p>
