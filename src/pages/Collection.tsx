@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 
@@ -343,7 +343,7 @@ const Collection = () => {
                     <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
                   </div>
                 )}
-                <div className="p-4">
+                 <div className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
@@ -358,6 +358,23 @@ const Collection = () => {
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
                     {jersey.sale_price_cents && jersey.is_for_sale && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    {jersey.verification_status === "verified" && (
+                      <Badge variant="default" className="bg-green-600 text-[10px]">
+                        <ShieldCheck className="mr-1 h-3 w-3" /> Verifiziert
+                      </Badge>
+                    )}
+                    {jersey.verification_status === "pending" && (
+                      <Badge variant="secondary" className="text-[10px]">
+                        <Clock className="mr-1 h-3 w-3" /> Wartet auf Prüfung
+                      </Badge>
+                    )}
+                    {jersey.verification_status === "rejected" && (
+                      <Badge variant="destructive" className="text-[10px]">
+                        <XCircle className="mr-1 h-3 w-3" /> Nicht verifiziert
+                      </Badge>
+                    )}
                   </div>
                   <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                     <div

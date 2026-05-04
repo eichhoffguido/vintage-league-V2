@@ -9,6 +9,7 @@ import Auth from "./pages/Auth.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
+import Admin from "./pages/Admin.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />
             <Route path="/community/:id" element={<CommunityPost />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/imprint" element={<Imprint />} />
             <Route path="/privacy" element={<Privacy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
