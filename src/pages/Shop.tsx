@@ -211,7 +211,8 @@ const Shop = () => {
     let categoryMatch = true;
     if (activeCategory !== "all") {
       if (activeCategory === "klassiker") {
-        categoryMatch = parseInt(jersey.year) < 2010;
+        const year = parseInt(jersey.year, 10);
+        categoryMatch = !Number.isNaN(year) && year < 2010;
       } else if (activeCategory === "rarities") {
         categoryMatch = jersey.price_cents > 20000;
       } else {
@@ -234,7 +235,11 @@ const Shop = () => {
   const sortedJerseys = [...filteredJerseys].sort((a, b) => {
     if (sortBy === "price-asc") return a.price_cents - b.price_cents;
     if (sortBy === "price-desc") return b.price_cents - a.price_cents;
-    if (sortBy === "year-desc") return parseInt(b.year) - parseInt(a.year);
+    if (sortBy === "year-desc") {
+      const aYear = parseInt(a.year, 10) || 0;
+      const bYear = parseInt(b.year, 10) || 0;
+      return bYear - aYear;
+    }
     return 0;
   });
 

@@ -36,7 +36,10 @@ const conditionMultiplier: Record<number, number> = {
 };
 
 const getVintageBonus = (year: string): number => {
-  const age = new Date().getFullYear() - parseInt(year);
+  if (!year || year.trim() === "") return 1.0;
+  const yearNum = parseInt(year, 10);
+  if (Number.isNaN(yearNum)) return 1.0;
+  const age = new Date().getFullYear() - yearNum;
   if (age >= 25) return 1.8;
   if (age >= 15) return 1.4;
   if (age >= 5) return 1.1;
@@ -186,8 +189,11 @@ const JerseyCard = ({
             </TooltipTrigger>
             <TooltipContent side="bottom" className="max-w-[220px]">
               <p className="text-xs">
-                Bewertung {condition}/5 ({conditionLabels[condition]}). 
-                Alter: {new Date().getFullYear() - parseInt(year)} Jahre. 
+                Bewertung {condition}/5 ({conditionLabels[condition]}).
+                Alter: {(() => {
+                  const yearNum = parseInt(year, 10);
+                  return Number.isNaN(yearNum) ? '—' : new Date().getFullYear() - yearNum;
+                })()} Jahre.
                 Der grüne Bereich markiert die faire Preisspanne (€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}).
               </p>
             </TooltipContent>
