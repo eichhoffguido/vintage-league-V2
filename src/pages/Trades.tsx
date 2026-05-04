@@ -3,13 +3,17 @@ import { formatEuros } from "@/utils/currency";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useCreateTradeRating, useUpdateTradeStatus } from "@/hooks/useTradeRating";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Check, X, ArrowLeftRight, ArrowRight } from "lucide-react";
+import { Check, X, ArrowLeftRight, ArrowRight, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -25,6 +29,11 @@ const Trades = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null);
+  const [ratingTradeId, setRatingTradeId] = useState<string | null>(null);
+  const [ratingStars, setRatingStars] = useState(5);
+  const [ratingComment, setRatingComment] = useState("");
+  const createRating = useCreateTradeRating();
+  const updateStatus = useUpdateTradeStatus();
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -103,6 +112,20 @@ const Trades = () => {
     const reqJersey = trade.requester_jersey;
     const ownJersey = trade.owner_jersey;
     const status = statusLabels[trade.status] || statusLabels.pending;
+    const isOwner = user?.id === (ownJersey as any)?.user_id;
+    const canCompleteAndRate = trade.status === "accepted" && isOwner;
+
+    const handleMarkComplete = async () => {
+      try {
+        await updateStatus.mutateAsync({ tradeId: trade.id, status: "completed" });
+        toast.success("Tausch als abgeschlossen markiert!");
+        setRatingTradeId(trade.id);
+        setRatingStars(5);
+        setRatingComment("");
+      } catch (error: any) {
+        toast.error(error.message || "Fehler beim Markieren des Tauschs");
+      }
+    };
 
     return (
       <div className="rounded-sm border border-border bg-card p-4">
@@ -168,6 +191,20 @@ const Trades = () => {
               disabled={updateTrade.isPending}
             >
               <X className="mr-1 h-4 w-4" /> Ablehnen
+            </Button>
+          </div>
+        )}
+
+        {canCompleteAndRate && (
+          <div className="mt-3">
+            <Button
+              variant="hero"
+              size="sm"
+              className="w-full uppercase tracking-wider"
+              onClick={handleMarkComplete}
+              disabled={updateStatus.isPending}
+            >
+              <Check className="mr-1 h-4 w-4" /> Als abgeschlossen markieren
             </Button>
           </div>
         )}
@@ -261,6 +298,82 @@ const Trades = () => {
             </div>
           </div>
         )}
+
+        {/* Rating Modal */}
+        <Dialog open={!!ratingTradeId} onOpenChange={(open) => !open && setRatingTradeId(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl">Bewertung abgeben</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="mb-3 block text-sm">Bewertung</Label>
+                <div className="flex gap-2 justify-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRatingStars(star)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`h-8 w-8 ${
+                          star <= ratingStars
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="comment" className="text-sm">
+                  Deine Erfahrung (optional)
+                </Label>
+                <Textarea
+                  id="comment"
+                  placeholder="Wie war deine Erfahrung mit diesem Tausch?"
+                  value={ratingComment}
+                  onChange={(e) => setRatingComment(e.target.value)}
+                  className="min-h-[100px]"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setRatingTradeId(null)}
+                >
+                  Überspringen
+                </Button>
+                <Button
+                  variant="hero"
+                  className="flex-1 uppercase tracking-wider"
+                  disabled={createRating.isPending}
+                  onClick={async () => {
+                    if (!ratingTradeId) return;
+                    try {
+                      await createRating.mutateAsync({
+                        tradeId: ratingTradeId,
+                        rating: ratingStars,
+                        comment: ratingComment,
+                      });
+                      toast.success("Bewertung abgegeben!");
+                      setRatingTradeId(null);
+                    } catch (error: any) {
+                      toast.error(error.message || "Fehler beim Speichern der Bewertung");
+                    }
+                  }}
+                >
+                  Bewertung abgeben
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <Footer />
     </div>
