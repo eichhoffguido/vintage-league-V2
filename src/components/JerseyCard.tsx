@@ -133,7 +133,7 @@ const JerseyCard = ({
         <div className="mt-3 flex items-end justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Preis</p>
-            <p className="font-display text-xl font-bold text-foreground">{formatEuros(price_cents)}</p>
+            <p className="font-display text-xl font-bold text-foreground">{price_cents != null ? formatEuros(price_cents) : '–'}</p>
           </div>
           <Badge 
             variant="outline" 
@@ -150,7 +150,7 @@ const JerseyCard = ({
               <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
                 <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
                   <span>Bewertung: {condition}/5 · {conditionLabels[condition]}</span>
-                  <span>Marktwert: €{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
+                  <span>Marktwert: {Number.isFinite(fairValue) ? `€${Math.round(fairValue * 0.9)}–€${Math.round(fairValue * 1.1)}` : '–'}</span>
                 </div>
 
                 {/* The spectrum bar */}
@@ -177,9 +177,9 @@ const JerseyCard = ({
 
                 {/* Scale labels */}
                 <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
-                  <span>€{spectrumMin}</span>
-                  <span className="text-green-500 font-medium">€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
-                  <span>€{spectrumMax}</span>
+                  <span>{Number.isFinite(spectrumMin) ? `€${spectrumMin}` : '–'}</span>
+                  <span className="text-green-500 font-medium">{Number.isFinite(fairValue) ? `€${Math.round(fairValue * 0.9)}–€${Math.round(fairValue * 1.1)}` : '–'}</span>
+                  <span>{Number.isFinite(spectrumMax) ? `€${spectrumMax}` : '–'}</span>
                 </div>
               </div>
             </TooltipTrigger>
@@ -194,18 +194,18 @@ const JerseyCard = ({
         </TooltipProvider>
 
         {/* Bid/Ask row */}
-        {(lowestAsk || highestBid) && (
+        {(lowestAsk !== undefined || highestBid !== undefined) && (
           <div className="mt-3 flex gap-4 border-t border-border pt-3">
-            {lowestAsk && (
+            {lowestAsk !== undefined && (
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Niedrigstes Angebot</p>
-                <p className="text-sm font-semibold">{formatEuros(lowestAsk)}</p>
+                <p className="text-sm font-semibold">{lowestAsk !== null ? formatEuros(lowestAsk) : '–'}</p>
               </div>
             )}
-            {highestBid && (
+            {highestBid !== undefined && (
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Höchstes Gebot</p>
-                <p className="text-sm font-semibold text-primary">{formatEuros(highestBid)}</p>
+                <p className="text-sm font-semibold text-primary">{highestBid !== null ? formatEuros(highestBid) : '–'}</p>
               </div>
             )}
           </div>
