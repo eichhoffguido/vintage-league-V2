@@ -19,8 +19,6 @@ interface JerseyCardProps {
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
   estimatedValue?: number;
-  isFavorited?: boolean;
-  onFavoriteToggle?: (jerseyId: string) => void;
   onClick?: () => void;
   is_for_sale?: boolean;
   sale_price_cents?: number;
@@ -79,8 +77,6 @@ const JerseyCard = ({
   condition,
   size,
   estimatedValue: estimatedValueProp,
-  isFavorited = false,
-  onFavoriteToggle,
   onClick,
   is_for_sale = false,
   sale_price_cents,
@@ -128,7 +124,6 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-<<<<<<< HEAD
         <div className="absolute right-3 top-3 flex flex-col gap-2 animate-slide-down" style={{ animationDelay: "100ms" }}>
           <Button
             variant="ghost"
