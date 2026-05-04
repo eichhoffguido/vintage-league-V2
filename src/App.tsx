@@ -16,6 +16,7 @@ import CommunityPost from "./pages/CommunityPost.tsx";
 import Shop from "./pages/Shop.tsx";
 import Watchlist from "./pages/Watchlist.tsx";
 import JerseyDetail from "./pages/JerseyDetail.tsx";
+import SellerProfile from "./pages/SellerProfile.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/shop" element={<Shop />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/jersey/:id" element={<JerseyDetail />} />
+            <Route path="/seller/:userId" element={<SellerProfile />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />

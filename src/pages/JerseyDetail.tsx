@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -271,7 +271,12 @@ const JerseyDetail = () => {
             {/* Owner Info */}
             <div className="rounded-sm border border-border p-6">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Verkäufer</p>
-              <p className="font-semibold text-lg">{jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}</p>
+              <p
+                className="font-semibold text-lg cursor-pointer hover:text-primary"
+                onClick={() => navigate(`/seller/${jersey.user_id}`)}
+              >
+                {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
+              </p>
               {jersey.profiles?.bio && (
                 <p className="text-sm text-muted-foreground mt-2">{jersey.profiles.bio}</p>
               )}
