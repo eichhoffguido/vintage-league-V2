@@ -20,6 +20,7 @@ import jersey8 from "@/assets/jersey-8.jpg";
 
 const allJerseys = [
   {
+    id: "shop-1",
     name: "Heimtrikot 2024/25",
     team: "Real Madrid",
     league: "La Liga",
@@ -36,6 +37,7 @@ const allJerseys = [
     available_for_trade: false,
   },
   {
+    id: "shop-2",
     name: "Heimtrikot 2024/25",
     team: "FC Barcelona",
     league: "La Liga",
@@ -51,6 +53,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-3",
     name: "Heimtrikot 2024/25",
     team: "FC Bayern München",
     league: "Bundesliga",
@@ -66,6 +69,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-4",
     name: "Heimtrikot 2019/20",
     team: "Manchester United",
     league: "Premier League",
@@ -82,6 +86,7 @@ const allJerseys = [
     available_for_trade: false,
   },
   {
+    id: "shop-5",
     name: "Retro Heimtrikot 1995/96",
     team: "AC Milan",
     league: "Serie A",
@@ -98,6 +103,7 @@ const allJerseys = [
     available_for_trade: false,
   },
   {
+    id: "shop-6",
     name: "Heimtrikot 2024/25",
     team: "Borussia Dortmund",
     league: "Bundesliga",
@@ -112,6 +118,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-7",
     name: "Klassik Trikot 2002",
     team: "Brasilien",
     league: "Nationalteam",
@@ -127,6 +134,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-8",
     name: "Heimtrikot 2024/25",
     team: "Inter Mailand",
     league: "Serie A",
@@ -142,6 +150,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-9",
     name: "Auswärtstrikot 2023/24",
     team: "Arsenal FC",
     league: "Premier League",
@@ -158,6 +167,7 @@ const allJerseys = [
     available_for_trade: false,
   },
   {
+    id: "shop-10",
     name: "Heimtrikot 2022/23",
     team: "Juventus Turin",
     league: "Serie A",
@@ -172,6 +182,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-11",
     name: "Retro Trikot 1986",
     team: "Argentinien",
     league: "Nationalteam",
@@ -187,6 +198,7 @@ const allJerseys = [
     available_for_trade: true,
   },
   {
+    id: "shop-12",
     name: "Heimtrikot 2024/25",
     team: "Paris Saint-Germain",
     league: "Ligue 1",

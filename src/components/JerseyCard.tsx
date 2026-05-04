@@ -1,9 +1,12 @@
-import { ShieldCheck, Gem } from "lucide-react";
+import { ShieldCheck, Gem, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface JerseyCardProps {
+  id: string;
   name: string;
   team: string;
   league: string;
@@ -54,7 +57,6 @@ const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal:
   if (range === 0) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
 
 
-
   if (price <= fairVal * 0.85) return { label: "Schnäppchen 🔥", color: "text-primary", bg: "bg-primary" };
   if (price <= fairVal * 1.05) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
   if (price <= fairVal * 1.2) return { label: "Über Marktwert", color: "text-green-500", bg: "bg-green-500" };
@@ -62,6 +64,7 @@ const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal:
 };
 
 const JerseyCard = ({
+  id,
   name,
   team,
   league,
@@ -79,6 +82,7 @@ const JerseyCard = ({
   sale_price_cents,
   available_for_trade = false,
 }: JerseyCardProps) => {
+  const { isFavorited, toggleFavorite } = useWatchlist();
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
   const priceCents = price_cents ?? 0;
@@ -120,8 +124,23 @@ const JerseyCard = ({
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
           </div>
         )}
-        <div className="absolute right-3 top-3 flex flex-col gap-2 items-end">
-          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "100ms" }}>
+        <div className="absolute right-3 top-3 flex flex-col gap-2 animate-slide-down" style={{ animationDelay: "100ms" }}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-sm bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(id);
+            }}
+          >
+            <Heart
+              className="h-4 w-4"
+              fill={isFavorited(id) ? "currentColor" : "none"}
+              color={isFavorited(id) ? "currentColor" : "currentColor"}
+            />
+          </Button>
+          <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
           {is_for_sale && (
