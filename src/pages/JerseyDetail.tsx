@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Gem, Calendar, Package } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -15,6 +15,16 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
   profiles?: Tables<"profiles"> | null;
+};
+
+type SaleHistory = {
+  id: string;
+  team: string;
+  league: string;
+  year: string;
+  price_cents: number | null;
+  condition: number;
+  sold_at: string;
 };
 
 const conditionLabels: Record<number, string> = {
@@ -43,12 +53,20 @@ const JerseyDetail = () => {
   const [jersey, setJersey] = useState<JerseyWithProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchJersey();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (jersey) {
+      fetchSaleHistory();
+    }
+  }, [jersey]);
 
   const fetchJersey = async () => {
     try {
@@ -74,6 +92,42 @@ const JerseyDetail = () => {
       setError(err.message || "Jersey konnte nicht geladen werden");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSaleHistory = async () => {
+    if (!jersey) return;
+    setLoadingHistory(true);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("user_jerseys")
+        .select("id, team, league, year, price_cents, condition, updated_at")
+        .eq("team", jersey.team)
+        .eq("league", jersey.league)
+        .eq("year", jersey.year)
+        .neq("id", jersey.id)
+        .is("deleted_at", null)
+        .order("updated_at", { ascending: false })
+        .limit(5);
+
+      if (fetchError) throw fetchError;
+
+      if (data) {
+        const history: SaleHistory[] = data.map((item: any) => ({
+          id: item.id,
+          team: item.team,
+          league: item.league,
+          year: item.year,
+          price_cents: item.price_cents,
+          condition: item.condition,
+          sold_at: item.updated_at,
+        }));
+        setSaleHistory(history);
+      }
+    } catch (err: any) {
+      console.error("Error fetching sale history:", err);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -179,9 +233,14 @@ const JerseyDetail = () => {
             </div>
 
             {/* Price */}
-            {jersey.price_cents && (
+            {jersey.is_for_sale && jersey.sale_price_cents ? (
               <div className="rounded-sm border border-border bg-secondary/50 p-6">
-                <p className="text-sm text-muted-foreground mb-2">Preis</p>
+                <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
+                <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
+              </div>
+            ) : jersey.price_cents && (
+              <div className="rounded-sm border border-border bg-secondary/50 p-6">
+                <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
                 <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
               </div>
             )}
@@ -246,6 +305,32 @@ const JerseyDetail = () => {
               </div>
             </div>
 
+            {/* Price History - Zuletzt verkauft */}
+            {saleHistory.length > 0 && (
+              <div className="rounded-sm border border-border p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingDown className="h-5 w-5 text-muted-foreground" />
+                  <p className="text-sm font-semibold uppercase tracking-wider">Zuletzt verkauft</p>
+                </div>
+                <div className="space-y-3">
+                  {saleHistory.map((sale) => (
+                    <div key={sale.id} className="flex items-center justify-between text-sm">
+                      <div className="flex-1">
+                        <p className="text-muted-foreground">
+                          {sale.condition}/5 • {new Date(sale.sold_at).toLocaleDateString('de-DE', { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
+                      {sale.price_cents ? (
+                        <p className="font-semibold text-primary">{formatEuros(sale.price_cents)}</p>
+                      ) : (
+                        <p className="text-muted-foreground text-xs">Preis nicht angegeben</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="space-y-3 pt-4 border-t border-border">
               {isOwner ? (
@@ -253,9 +338,23 @@ const JerseyDetail = () => {
                   <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
                 </Button>
               ) : (
-                <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                  Tausch vorschlagen
-                </Button>
+                <>
+                  {jersey.is_for_sale && jersey.sale_price_cents && (
+                    <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                      Sofort kaufen — {formatEuros(jersey.sale_price_cents)}
+                    </Button>
+                  )}
+                  {jersey.available_for_trade && (
+                    <Button variant={jersey.is_for_sale ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                      Tausch vorschlagen
+                    </Button>
+                  )}
+                  {!jersey.is_for_sale && !jersey.available_for_trade && (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      Dieses Trikot ist derzeit nicht verfügbar
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>

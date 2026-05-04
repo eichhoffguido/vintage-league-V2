@@ -26,6 +26,7 @@ const Onboarding = () => {
     favoriteTeam: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [checkingProfile, setCheckingProfile] = useState(true);
 
   const currentStepNumber = {
     welcome: 1,
@@ -42,7 +43,23 @@ const Onboarding = () => {
     }
   }, [authLoading, user, navigate]);
 
-  if (authLoading || !user) {
+  useEffect(() => {
+    if (user && !authLoading) {
+      supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.display_name) {
+            navigate("/collection");
+          }
+          setCheckingProfile(false);
+        });
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading || !user || checkingProfile) {
     return null;
   }
 

@@ -20,6 +20,7 @@ import jersey8 from "@/assets/jersey-8.jpg";
 
 const allJerseys = [
   {
+    id: "shop-1",
     name: "Heimtrikot 2024/25",
     team: "Real Madrid",
     league: "La Liga",
@@ -31,8 +32,12 @@ const allJerseys = [
     verified: true,
     condition: 5,
     size: "L",
+    is_for_sale: true,
+    sale_price_cents: 9500,
+    available_for_trade: false,
   },
   {
+    id: "shop-2",
     name: "Heimtrikot 2024/25",
     team: "FC Barcelona",
     league: "La Liga",
@@ -44,8 +49,11 @@ const allJerseys = [
     verified: true,
     condition: 5,
     size: "M",
+    is_for_sale: false,
+    available_for_trade: true,
   },
   {
+    id: "shop-3",
     name: "Heimtrikot 2024/25",
     team: "FC Bayern München",
     league: "Bundesliga",
@@ -56,8 +64,12 @@ const allJerseys = [
     verified: true,
     condition: 4,
     size: "XL",
+    is_for_sale: true,
+    sale_price_cents: 8500,
+    available_for_trade: true,
   },
   {
+    id: "shop-4",
     name: "Heimtrikot 2019/20",
     team: "Manchester United",
     league: "Premier League",
@@ -69,8 +81,12 @@ const allJerseys = [
     verified: false,
     condition: 3,
     size: "M",
+    is_for_sale: true,
+    sale_price_cents: 13000,
+    available_for_trade: false,
   },
   {
+    id: "shop-5",
     name: "Retro Heimtrikot 1995/96",
     team: "AC Milan",
     league: "Serie A",
@@ -82,8 +98,12 @@ const allJerseys = [
     verified: true,
     condition: 3,
     size: "L",
+    is_for_sale: true,
+    sale_price_cents: 28000,
+    available_for_trade: false,
   },
   {
+    id: "shop-6",
     name: "Heimtrikot 2024/25",
     team: "Borussia Dortmund",
     league: "Bundesliga",
@@ -94,8 +114,11 @@ const allJerseys = [
     verified: true,
     condition: 5,
     size: "S",
+    is_for_sale: false,
+    available_for_trade: true,
   },
   {
+    id: "shop-7",
     name: "Klassik Trikot 2002",
     team: "Brasilien",
     league: "Nationalteam",
@@ -106,8 +129,12 @@ const allJerseys = [
     verified: true,
     condition: 4,
     size: "M",
+    is_for_sale: true,
+    sale_price_cents: 19500,
+    available_for_trade: true,
   },
   {
+    id: "shop-8",
     name: "Heimtrikot 2024/25",
     team: "Inter Mailand",
     league: "Serie A",
@@ -119,8 +146,11 @@ const allJerseys = [
     verified: false,
     condition: 5,
     size: "L",
+    is_for_sale: false,
+    available_for_trade: true,
   },
   {
+    id: "shop-9",
     name: "Auswärtstrikot 2023/24",
     team: "Arsenal FC",
     league: "Premier League",
@@ -132,8 +162,12 @@ const allJerseys = [
     verified: true,
     condition: 5,
     size: "M",
+    is_for_sale: true,
+    sale_price_cents: 12000,
+    available_for_trade: false,
   },
   {
+    id: "shop-10",
     name: "Heimtrikot 2022/23",
     team: "Juventus Turin",
     league: "Serie A",
@@ -144,8 +178,11 @@ const allJerseys = [
     verified: true,
     condition: 4,
     size: "L",
+    is_for_sale: false,
+    available_for_trade: true,
   },
   {
+    id: "shop-11",
     name: "Retro Trikot 1986",
     team: "Argentinien",
     league: "Nationalteam",
@@ -156,8 +193,12 @@ const allJerseys = [
     verified: true,
     condition: 3,
     size: "XL",
+    is_for_sale: true,
+    sale_price_cents: 35000,
+    available_for_trade: true,
   },
   {
+    id: "shop-12",
     name: "Heimtrikot 2024/25",
     team: "Paris Saint-Germain",
     league: "Ligue 1",
@@ -169,6 +210,9 @@ const allJerseys = [
     verified: true,
     condition: 5,
     size: "S",
+    is_for_sale: true,
+    sale_price_cents: 9500,
+    available_for_trade: false,
   },
 ];
 
@@ -186,6 +230,7 @@ const categories = [
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
+  const [activeListingType, setActiveListingType] = useState<"all" | "trade" | "sell">(searchParams.get("listing") as any || "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
@@ -207,6 +252,14 @@ const Shop = () => {
   }, [activeCategory, sortBy, searchQuery]);
 
   const filteredJerseys = allJerseys.filter((jersey) => {
+    // Filter by listing type
+    let listingMatch = true;
+    if (activeListingType === "trade") {
+      listingMatch = jersey.available_for_trade === true;
+    } else if (activeListingType === "sell") {
+      listingMatch = jersey.is_for_sale === true;
+    }
+
     // Filter by category
     let categoryMatch = true;
     if (activeCategory !== "all") {
@@ -229,7 +282,7 @@ const Shop = () => {
                     jersey.team.toLowerCase().includes(query);
     }
 
-    return categoryMatch && searchMatch;
+    return listingMatch && categoryMatch && searchMatch;
   });
 
   const sortedJerseys = [...filteredJerseys].sort((a, b) => {
@@ -289,6 +342,37 @@ const Shop = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-sm border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
             />
+          </div>
+
+          {/* Listing Type Filter */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[
+              { id: "all", label: "Alle" },
+              { id: "trade", label: "Zum Tauschen" },
+              { id: "sell", label: "Zum Kaufen" },
+            ].map((type) => (
+              <Button
+                key={type.id}
+                variant={activeListingType === type.id ? "default" : "outline"}
+                size="sm"
+                className={`rounded-full text-xs uppercase tracking-wider transition-colors ${
+                  activeListingType === type.id
+                    ? "bg-primary text-primary-foreground"
+                    : "border-muted-foreground/30 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+                onClick={() => {
+                  setActiveListingType(type.id as any);
+                  if (type.id === "all") {
+                    searchParams.delete("listing");
+                  } else {
+                    searchParams.set("listing", type.id);
+                  }
+                  setSearchParams(searchParams);
+                }}
+              >
+                {type.label}
+              </Button>
+            ))}
           </div>
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -369,10 +453,17 @@ const Shop = () => {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} onClick={() => {
-                    setSelectedJersey(jersey);
-                    setIsDetailOpen(true);
-                  }} />
+                  <JerseyCard
+                    {...jersey}
+                    condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                    is_for_sale={jersey.is_for_sale}
+                    sale_price_cents={jersey.sale_price_cents}
+                    available_for_trade={jersey.available_for_trade}
+                    onClick={() => {
+                      setSelectedJersey(jersey);
+                      setIsDetailOpen(true);
+                    }}
+                  />
                 </div>
               ))}
             </div>
