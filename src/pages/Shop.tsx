@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
+import JerseyDetailSheet from "@/components/JerseyDetailSheet";
 import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import heroImage from "@/assets/hero-jersey.jpg";
@@ -23,9 +24,9 @@ const allJerseys = [
     team: "Real Madrid",
     league: "La Liga",
     year: "2024",
-    price: 89,
-    lowestAsk: 85,
-    highestBid: 78,
+    price_cents: 8900,
+    lowestAsk: 8500,
+    highestBid: 7800,
     imageUrl: jersey1,
     verified: true,
     condition: 5,
@@ -36,9 +37,9 @@ const allJerseys = [
     team: "FC Barcelona",
     league: "La Liga",
     year: "2024",
-    price: 95,
-    lowestAsk: 90,
-    highestBid: 82,
+    price_cents: 9500,
+    lowestAsk: 9000,
+    highestBid: 8200,
     imageUrl: jersey2,
     verified: true,
     condition: 5,
@@ -49,8 +50,8 @@ const allJerseys = [
     team: "FC Bayern München",
     league: "Bundesliga",
     year: "2024",
-    price: 79,
-    highestBid: 72,
+    price_cents: 7900,
+    highestBid: 7200,
     imageUrl: jersey3,
     verified: true,
     condition: 4,
@@ -61,9 +62,9 @@ const allJerseys = [
     team: "Manchester United",
     league: "Premier League",
     year: "2019",
-    price: 120,
-    lowestAsk: 115,
-    highestBid: 105,
+    price_cents: 12000,
+    lowestAsk: 11500,
+    highestBid: 10500,
     imageUrl: jersey4,
     verified: false,
     condition: 3,
@@ -74,9 +75,9 @@ const allJerseys = [
     team: "AC Milan",
     league: "Serie A",
     year: "1995",
-    price: 250,
-    lowestAsk: 240,
-    highestBid: 220,
+    price_cents: 25000,
+    lowestAsk: 24000,
+    highestBid: 22000,
     imageUrl: jersey5,
     verified: true,
     condition: 3,
@@ -87,8 +88,8 @@ const allJerseys = [
     team: "Borussia Dortmund",
     league: "Bundesliga",
     year: "2024",
-    price: 75,
-    lowestAsk: 70,
+    price_cents: 7500,
+    lowestAsk: 7000,
     imageUrl: jersey6,
     verified: true,
     condition: 5,
@@ -99,8 +100,8 @@ const allJerseys = [
     team: "Brasilien",
     league: "Nationalteam",
     year: "2002",
-    price: 180,
-    highestBid: 165,
+    price_cents: 18000,
+    highestBid: 16500,
     imageUrl: jersey7,
     verified: true,
     condition: 4,
@@ -111,9 +112,9 @@ const allJerseys = [
     team: "Inter Mailand",
     league: "Serie A",
     year: "2024",
-    price: 85,
-    lowestAsk: 80,
-    highestBid: 75,
+    price_cents: 8500,
+    lowestAsk: 8000,
+    highestBid: 7500,
     imageUrl: jersey8,
     verified: false,
     condition: 5,
@@ -124,8 +125,9 @@ const allJerseys = [
     team: "Arsenal FC",
     league: "Premier League",
     year: "2023",
-    price: 110,
-    lowestAsk: 105,
+    price_cents: 11000,
+    lowestAsk: 10500,
+    highestBid: 8800,
     imageUrl: jersey1,
     verified: true,
     condition: 5,
@@ -136,8 +138,8 @@ const allJerseys = [
     team: "Juventus Turin",
     league: "Serie A",
     year: "2022",
-    price: 95,
-    highestBid: 88,
+    price_cents: 9500,
+    highestBid: 8800,
     imageUrl: jersey2,
     verified: true,
     condition: 4,
@@ -148,8 +150,8 @@ const allJerseys = [
     team: "Argentinien",
     league: "Nationalteam",
     year: "1986",
-    price: 320,
-    lowestAsk: 310,
+    price_cents: 32000,
+    lowestAsk: 31000,
     imageUrl: jersey3,
     verified: true,
     condition: 3,
@@ -160,9 +162,9 @@ const allJerseys = [
     team: "Paris Saint-Germain",
     league: "Ligue 1",
     year: "2024",
-    price: 88,
-    lowestAsk: 82,
-    highestBid: 76,
+    price_cents: 8800,
+    lowestAsk: 8200,
+    highestBid: 7600,
     imageUrl: jersey4,
     verified: true,
     condition: 5,
@@ -188,6 +190,8 @@ const Shop = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedJersey, setSelectedJersey] = useState<(typeof allJerseys)[0] | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get("cat");
@@ -209,7 +213,7 @@ const Shop = () => {
       if (activeCategory === "klassiker") {
         categoryMatch = parseInt(jersey.year) < 2010;
       } else if (activeCategory === "rarities") {
-        categoryMatch = jersey.price > 200;
+        categoryMatch = jersey.price_cents > 20000;
       } else {
         categoryMatch = jersey.league.toLowerCase().includes(activeCategory.toLowerCase()) ||
                        jersey.league.toLowerCase().replace(" ", "-") === activeCategory;
@@ -228,8 +232,8 @@ const Shop = () => {
   });
 
   const sortedJerseys = [...filteredJerseys].sort((a, b) => {
-    if (sortBy === "price-asc") return a.price - b.price;
-    if (sortBy === "price-desc") return b.price - a.price;
+    if (sortBy === "price-asc") return a.price_cents - b.price_cents;
+    if (sortBy === "price-desc") return b.price_cents - a.price_cents;
     if (sortBy === "year-desc") return parseInt(b.year) - parseInt(a.year);
     return 0;
   });
@@ -360,7 +364,10 @@ const Shop = () => {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} />
+                  <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} onClick={() => {
+                    setSelectedJersey(jersey);
+                    setIsDetailOpen(true);
+                  }} />
                 </div>
               ))}
             </div>
@@ -381,6 +388,12 @@ const Shop = () => {
           )}
         </div>
       </section>
+
+      <JerseyDetailSheet
+        jersey={selectedJersey}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
 
       <Footer />
     </div>
