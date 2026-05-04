@@ -172,10 +172,10 @@ const JerseyCard = ({
                     className="absolute -translate-x-1/2 flex flex-col items-center"
                     style={{ left: `${pricePos}%` }}
                   >
-                    <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`} 
+                    <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`}
                       style={{ borderBottomColor: 'currentColor' }}
                     />
-                    <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>€{price}</span>
+                    <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>{Number.isFinite(price) ? `€${price}` : '–'}</span>
                   </div>
                 </div>
 
