@@ -37,7 +37,7 @@ const Header = () => {
               Entdecken
             </Link>
             <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-              Marketplace
+              Marktplatz
             </Link>
             <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Tauschbörse
@@ -122,7 +122,7 @@ const Header = () => {
         <div className="border-t border-border bg-background px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-3 pt-4">
             <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Entdecken</Link>
-            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Marketplace</Link>
+            <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Marktplatz</Link>
             <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
             <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Community</Link>
             {user && (
