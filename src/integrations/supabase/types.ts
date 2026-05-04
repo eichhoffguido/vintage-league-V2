@@ -151,6 +151,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          average_rating: number | null
           bio: string | null
           created_at: string
           deleted_at: string | null
@@ -160,6 +161,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -169,6 +171,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -177,6 +180,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      trade_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+          trade_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+          trade_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id?: string
+          rater_user_id?: string
+          rating?: number
+          trade_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_ratings_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trade_requests: {
         Row: {
