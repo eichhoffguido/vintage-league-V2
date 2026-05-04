@@ -47,11 +47,8 @@ const Header = () => {
             </Link>
             {user && (
               <>
-                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Profil
-                </Link>
-                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Sammlung
+                <Link to="/favorites" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                  Favoriten
                 </Link>
                 <Link to="/watchlist" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
                   Beobachtungsliste
