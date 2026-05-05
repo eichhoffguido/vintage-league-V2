@@ -7,13 +7,11 @@
 --   2. No ON CONFLICT guard — a second INSERT (race / retry) caused a PK
 --      violation that rolled back the entire auth.users transaction.
 --   3. No exception handler — any trigger error blocked OAuth sign-up entirely.
---   4. is_for_sale / sale_price_cents columns were missing from the live DB
---      (migration committed but not yet applied), causing Collection INSERT
---      failures and a broken "Fehler beim Laden deiner Sammlung" state.
+-- Note: is_for_sale was intentionally removed (VINA-214). sale_price_cents IS NOT NULL
+--   is used as the "for sale" indicator. sale_price_cents is added in migration 20260504160000.
 
--- ── 1. Ensure is_for_sale and sale_price_cents exist ──────────────────────────
+-- ── 1. Ensure sale_price_cents exists (safety net) ───────────────────────────
 ALTER TABLE public.user_jerseys
-  ADD COLUMN IF NOT EXISTS is_for_sale    boolean  NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS sale_price_cents integer NULL;
 
 -- ── 2. Replace handle_new_user() with OAuth-aware version ─────────────────────
