@@ -50,7 +50,7 @@ const JerseyDetailSheet = ({ jersey, open, onOpenChange }: JerseyDetailSheetProp
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-lg md:max-w-2xl lg:max-w-3xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="font-display text-xl">Trikot Details</SheetTitle>
         </SheetHeader>
@@ -75,7 +75,11 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
     if (!user) {
       navigate("/auth");
     } else {
-      navigate("/trade");
+      const params = new URLSearchParams();
+      if (jersey.id) {
+        params.append("jersey", jersey.id);
+      }
+      navigate(`/trade${params.toString() ? `?${params.toString()}` : ""}`);
     }
   };
 
@@ -123,26 +127,26 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
 
       {/* Price */}
       <div className="rounded-sm border border-border bg-secondary/50 p-4">
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Preis</p>
             <p className="font-display text-3xl font-bold text-foreground">{jersey.price_cents != null ? formatEuros(jersey.price_cents) : '–'}</p>
           </div>
-          <Badge variant="outline" className="text-xs font-bold">
+          <Badge variant="outline" className="text-xs font-bold w-fit">
             {conditionLabels[jersey.condition]}
           </Badge>
         </div>
 
         {(jersey.lowestAsk !== undefined || jersey.highestBid !== undefined) && (
-          <div className="mt-4 flex gap-4 border-t border-border pt-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4">
             {jersey.lowestAsk !== undefined && (
-              <div className="flex-1">
+              <div>
                 <p className="text-xs text-muted-foreground">Niedrigstes Angebot</p>
                 <p className="text-sm font-semibold">{jersey.lowestAsk !== null ? formatEuros(jersey.lowestAsk) : '–'}</p>
               </div>
             )}
             {jersey.highestBid !== undefined && (
-              <div className="flex-1">
+              <div>
                 <p className="text-xs text-muted-foreground">Höchstes Gebot</p>
                 <p className="text-sm font-semibold text-primary">{jersey.highestBid !== null ? formatEuros(jersey.highestBid) : '–'}</p>
               </div>
@@ -154,7 +158,7 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
       {/* Details */}
       <div className="space-y-3 rounded-sm border border-border p-4">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wider">Details</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
           <div>
             <p className="text-muted-foreground">Zustand</p>
             <p className="font-medium">{conditionLabels[jersey.condition]} ({jersey.condition}/5)</p>
