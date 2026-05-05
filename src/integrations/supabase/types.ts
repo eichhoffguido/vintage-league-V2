@@ -335,9 +335,12 @@ export type Database = {
           deleted_at: string | null
           id: string
           image_url: string | null
+          is_for_sale: boolean
           league: string
+          listing_type: "trade_only" | "buy_now" | "both"
           name: string
           price_cents: number | null
+          sale_price_cents: number | null
           size: string
           team: string
           updated_at: string
@@ -354,9 +357,12 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_for_sale?: boolean
           league?: string
+          listing_type?: "trade_only" | "buy_now" | "both"
           name: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team: string
           updated_at?: string
@@ -373,9 +379,12 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_for_sale?: boolean
           league?: string
+          listing_type?: "trade_only" | "buy_now" | "both"
           name?: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team?: string
           updated_at?: string
@@ -386,6 +395,42 @@ export type Database = {
           year?: string
         }
         Relationships: []
+      }
+      jersey_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          jersey_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jersey_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jersey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jersey_favorites_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jersey_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_favorites: {
         Row: {
