@@ -71,13 +71,28 @@ const Trades = () => {
 
         if (fetchError) throw fetchError;
 
-        // Deactivate both jerseys
-        const { error: updateError } = await supabase
+        // Fetch both jerseys to get their current sale_price_cents
+        const { data: jerseys, error: jerseysFetchError } = await supabase
           .from("user_jerseys")
-          .update({ available_for_trade: false })
+          .select("id, sale_price_cents")
           .in("id", [trade.requester_jersey_id, trade.owner_jersey_id]);
 
-        if (updateError) throw updateError;
+        if (jerseysFetchError) throw jerseysFetchError;
+
+        // Deactivate both jerseys and update listing_type
+        for (const jersey of jerseys) {
+          // When deactivating for trade, update listing_type:
+          // - If has sale price, set to "buy_now"
+          // - Otherwise, set to "trade_only"
+          const newListingType = jersey.sale_price_cents ? "buy_now" : "trade_only";
+
+          const { error: updateError } = await supabase
+            .from("user_jerseys")
+            .update({ available_for_trade: false, listing_type: newListingType })
+            .eq("id", jersey.id);
+
+          if (updateError) throw updateError;
+        }
       }
 
       // Update trade status

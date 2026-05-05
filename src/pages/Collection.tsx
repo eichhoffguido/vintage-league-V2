@@ -84,6 +84,13 @@ const Collection = () => {
       const availableForTrade = form.listingType === "trade" || form.listingType === "both";
       const salePriceCents = isForSale ? eurosToCents(form.price_cents) : null;
 
+      // Map listingType to database listing_type enum
+      const listingTypeMap: Record<"trade" | "sell" | "both", "trade_only" | "buy_now" | "both"> = {
+        trade: "trade_only",
+        sell: "buy_now",
+        both: "both",
+      };
+
       const { error } = await supabase.from("user_jerseys").insert({
         user_id: user!.id,
         name: form.name.trim(),
@@ -96,6 +103,7 @@ const Collection = () => {
         price_cents: eurosToCents(form.price_cents),
         available_for_trade: availableForTrade,
         sale_price_cents: salePriceCents,
+        listing_type: listingTypeMap[form.listingType],
       });
       if (error) throw error;
     },
@@ -123,7 +131,33 @@ const Collection = () => {
 
   const toggleTrade = useMutation({
     mutationFn: async ({ id, available }: { id: string; available: boolean }) => {
-      const { error } = await supabase.from("user_jerseys").update({ available_for_trade: available }).eq("id", id);
+      // Fetch current jersey to check sale_price_cents
+      const { data: jersey, error: fetchError } = await supabase
+        .from("user_jerseys")
+        .select("sale_price_cents, listing_type")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Update listing_type based on trade availability and sale status
+      let newListingType: "trade_only" | "buy_now" | "both" = jersey.listing_type;
+      if (available) {
+        // If toggling to available for trade:
+        // - If has sale price, listing_type should be "both"
+        // - If no sale price, listing_type should be "trade_only"
+        newListingType = jersey.sale_price_cents ? "both" : "trade_only";
+      } else {
+        // If toggling to unavailable for trade:
+        // - If has sale price, listing_type should be "buy_now"
+        // - If no sale price, keep as "trade_only"
+        newListingType = jersey.sale_price_cents ? "buy_now" : "trade_only";
+      }
+
+      const { error } = await supabase
+        .from("user_jerseys")
+        .update({ available_for_trade: available, listing_type: newListingType })
+        .eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -136,9 +170,32 @@ const Collection = () => {
   const updateSalePrice = useMutation({
     mutationFn: async ({ id, price }: { id: string; price: string }) => {
       const priceCents = price ? eurosToCents(price) : null;
+
+      // Fetch current jersey to check available_for_trade
+      const { data: jersey, error: fetchError } = await supabase
+        .from("user_jerseys")
+        .select("available_for_trade")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Update listing_type based on sale price and trade availability
+      let newListingType: "trade_only" | "buy_now" | "both" = "trade_only";
+      if (priceCents !== null && jersey.available_for_trade) {
+        newListingType = "both";
+      } else if (priceCents !== null && !jersey.available_for_trade) {
+        newListingType = "buy_now";
+      } else if (priceCents === null && jersey.available_for_trade) {
+        newListingType = "trade_only";
+      } else {
+        // priceCents === null && !available_for_trade
+        newListingType = "trade_only";
+      }
+
       const { error } = await supabase
         .from("user_jerseys")
-        .update({ sale_price_cents: priceCents })
+        .update({ sale_price_cents: priceCents, listing_type: newListingType })
         .eq("id", id);
       if (error) throw error;
     },
