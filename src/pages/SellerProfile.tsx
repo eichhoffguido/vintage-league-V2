@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, MapPin } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Header from "@/components/Header";
@@ -21,6 +21,28 @@ const conditionLabels: Record<number, string> = {
   3: "Gut erhalten",
   2: "Gebraucht",
   1: "Sammlerstück",
+};
+
+const StarRating = ({ rating }: { rating: number | null }) => {
+  if (rating === null) return null;
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`h-4 w-4 ${
+              star <= Math.round(rating)
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-muted-foreground/30"
+            }`}
+          />
+        ))}
+      </div>
+      <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+    </div>
+  );
 };
 
 const SellerProfile = () => {
@@ -84,7 +106,11 @@ const SellerProfile = () => {
               <div className="flex-1 space-y-3">
                 <Skeleton className="h-8 w-1/2" />
                 <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-4 w-1/2" />
+                <div className="grid gap-4 sm:grid-cols-4 mt-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -154,7 +180,13 @@ const SellerProfile = () => {
               )}
 
               {/* Stats */}
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="mt-6 grid gap-4 sm:grid-cols-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Bewertung</p>
+                  <div className="mt-2">
+                    <StarRating rating={profile.average_rating} />
+                  </div>
+                </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Trikots zum Tausch</p>
                   <p className="font-display text-2xl font-bold">{jerseys.length}</p>
