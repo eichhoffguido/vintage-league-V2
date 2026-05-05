@@ -224,6 +224,7 @@ const Shop = () => {
                     year={jersey.year}
                     price_cents={jersey.price_cents}
                     imageUrl={jersey.image_url}
+                    verified={jersey.verification_status === "verified"}
                     condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                     size={jersey.size}
                     available_for_trade={jersey.available_for_trade}
