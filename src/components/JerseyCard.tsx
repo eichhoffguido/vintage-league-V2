@@ -21,7 +21,6 @@ interface JerseyCardProps {
   size: string;
   estimatedValue?: number;
   onClick?: () => void;
-  is_for_sale?: boolean;
   sale_price_cents?: number;
   available_for_trade?: boolean;
 }
@@ -80,7 +79,6 @@ const JerseyCard = ({
   size,
   estimatedValue: estimatedValueProp,
   onClick,
-  is_for_sale = false,
   sale_price_cents,
   available_for_trade = false,
 }: JerseyCardProps) => {
@@ -153,7 +151,7 @@ const JerseyCard = ({
           <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
-          {is_for_sale && (
+          {!!sale_price_cents && (
             <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
               Kaufen
             </Badge>
@@ -178,7 +176,7 @@ const JerseyCard = ({
         {/* Price + Verdict */}
         <div className="mt-3 flex items-end justify-between">
           <div>
-            {is_for_sale && sale_price_cents ? (
+            {!!sale_price_cents ? (
               <>
                 <p className="text-xs text-muted-foreground">Verkaufspreis</p>
                 <p className="font-display text-xl font-bold text-primary">{formatEuros(sale_price_cents)}</p>
@@ -190,7 +188,7 @@ const JerseyCard = ({
               </>
             )}
           </div>
-          {!is_for_sale && (
+          {!sale_price_cents && (
             <Badge
               variant="outline"
               className={`text-xs font-bold ${verdict.color} border-current`}

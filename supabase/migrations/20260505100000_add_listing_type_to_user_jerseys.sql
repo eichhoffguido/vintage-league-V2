@@ -7,18 +7,16 @@
 --   'both'        — available for both trade and purchase
 --
 -- Default is 'trade_only' to preserve existing jersey behaviour.
--- The is_for_sale boolean (added in VINA-165) will remain for backward
--- compatibility; listing_type supersedes it for new feature logic.
+-- Note: is_for_sale was removed (VINA-214). Use sale_price_cents IS NOT NULL instead.
 
 ALTER TABLE public.user_jerseys
   ADD COLUMN listing_type text NOT NULL DEFAULT 'trade_only'
   CHECK (listing_type IN ('trade_only', 'buy_now', 'both'));
 
--- Backfill: jerseys already marked is_for_sale=true should be 'both'
--- (they were tradeable AND for sale)
+-- Backfill: jerseys with a sale_price_cents set should be 'both'
 UPDATE public.user_jerseys
   SET listing_type = 'both'
-WHERE is_for_sale = true;
+WHERE sale_price_cents IS NOT NULL;
 
 COMMENT ON COLUMN public.user_jerseys.listing_type IS
-  'Listing mode: trade_only | buy_now | both. Supersedes is_for_sale for new feature logic.';
+  'Listing mode: trade_only | buy_now | both. Replaces the removed is_for_sale flag.';

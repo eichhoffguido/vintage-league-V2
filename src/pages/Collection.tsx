@@ -95,7 +95,6 @@ const Collection = () => {
         image_url: imageUrl || form.image_url.trim() || null,
         price_cents: eurosToCents(form.price_cents),
         available_for_trade: availableForTrade,
-        is_for_sale: isForSale,
         sale_price_cents: salePriceCents,
       });
       if (error) throw error;
@@ -134,24 +133,12 @@ const Collection = () => {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const toggleSale = useMutation({
-    mutationFn: async ({ id, forSale }: { id: string; forSale: boolean }) => {
-      const { error } = await supabase.from("user_jerseys").update({ is_for_sale: forSale }).eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
-      toast.success("Trikot ist jetzt zum Verkauf verfügbar!");
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
   const updateSalePrice = useMutation({
     mutationFn: async ({ id, price }: { id: string; price: string }) => {
       const priceCents = price ? eurosToCents(price) : null;
       const { error } = await supabase
         .from("user_jerseys")
-        .update({ is_for_sale: true, sale_price_cents: priceCents })
+        .update({ sale_price_cents: priceCents })
         .eq("id", id);
       if (error) throw error;
     },
@@ -372,12 +359,12 @@ const Collection = () => {
                     </div>
                     <div className="flex flex-col gap-1 items-end">
                       <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                      {jersey.is_for_sale && <Badge variant="default" className="text-[10px]">Kaufen</Badge>}
+                      {!!jersey.sale_price_cents && <Badge variant="default" className="text-[10px]">Kaufen</Badge>}
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.sale_price_cents && jersey.is_for_sale && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
+                    {jersey.sale_price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     {jersey.verification_status === "verified" && (
@@ -494,7 +481,7 @@ const Collection = () => {
                         <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
                       </div>
                     </div>
-                    {selectedJersey.is_for_sale && selectedJersey.sale_price_cents && (
+                    {selectedJersey.sale_price_cents && (
                       <div>
                         <p className="text-xs text-muted-foreground">Verkaufspreis</p>
                         <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
@@ -521,9 +508,9 @@ const Collection = () => {
                         {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
                       </Button>
                     )}
-                    {selectedJersey.is_for_sale ? (
+                    {selectedJersey.sale_price_cents ? (
                       <Badge variant="default" className="w-full justify-center py-2">
-                        Zum Verkauf {selectedJersey.sale_price_cents && `(${formatEuros(selectedJersey.sale_price_cents)})`}
+                        Zum Verkauf ({formatEuros(selectedJersey.sale_price_cents)})
                       </Badge>
                     ) : (
                       <Button

@@ -233,7 +233,7 @@ const JerseyDetail = () => {
             </div>
 
             {/* Price */}
-            {jersey.is_for_sale && jersey.sale_price_cents ? (
+            {jersey.sale_price_cents ? (
               <div className="rounded-sm border border-border bg-secondary/50 p-6">
                 <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
                 <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
@@ -339,17 +339,17 @@ const JerseyDetail = () => {
                 </Button>
               ) : (
                 <>
-                  {jersey.is_for_sale && jersey.sale_price_cents && (
+                  {jersey.sale_price_cents && (
                     <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
                       Sofort kaufen — {formatEuros(jersey.sale_price_cents)}
                     </Button>
                   )}
                   {jersey.available_for_trade && (
-                    <Button variant={jersey.is_for_sale ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
                       Tausch vorschlagen
                     </Button>
                   )}
-                  {!jersey.is_for_sale && !jersey.available_for_trade && (
+                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
                     <p className="text-sm text-muted-foreground text-center py-2">
                       Dieses Trikot ist derzeit nicht verfügbar
                     </p>

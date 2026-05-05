@@ -82,7 +82,7 @@ const SellerProfile = () => {
         .from("user_jerseys")
         .select("*")
         .eq("user_id", userId!)
-        .or("available_for_trade.eq.true,is_for_sale.eq.true")
+        .or("available_for_trade.eq.true,sale_price_cents.not.is.null")
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
@@ -301,7 +301,7 @@ const SellerProfile = () => {
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground mb-2">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.is_for_sale && jersey.sale_price_cents ? (
+                    {jersey.sale_price_cents ? (
                       <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>
                     ) : jersey.price_cents ? (
                       <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>
