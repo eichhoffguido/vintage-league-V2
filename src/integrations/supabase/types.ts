@@ -335,9 +335,11 @@ export type Database = {
           deleted_at: string | null
           id: string
           image_url: string | null
+          is_for_sale: boolean
           league: string
           name: string
           price_cents: number | null
+          sale_price_cents: number | null
           size: string
           team: string
           updated_at: string
@@ -354,9 +356,11 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_for_sale?: boolean
           league?: string
           name: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team: string
           updated_at?: string
@@ -373,9 +377,11 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_for_sale?: boolean
           league?: string
           name?: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team?: string
           updated_at?: string

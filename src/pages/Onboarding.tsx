@@ -71,12 +71,14 @@ const Onboarding = () => {
 
     setIsLoading(true);
     try {
+      // Use upsert so this works even if the OAuth trigger didn't create
+      // the profile row yet (handle_new_user may have silently failed).
       const { error } = await supabase
         .from("profiles")
-        .update({
-          display_name: formData.displayName.trim(),
-        })
-        .eq("id", user.id);
+        .upsert(
+          { id: user.id, display_name: formData.displayName.trim() },
+          { onConflict: "id" }
+        );
 
       if (error) throw error;
 
