@@ -1,190 +1,42 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
+import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-jersey.jpg";
 
-// Mock data for jerseys (same as in Shop.tsx for now)
-const allJerseys = [
-  {
-    id: "shop-1",
-    name: "Heimtrikot 2024/25",
-    team: "Real Madrid",
-    league: "La Liga",
-    year: "2024",
-    price_cents: 8900,
-    lowestAsk: 8500,
-    highestBid: 7800,
-    imageUrl: new URL("@/assets/jersey-1.jpg", import.meta.url).href,
-    verified: true,
-    condition: 5 as const,
-    size: "L",
-  },
-  {
-    id: "shop-2",
-    name: "Heimtrikot 2024/25",
-    team: "FC Barcelona",
-    league: "La Liga",
-    year: "2024",
-    price_cents: 9500,
-    lowestAsk: 9000,
-    highestBid: 8200,
-    imageUrl: new URL("@/assets/jersey-2.jpg", import.meta.url).href,
-    verified: true,
-    condition: 5 as const,
-    size: "M",
-  },
-  {
-    id: "shop-3",
-    name: "Heimtrikot 2024/25",
-    team: "FC Bayern München",
-    league: "Bundesliga",
-    year: "2024",
-    price_cents: 7900,
-    highestBid: 7200,
-    imageUrl: new URL("@/assets/jersey-3.jpg", import.meta.url).href,
-    verified: true,
-    condition: 4 as const,
-    size: "XL",
-  },
-  {
-    id: "shop-4",
-    name: "Heimtrikot 2019/20",
-    team: "Manchester United",
-    league: "Premier League",
-    year: "2019",
-    price_cents: 12000,
-    lowestAsk: 11500,
-    highestBid: 10500,
-    imageUrl: new URL("@/assets/jersey-4.jpg", import.meta.url).href,
-    verified: false,
-    condition: 3 as const,
-    size: "M",
-  },
-  {
-    id: "shop-5",
-    name: "Retro Heimtrikot 1995/96",
-    team: "AC Milan",
-    league: "Serie A",
-    year: "1995",
-    price_cents: 25000,
-    lowestAsk: 24000,
-    highestBid: 22000,
-    imageUrl: new URL("@/assets/jersey-5.jpg", import.meta.url).href,
-    verified: true,
-    condition: 3 as const,
-    size: "L",
-  },
-  {
-    id: "shop-6",
-    name: "Heimtrikot 2024/25",
-    team: "Borussia Dortmund",
-    league: "Bundesliga",
-    year: "2024",
-    price_cents: 7500,
-    lowestAsk: 7000,
-    imageUrl: new URL("@/assets/jersey-6.jpg", import.meta.url).href,
-    verified: true,
-    condition: 5 as const,
-    size: "S",
-  },
-  {
-    id: "shop-7",
-    name: "Klassik Trikot 2002",
-    team: "Brasilien",
-    league: "Nationalteam",
-    year: "2002",
-    price_cents: 18000,
-    highestBid: 16500,
-    imageUrl: new URL("@/assets/jersey-7.jpg", import.meta.url).href,
-    verified: true,
-    condition: 4 as const,
-    size: "M",
-  },
-  {
-    id: "shop-8",
-    name: "Heimtrikot 2024/25",
-    team: "Inter Mailand",
-    league: "Serie A",
-    year: "2024",
-    price_cents: 8500,
-    lowestAsk: 8000,
-    highestBid: 7500,
-    imageUrl: new URL("@/assets/jersey-8.jpg", import.meta.url).href,
-    verified: false,
-    condition: 5 as const,
-    size: "L",
-  },
-  {
-    id: "shop-9",
-    name: "Auswärtstrikot 2023/24",
-    team: "Arsenal FC",
-    league: "Premier League",
-    year: "2023",
-    price_cents: 11000,
-    lowestAsk: 10500,
-    highestBid: 8800,
-    imageUrl: new URL("@/assets/jersey-1.jpg", import.meta.url).href,
-    verified: true,
-    condition: 5 as const,
-    size: "M",
-  },
-  {
-    id: "shop-10",
-    name: "Heimtrikot 2022/23",
-    team: "Juventus Turin",
-    league: "Serie A",
-    year: "2022",
-    price_cents: 9500,
-    highestBid: 8800,
-    imageUrl: new URL("@/assets/jersey-2.jpg", import.meta.url).href,
-    verified: true,
-    condition: 4 as const,
-    size: "L",
-  },
-  {
-    id: "shop-11",
-    name: "Retro Trikot 1986",
-    team: "Argentinien",
-    league: "Nationalteam",
-    year: "1986",
-    price_cents: 32000,
-    lowestAsk: 31000,
-    imageUrl: new URL("@/assets/jersey-3.jpg", import.meta.url).href,
-    verified: true,
-    condition: 3 as const,
-    size: "XL",
-  },
-  {
-    id: "shop-12",
-    name: "Heimtrikot 2024/25",
-    team: "Paris Saint-Germain",
-    league: "Ligue 1",
-    year: "2024",
-    price_cents: 8800,
-    lowestAsk: 8200,
-    highestBid: 7600,
-    imageUrl: new URL("@/assets/jersey-4.jpg", import.meta.url).href,
-    verified: true,
-    condition: 5 as const,
-    size: "S",
-  },
-];
+const fetchFavoriteJerseys = async (favoriteIds: string[]) => {
+  if (favoriteIds.length === 0) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("user_jerseys")
+    .select("*")
+    .in("id", favoriteIds)
+    .eq("available_for_trade", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
 
 const Watchlist = () => {
   const { user } = useAuth();
-  const { favorites, loading } = useWatchlist();
-  const [favoriteJerseys, setFavoriteJerseys] = useState<typeof allJerseys>([]);
+  const { favorites } = useWatchlist();
 
-  useEffect(() => {
-    const filtered = allJerseys.filter((jersey) => favorites.includes(jersey.id));
-    setFavoriteJerseys(filtered);
-  }, [favorites]);
+  const { data: favoriteJerseys = [], isLoading } = useQuery({
+    queryKey: ["favorite-jerseys", favorites],
+    queryFn: () => fetchFavoriteJerseys(favorites),
+    enabled: !!user && favorites.length > 0,
+  });
 
   if (!user) {
     return (
@@ -234,9 +86,13 @@ const Watchlist = () => {
       {/* Watchlist Grid */}
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Laden...</p>
+          {isLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <JerseyCardSkeleton />
+                </div>
+              ))}
             </div>
           ) : favoriteJerseys.length === 0 ? (
             <div className="py-16 text-center">
@@ -251,7 +107,7 @@ const Watchlist = () => {
                 className="mt-4 border-primary/30"
                 asChild
               >
-                <Link to="/shop">Zum Marktplatz</Link>
+                <Link to="/trade">Zum Marktplatz</Link>
               </Button>
             </div>
           ) : (
@@ -262,13 +118,24 @@ const Watchlist = () => {
                 </p>
               </div>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {favoriteJerseys.map((jersey, index) => (
+                {favoriteJerseys.map((jersey: any, index) => (
                   <div
                     key={jersey.id}
                     className="animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <JerseyCard {...jersey} />
+                    <JerseyCard
+                      id={jersey.id}
+                      name={jersey.name}
+                      team={jersey.team}
+                      league={jersey.league}
+                      year={jersey.year}
+                      price_cents={jersey.price_cents}
+                      imageUrl={jersey.image_url}
+                      verified={jersey.verification_status === "verified"}
+                      condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                      size={jersey.size}
+                    />
                   </div>
                 ))}
               </div>
