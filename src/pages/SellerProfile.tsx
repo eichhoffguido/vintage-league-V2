@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, MapPin, Star } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -298,7 +299,7 @@ const SellerProfile = () => {
                       <p className="text-sm text-muted-foreground">{jersey.name}</p>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground mb-2">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
                     {jersey.is_for_sale && jersey.sale_price_cents ? (
                       <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>
@@ -306,6 +307,13 @@ const SellerProfile = () => {
                       <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>
                     ) : null}
                   </div>
+                  {jersey.verification_status === "verified" && (
+                    <div className="flex items-center gap-1">
+                      <Badge variant="default" className="bg-primary text-[10px]">
+                        <ShieldCheck className="mr-1 h-3 w-3" /> Verifiziert
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
