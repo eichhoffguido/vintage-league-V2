@@ -1,0 +1,23 @@
+-- Migration: VINA-227 / VINA-228 — Ensure UPDATE grant on user_jerseys for authenticated role
+--
+-- Root cause:
+--   Jersey editing failed with "permission denied for table user_jerseys" because the
+--   `authenticated` role lacked an explicit UPDATE privilege on the table.
+--   In Supabase/PostgreSQL, GRANT and RLS are independent layers — Postgres evaluates the
+--   GRANT first. A missing GRANT causes the query to fail before RLS is evaluated at all.
+--
+-- Context:
+--   VINA-226 already issued GRANT INSERT, UPDATE, DELETE ON public.user_jerseys TO authenticated
+--   as part of a broader write-privilege sweep. This migration is a focused, self-contained fix
+--   that explicitly names the UPDATE grant for VINA-227/228 traceability and is idempotent
+--   (PostgreSQL silently ignores duplicate GRANTs).
+--
+-- Coverage:
+--   A table-level GRANT UPDATE covers all existing and future columns, including:
+--     - sale_price_cents  (added in VINA-157 / add_is_for_sale_sale_price_cents migration)
+--     - listing_type      (added in VINA-197 / add_listing_type_to_user_jerseys migration)
+--   No column-level restriction is in place, so no per-column GRANT is required.
+--
+-- DO NOT run supabase db push without Guido's explicit approval.
+
+GRANT UPDATE ON public.user_jerseys TO authenticated;
