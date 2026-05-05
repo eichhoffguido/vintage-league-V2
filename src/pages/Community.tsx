@@ -63,16 +63,17 @@ const Community = () => {
       const userIds = [...new Set(data.map((p) => p.user_id))];
       const postIds = data.map((p) => p.id);
 
-      const [{ data: profiles }, { data: comments }] = await Promise.all([
-        supabase.from("profiles").select("*").in("id", userIds),
-        supabase.from("forum_comments").select("post_id").in("post_id", postIds),
+      // Fetch with graceful error handling
+      const [profilesResult, commentsResult] = await Promise.all([
+        supabase.from("profiles").select("*").in("id", userIds).then(r => ({ data: r.data, error: r.error })),
+        supabase.from("forum_comments").select("post_id").in("post_id", postIds).then(r => ({ data: r.data, error: r.error })),
       ]);
 
       const profileMap: Record<string, Tables<"profiles">> = {};
-      profiles?.forEach((p) => { profileMap[p.id] = p; });
+      profilesResult.data?.forEach((p) => { profileMap[p.id] = p; });
 
       const countMap: Record<string, number> = {};
-      comments?.forEach((c) => { countMap[c.post_id] = (countMap[c.post_id] || 0) + 1; });
+      commentsResult.data?.forEach((c) => { countMap[c.post_id] = (countMap[c.post_id] || 0) + 1; });
 
       return data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 }));
     },
