@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,7 @@ const fetchJerseys = async () => {
 };
 
 const Shop = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -239,14 +240,14 @@ const Shop = () => {
 
           {!isLoading && sortedJerseys.length === 0 && (
             <div className="py-16 text-center">
-              <p className="font-display text-xl text-muted-foreground">Noch keine Trikots im Marktplatz</p>
+              <p className="font-display text-xl text-muted-foreground">Noch keine Trikots gefunden. Sei der Erste!</p>
               <Button
                 variant="outline"
                 size="sm"
                 className="mt-4 border-primary/30"
-                onClick={() => handleCategoryChange("all")}
+                onClick={() => navigate("/collection")}
               >
-                Alle anzeigen
+                Trikot hinzufügen
               </Button>
             </div>
           )}
