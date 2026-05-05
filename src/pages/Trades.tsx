@@ -3,7 +3,7 @@ import { formatEuros } from "@/utils/currency";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useCreateTradeRating, useUpdateTradeStatus } from "@/hooks/useTradeRating";
+import { useCreateTradeRating, useUpdateTradeStatus, useConfirmTradeCompletion } from "@/hooks/useTradeRating";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -34,6 +34,7 @@ const Trades = () => {
   const [ratingComment, setRatingComment] = useState("");
   const createRating = useCreateTradeRating();
   const updateStatus = useUpdateTradeStatus();
+  const confirmCompletion = useConfirmTradeCompletion();
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -47,7 +48,8 @@ const Trades = () => {
         .select(`
           *,
           requester_jersey:user_jerseys!trade_requests_requester_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
-          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name))
+          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
+          confirmations:trade_confirmations(user_id)
         `)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -113,17 +115,23 @@ const Trades = () => {
     const ownJersey = trade.owner_jersey;
     const status = statusLabels[trade.status] || statusLabels.pending;
     const isOwner = user?.id === (ownJersey as any)?.user_id;
-    const canCompleteAndRate = trade.status === "accepted" && isOwner;
+    const requesterConfirmed = (trade.confirmations as any[])?.some((c: any) => c.user_id === (reqJersey as any)?.user_id);
+    const ownerConfirmed = (trade.confirmations as any[])?.some((c: any) => c.user_id === (ownJersey as any)?.user_id);
+    const userConfirmed = isOwner ? ownerConfirmed : requesterConfirmed;
+    const bothConfirmed = requesterConfirmed && ownerConfirmed;
+    const canStartCompletion = trade.status === "accepted";
 
-    const handleMarkComplete = async () => {
+    const handleConfirmCompletion = async () => {
       try {
-        await updateStatus.mutateAsync({ tradeId: trade.id, status: "completed" });
-        toast.success("Tausch als abgeschlossen markiert!");
-        setRatingTradeId(trade.id);
-        setRatingStars(5);
-        setRatingComment("");
+        await confirmCompletion.mutateAsync(trade.id);
+        toast.success("Tausch bestätigt!");
+        if (bothConfirmed) {
+          setRatingTradeId(trade.id);
+          setRatingStars(5);
+          setRatingComment("");
+        }
       } catch (error: any) {
-        toast.error(error.message || "Fehler beim Markieren des Tauschs");
+        toast.error(error.message || "Fehler beim Bestätigen des Tauschs");
       }
     };
 
@@ -195,17 +203,45 @@ const Trades = () => {
           </div>
         )}
 
-        {canCompleteAndRate && (
+        {canStartCompletion && (
           <div className="mt-3">
-            <Button
-              variant="hero"
-              size="sm"
-              className="w-full uppercase tracking-wider"
-              onClick={handleMarkComplete}
-              disabled={updateStatus.isPending}
-            >
-              <Check className="mr-1 h-4 w-4" /> Als abgeschlossen markieren
-            </Button>
+            {userConfirmed ? (
+              <div className="space-y-2">
+                {bothConfirmed ? (
+                  <Button
+                    variant="hero"
+                    size="sm"
+                    className="w-full uppercase tracking-wider"
+                    onClick={() => {
+                      setRatingTradeId(trade.id);
+                      setRatingStars(5);
+                      setRatingComment("");
+                    }}
+                  >
+                    <Star className="mr-1 h-4 w-4" /> Bewertung abgeben
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full uppercase tracking-wider text-muted-foreground"
+                    disabled
+                  >
+                    Warte auf Bestätigung des anderen...
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <Button
+                variant="hero"
+                size="sm"
+                className="w-full uppercase tracking-wider"
+                onClick={handleConfirmCompletion}
+                disabled={confirmCompletion.isPending}
+              >
+                <Check className="mr-1 h-4 w-4" /> Tausch abschließen
+              </Button>
+            )}
           </div>
         )}
       </div>

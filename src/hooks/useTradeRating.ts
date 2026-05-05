@@ -19,7 +19,7 @@ export function useCreateTradeRating() {
       if (!user) throw new Error("User not authenticated");
 
       const { error } = await supabase.from("trade_ratings").insert({
-        trade_request_id: tradeId,
+        trade_id: tradeId,
         rater_user_id: user.id,
         rating,
         comment: comment?.trim() || null,
@@ -50,6 +50,48 @@ export function useUpdateTradeStatus() {
         .eq("id", tradeId);
 
       if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["trade-requests"] });
+    },
+  });
+}
+
+export function useConfirmTradeCompletion() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (tradeId: string) => {
+      if (!user) throw new Error("User not authenticated");
+
+      // Insert confirmation record
+      const { error: confirmError } = await supabase
+        .from("trade_confirmations")
+        .insert({
+          trade_id: tradeId,
+          user_id: user.id,
+        });
+
+      if (confirmError) throw confirmError;
+
+      // Check if both parties have confirmed
+      const { data: confirmations, error: queryError } = await supabase
+        .from("trade_confirmations")
+        .select("user_id")
+        .eq("trade_id", tradeId);
+
+      if (queryError) throw queryError;
+
+      // If both parties confirmed (2 confirmations), update trade status
+      if (confirmations && confirmations.length === 2) {
+        const { error: updateError } = await supabase
+          .from("trade_requests")
+          .update({ status: "completed" })
+          .eq("id", tradeId);
+
+        if (updateError) throw updateError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trade-requests"] });
