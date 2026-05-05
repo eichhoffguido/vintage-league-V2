@@ -4,14 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { usePendingTradeCount } from "@/hooks/usePendingTradeCount";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import vlLogo from "@/assets/vl-logo.png";
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const pendingTradeCount = usePendingTradeCount();
 
   return (
     <header className="sticky top-0 z-50">
@@ -33,33 +31,19 @@ const Header = () => {
 
           {/* Desktop Nav */}
           <nav className="hidden items-center gap-8 lg:flex">
-            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-              Entdecken
-            </Link>
             <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Marktplatz
-            </Link>
-            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-              Tauschbörse
             </Link>
             <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
               Community
             </Link>
             {user && (
               <>
-                <Link to="/favorites" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Favoriten
+                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                  Sammlung
                 </Link>
-                <Link to="/watchlist" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Beobachtungsliste
-                </Link>
-                <Link to="/trades" className="relative text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Tausch-Anfragen
-                  {pendingTradeCount > 0 && (
-                    <Badge variant="destructive" className="absolute -right-6 -top-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-bounce-in">
-                      {pendingTradeCount}
-                    </Badge>
-                  )}
+                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                  Tauschbörse
                 </Link>
               </>
             )}
@@ -121,26 +105,12 @@ const Header = () => {
       {menuOpen && (
         <div className="border-t border-border bg-background px-4 pb-4 lg:hidden">
           <nav className="flex flex-col gap-3 pt-4">
-            <Link to="/" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Entdecken</Link>
             <Link to="/shop" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Marktplatz</Link>
-            <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
             <Link to="/community" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Community</Link>
             {user && (
               <>
-                <Link to="/profile" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Profil</Link>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
-                <Link to="/watchlist" className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  <Heart className="h-4 w-4" />
-                  Beobachtungsliste
-                </Link>
-                <Link to="/trades" className="flex items-center gap-2 text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  Tausch-Anfragen
-                  {pendingTradeCount > 0 && (
-                    <Badge variant="destructive" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                      {pendingTradeCount}
-                    </Badge>
-                  )}
-                </Link>
+                 <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
               </>
             )}
             <div className="vintage-divider my-2" />
