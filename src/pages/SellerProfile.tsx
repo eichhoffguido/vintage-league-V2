@@ -14,6 +14,7 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type ProfileData = Tables<"profiles">;
 type JerseyData = Tables<"user_jerseys">;
+type RatingData = Tables<"trade_ratings">;
 
 const conditionLabels: Record<number, string> = {
   5: "Neuwertig",
@@ -50,6 +51,9 @@ const SellerProfile = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [jerseys, setJerseys] = useState<JerseyData[]>([]);
+  const [ratings, setRatings] = useState<RatingData[]>([]);
+  const [completedSalesCount, setCompletedSalesCount] = useState(0);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,18 +76,46 @@ const SellerProfile = () => {
 
       setProfile(profileData);
 
-      // Fetch user's jerseys (only non-deleted, available for trade)
+      // Fetch user's jerseys (non-deleted, available for trade OR for sale)
       const { data: jerseysData, error: jerseysError } = await supabase
         .from("user_jerseys")
         .select("*")
         .eq("user_id", userId!)
-        .eq("available_for_trade", true)
+        .or("available_for_trade.eq.true,is_for_sale.eq.true")
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
       if (jerseysError) throw jerseysError;
 
       setJerseys(jerseysData || []);
+
+      // Fetch completed sales count
+      const { data: salesData, error: salesError } = await supabase
+        .from("sales_history")
+        .select("id", { count: "exact" })
+        .eq("seller_user_id", userId!);
+
+      if (!salesError) {
+        setCompletedSalesCount(salesData?.length || 0);
+      }
+
+      // Fetch ratings for this user (as rated_user_id)
+      const { data: ratingsData, error: ratingsError } = await supabase
+        .from("trade_ratings")
+        .select("*")
+        .eq("rated_user_id", userId!)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (!ratingsError && ratingsData) {
+        setRatings(ratingsData);
+
+        // Calculate average rating
+        if (ratingsData.length > 0) {
+          const sum = ratingsData.reduce((acc, r) => acc + r.rating, 0);
+          setAverageRating(sum / ratingsData.length);
+        }
+      }
     } catch (err: any) {
       setError(err.message || "Profile konnte nicht geladen werden");
     } finally {
@@ -184,16 +216,35 @@ const SellerProfile = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">Bewertung</p>
                   <div className="mt-2">
-                    <StarRating rating={profile.average_rating} />
+                    {averageRating !== null ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-0.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-4 w-4 ${
+                                star <= Math.round(averageRating)
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-muted-foreground/30"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm font-medium">{averageRating.toFixed(1)}</span>
+                        <span className="text-xs text-muted-foreground">({ratings.length})</span>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Keine Bewertungen</p>
+                    )}
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Trikots zum Tausch</p>
-                  <p className="font-display text-2xl font-bold">{jerseys.length}</p>
+                  <p className="text-sm text-muted-foreground">Abgeschlossene Tausche</p>
+                  <p className="font-display text-2xl font-bold">{completedSalesCount}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Gesamtwert</p>
-                  <p className="font-display text-2xl font-bold">{formatEuros(totalValue)}</p>
+                  <p className="text-sm text-muted-foreground">Trikots</p>
+                  <p className="font-display text-2xl font-bold">{jerseys.length}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Beigetreten</p>
@@ -211,15 +262,15 @@ const SellerProfile = () => {
 
         {/* Jerseys Section */}
         <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold">Zum Tausch verfügbar</h2>
-          <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots</p>
+          <h2 className="font-display text-2xl font-bold">Trikots</h2>
+          <p className="mt-1 text-muted-foreground">{jerseys.length} verfügbar</p>
         </div>
 
         {jerseys.length === 0 ? (
           <div className="rounded-sm border border-dashed border-border p-12 text-center">
             <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
             <p className="font-display text-xl text-muted-foreground">
-              Dieser Sammler hat noch keine Trikots zum Tausch verfügbar
+              Noch keine Trikots eingestellt
             </p>
           </div>
         ) : (
@@ -249,12 +300,52 @@ const SellerProfile = () => {
                   </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
+                    {jersey.is_for_sale && jersey.sale_price_cents ? (
+                      <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>
+                    ) : jersey.price_cents ? (
+                      <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>
+                    ) : null}
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        )}
+
+        {/* Ratings Section */}
+        {ratings.length > 0 && (
+          <>
+            <div className="mb-8 mt-12">
+              <h2 className="font-display text-2xl font-bold">Bewertungen</h2>
+              <p className="mt-1 text-muted-foreground">Letzte {ratings.length} Bewertungen</p>
+            </div>
+            <div className="space-y-4">
+              {ratings.map((rating) => (
+                <div key={rating.id} className="rounded-sm border border-border bg-card p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 ${
+                            star <= rating.rating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(rating.created_at).toLocaleDateString("de-DE")}
+                    </span>
+                  </div>
+                  {rating.comment && (
+                    <p className="text-sm text-muted-foreground">{rating.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
       <Footer />
