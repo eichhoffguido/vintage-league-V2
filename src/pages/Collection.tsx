@@ -39,6 +39,8 @@ const Collection = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [saleModalOpen, setSaleModalOpen] = useState(false);
+  const [salePrice, setSalePrice] = useState("");
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
@@ -140,6 +142,24 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       toast.success("Trikot ist jetzt zum Verkauf verfügbar!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const updateSalePrice = useMutation({
+    mutationFn: async ({ id, price }: { id: string; price: string }) => {
+      const priceCents = price ? eurosToCents(price) : null;
+      const { error } = await supabase
+        .from("user_jerseys")
+        .update({ is_for_sale: true, sale_price_cents: priceCents })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
+      setSaleModalOpen(false);
+      setSalePrice("");
+      toast.success("Trikot zum Verkauf angeboten!");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -376,33 +396,48 @@ const Collection = () => {
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Switch
-                        checked={jersey.available_for_trade}
-                        onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {jersey.available_for_trade ? (
-                          <span className="flex items-center gap-1 text-primary">
-                            <ArrowLeftRight className="h-3 w-3" /> Tauschbar
-                          </span>
-                        ) : "Privat"}
-                      </span>
+                  <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="flex items-center gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Switch
+                          checked={jersey.available_for_trade}
+                          onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {jersey.available_for_trade ? (
+                            <span className="flex items-center gap-1 text-primary">
+                              <ArrowLeftRight className="h-3 w-3" /> Tauschbar
+                            </span>
+                          ) : "Privat"}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteJersey.mutate(jersey.id);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteJersey.mutate(jersey.id);
+                        setSelectedJersey(jersey);
+                        setSalePrice(jersey.sale_price_cents ? (jersey.sale_price_cents / 100).toString() : "");
+                        setSaleModalOpen(true);
                       }}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Zum Verkauf anbieten
                     </Button>
                   </div>
                 </div>
@@ -488,7 +523,7 @@ const Collection = () => {
                     )}
                     {selectedJersey.is_for_sale ? (
                       <Badge variant="default" className="w-full justify-center py-2">
-                        Zum Verkauf
+                        Zum Verkauf {selectedJersey.sale_price_cents && `(${formatEuros(selectedJersey.sale_price_cents)})`}
                       </Badge>
                     ) : (
                       <Button
@@ -496,11 +531,11 @@ const Collection = () => {
                         className="w-full"
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleSale.mutate({ id: selectedJersey.id, forSale: true });
+                          setSalePrice(selectedJersey.sale_price_cents ? (selectedJersey.sale_price_cents / 100).toString() : "");
+                          setSaleModalOpen(true);
                         }}
-                        disabled={toggleSale.isPending}
                       >
-                        {toggleSale.isPending ? "Wird verarbeitet..." : "Zum Verkauf anbieten"}
+                        Zum Verkauf anbieten
                       </Button>
                     )}
                   </div>
@@ -509,6 +544,60 @@ const Collection = () => {
             )}
           </SheetContent>
         </Sheet>
+
+        {/* Sale Price Modal */}
+        <Dialog open={saleModalOpen} onOpenChange={setSaleModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="font-display text-2xl">Verkaufspreis festlegen</DialogTitle>
+            </DialogHeader>
+            {selectedJersey && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Legen Sie einen Verkaufspreis für {selectedJersey.team} fest
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="sale-price">Preis (€)</Label>
+                  <Input
+                    id="sale-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={salePrice}
+                    onChange={(e) => setSalePrice(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setSaleModalOpen(false);
+                      setSalePrice("");
+                    }}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button
+                    variant="hero"
+                    className="flex-1"
+                    onClick={() => {
+                      if (selectedJersey && salePrice) {
+                        updateSalePrice.mutate({ id: selectedJersey.id, price: salePrice });
+                      } else {
+                        toast.error("Bitte geben Sie einen Preis ein");
+                      }
+                    }}
+                    disabled={updateSalePrice.isPending || !salePrice}
+                  >
+                    {updateSalePrice.isPending ? "Wird gespeichert..." : "Speichern"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
       <Footer />
     </div>
