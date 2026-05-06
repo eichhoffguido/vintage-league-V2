@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
@@ -49,18 +50,28 @@ const getVintageBonus = (year: string): number => {
 const JerseyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [jersey, setJersey] = useState<JerseyWithProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (id) {
       fetchJersey();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (searchParams.get("cancelled") === "1") {
+      toast({ title: "Zahlung abgebrochen", description: "Du kannst jederzeit erneut kaufen.", variant: "default" });
+      navigate(`/jersey/${id}`, { replace: true });
+    }
+  }, [searchParams, id]);
 
   useEffect(() => {
     if (jersey) {
@@ -128,6 +139,25 @@ const JerseyDetail = () => {
       console.error("Error fetching sale history:", err);
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const handleKaufen = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { jersey_id: jersey?.id, buyer_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -346,9 +376,14 @@ const JerseyDetail = () => {
                 </div>
               ) : (
                 <>
-                  {jersey.sale_price_cents && (
-                    <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                      Sofort kaufen — {formatEuros(jersey.sale_price_cents)}
+                  {jersey.is_for_sale && jersey.sale_price_cents && (
+                    <Button
+                      variant="hero"
+                      className="w-full uppercase tracking-wider"
+                      onClick={handleKaufen}
+                      disabled={checkoutLoading}
+                    >
+                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
                     </Button>
                   )}
                   {jersey.available_for_trade && (

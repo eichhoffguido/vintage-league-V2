@@ -18,6 +18,7 @@ import Shop from "./pages/Shop.tsx";
 import Watchlist from "./pages/Watchlist.tsx";
 import Favorites from "./pages/Favorites.tsx";
 import JerseyDetail from "./pages/JerseyDetail.tsx";
+import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import SellerProfile from "./pages/SellerProfile.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/jersey/:id" element={<JerseyDetail />} />
+            <Route path="/success" element={<PaymentSuccess />} />
             <Route path="/seller/:userId" element={<SellerProfile />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
