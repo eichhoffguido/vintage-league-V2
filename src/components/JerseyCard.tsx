@@ -23,6 +23,7 @@ interface JerseyCardProps {
   onClick?: () => void;
   sale_price_cents?: number;
   available_for_trade?: boolean;
+  listing_type?: string;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -81,7 +82,9 @@ const JerseyCard = ({
   onClick,
   sale_price_cents,
   available_for_trade = false,
+  listing_type,
 }: JerseyCardProps) => {
+  const isSold = listing_type === "sold";
   const { isFavorited, toggleFavorite } = useWatchlist();
   // Use verification_status if provided, otherwise fall back to verified prop
   const isVerified = verification_status ? verification_status === "verified" : verified;
@@ -151,9 +154,14 @@ const JerseyCard = ({
           <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
-          {!!sale_price_cents && (
+          {!!sale_price_cents && !isSold && (
             <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
               Kaufen
+            </Badge>
+          )}
+          {isSold && (
+            <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
+              Verkauft
             </Badge>
           )}
         </div>
