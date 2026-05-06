@@ -20,7 +20,7 @@ const fetchFeaturedJerseys = async () => {
   const { data, error } = await supabase
     .from("user_jerseys")
     .select("*")
-    .eq("available_for_trade", true)
+    .eq("is_featured", true)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(8);
