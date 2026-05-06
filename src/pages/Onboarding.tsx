@@ -50,10 +50,20 @@ const Onboarding = () => {
         .select("display_name")
         .eq("id", user.id)
         .single()
-        .then(({ data }) => {
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("Error checking profile:", error);
+            // If there's an error but we're authenticated, stay on onboarding
+            setCheckingProfile(false);
+            return;
+          }
           if (data?.display_name) {
             navigate("/collection");
           }
+          setCheckingProfile(false);
+        })
+        .catch((err) => {
+          console.error("Profile check failed:", err);
           setCheckingProfile(false);
         });
     }
