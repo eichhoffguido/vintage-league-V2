@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,129 +10,24 @@ import JerseyCard from "@/components/JerseyCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import TrustBanner from "@/components/TrustBanner";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
+import { supabase } from "@/integrations/supabase/client";
 import heroImage from "@/assets/hero-jersey.jpg";
 import heroCollectibles from "@/assets/hero-collectibles.jpg";
 import heroRarity from "@/assets/hero-rarity.jpg";
-import jersey1 from "@/assets/jersey-1.jpg";
-import jersey2 from "@/assets/jersey-2.jpg";
-import jersey3 from "@/assets/jersey-3.jpg";
-import jersey4 from "@/assets/jersey-4.jpg";
-import jersey5 from "@/assets/jersey-5.jpg";
-import jersey6 from "@/assets/jersey-6.jpg";
-import jersey7 from "@/assets/jersey-7.jpg";
-import jersey8 from "@/assets/jersey-8.jpg";
 
-const mockJerseys = [
-  {
-    id: "index-1",
-    name: "Heimtrikot 2024/25",
-    team: "Real Madrid",
-    league: "La Liga",
-    year: "2024",
-    price_cents: 8900,
-    lowestAsk: 8500,
-    highestBid: 7800,
-    imageUrl: jersey1,
-    verified: true,
-    condition: 5,
-    size: "L",
-  },
-  {
-    id: "index-2",
-    name: "Heimtrikot 2024/25",
-    team: "FC Barcelona",
-    league: "La Liga",
-    year: "2024",
-    price_cents: 9500,
-    lowestAsk: 9000,
-    highestBid: 8200,
-    imageUrl: jersey2,
-    verified: true,
-    condition: 5,
-    size: "M",
-  },
-  {
-    id: "index-3",
-    name: "Heimtrikot 2024/25",
-    team: "FC Bayern München",
-    league: "Bundesliga",
-    year: "2024",
-    price_cents: 7900,
-    highestBid: 7200,
-    imageUrl: jersey3,
-    verified: true,
-    condition: 4,
-    size: "XL",
-  },
-  {
-    id: "index-4",
-    name: "Heimtrikot 2019/20",
-    team: "Manchester United",
-    league: "Premier League",
-    year: "2019",
-    price_cents: 12000,
-    lowestAsk: 11500,
-    highestBid: 10500,
-    imageUrl: jersey4,
-    verified: false,
-    condition: 3,
-    size: "M",
-  },
-  {
-    id: "index-5",
-    name: "Retro Heimtrikot 1995/96",
-    team: "AC Milan",
-    league: "Serie A",
-    year: "1995",
-    price_cents: 25000,
-    lowestAsk: 24000,
-    highestBid: 22000,
-    imageUrl: jersey5,
-    verified: true,
-    condition: 3,
-    size: "L",
-  },
-  {
-    id: "index-6",
-    name: "Heimtrikot 2024/25",
-    team: "Borussia Dortmund",
-    league: "Bundesliga",
-    year: "2024",
-    price_cents: 7500,
-    lowestAsk: 7000,
-    imageUrl: jersey6,
-    verified: true,
-    condition: 5,
-    size: "S",
-  },
-  {
-    id: "index-7",
-    name: "Klassik Trikot 2002",
-    team: "Brasilien",
-    league: "Nationalteam",
-    year: "2002",
-    price_cents: 18000,
-    highestBid: 16500,
-    imageUrl: jersey7,
-    verified: true,
-    condition: 4,
-    size: "M",
-  },
-  {
-    id: "index-8",
-    name: "Heimtrikot 2024/25",
-    team: "Inter Mailand",
-    league: "Serie A",
-    year: "2024",
-    price_cents: 8500,
-    lowestAsk: 8000,
-    highestBid: 7500,
-    imageUrl: jersey8,
-    verified: false,
-    condition: 5,
-    size: "L",
-  },
-];
+const fetchFeaturedJerseys = async () => {
+  const { data, error } = await supabase
+    .from("user_jerseys")
+    .select("*")
+    .eq("available_for_trade", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  if (error) throw error;
+  return data || [];
+};
 
 const stats = [
   { label: "Zertifizierte Trikots", value: "12.500+" },
@@ -168,6 +64,11 @@ const Index = () => {
   const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSlide, setActiveSlide] = useState(0);
+
+  const { data: jerseys = [], isLoading } = useQuery({
+    queryKey: ["featured-jerseys"],
+    queryFn: fetchFeaturedJerseys,
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -287,15 +188,32 @@ const Index = () => {
           />
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {mockJerseys.map((jersey, index) => (
-              <div
-                key={index}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <JerseyCard {...jersey} condition={jersey.condition as 1 | 2 | 3 | 4 | 5} />
-              </div>
-            ))}
+            {isLoading
+              ? Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                    <JerseyCardSkeleton />
+                  </div>
+                ))
+              : jerseys.map((jersey: any, index) => (
+                  <div
+                    key={jersey.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <JerseyCard
+                      id={jersey.id}
+                      name={jersey.name}
+                      team={jersey.team}
+                      league={jersey.league}
+                      year={jersey.year}
+                      price_cents={jersey.price_cents}
+                      imageUrl={jersey.image_url}
+                      verified={jersey.verification_status === "verified"}
+                      condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                      size={jersey.size}
+                    />
+                  </div>
+                ))}
           </div>
         </div>
       </section>

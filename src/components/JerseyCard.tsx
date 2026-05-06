@@ -14,13 +14,13 @@ interface JerseyCardProps {
   price_cents: number;
   lowestAsk?: number;
   highestBid?: number;
-  imageUrl: string;
+  imageUrl?: string;
   verified?: boolean;
+  verification_status?: "pending" | "verified" | "rejected";
   condition: 1 | 2 | 3 | 4 | 5;
   size: string;
   estimatedValue?: number;
   onClick?: () => void;
-  is_for_sale?: boolean;
   sale_price_cents?: number;
   available_for_trade?: boolean;
 }
@@ -74,15 +74,17 @@ const JerseyCard = ({
   highestBid,
   imageUrl,
   verified = false,
+  verification_status,
   condition,
   size,
   estimatedValue: estimatedValueProp,
   onClick,
-  is_for_sale = false,
   sale_price_cents,
   available_for_trade = false,
 }: JerseyCardProps) => {
   const { isFavorited, toggleFavorite } = useWatchlist();
+  // Use verification_status if provided, otherwise fall back to verified prop
+  const isVerified = verification_status ? verification_status === "verified" : verified;
   const vintageBonus = getVintageBonus(year);
   const condMult = conditionMultiplier[condition] ?? 0.5;
   const priceCents = price_cents ?? 0;
@@ -112,13 +114,19 @@ const JerseyCard = ({
   return (
     <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-secondary">
-        <img
-          src={imageUrl}
-          alt={`${team} ${name}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {verified && (
+       <div className="relative aspect-square overflow-hidden bg-secondary">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={`${team} ${name}`}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="font-display text-6xl text-muted-foreground/30">{team.charAt(0)}</span>
+          </div>
+        )}
+        {isVerified && (
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1 animate-slide-down">
             <ShieldCheck className="h-3 w-3 text-primary-foreground" />
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-primary-foreground">Zertifiziert</span>
@@ -143,7 +151,7 @@ const JerseyCard = ({
           <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
-          {is_for_sale && (
+          {!!sale_price_cents && (
             <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
               Kaufen
             </Badge>
@@ -168,7 +176,7 @@ const JerseyCard = ({
         {/* Price + Verdict */}
         <div className="mt-3 flex items-end justify-between">
           <div>
-            {is_for_sale && sale_price_cents ? (
+            {!!sale_price_cents ? (
               <>
                 <p className="text-xs text-muted-foreground">Verkaufspreis</p>
                 <p className="font-display text-xl font-bold text-primary">{formatEuros(sale_price_cents)}</p>
@@ -180,7 +188,7 @@ const JerseyCard = ({
               </>
             )}
           </div>
-          {!is_for_sale && (
+          {!sale_price_cents && (
             <Badge
               variant="outline"
               className={`text-xs font-bold ${verdict.color} border-current`}

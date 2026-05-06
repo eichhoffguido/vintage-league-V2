@@ -148,6 +148,63 @@ export type Database = {
           },
         ]
       }
+      sales_history: {
+        Row: {
+          buyer_user_id: string | null
+          condition: number
+          id: string
+          jersey_id: string
+          league: string
+          sale_price_cents: number
+          seller_user_id: string
+          sold_at: string
+          team: string
+          trade_request_id: string | null
+          year: string
+        }
+        Insert: {
+          buyer_user_id?: string | null
+          condition: number
+          id?: string
+          jersey_id: string
+          league: string
+          sale_price_cents: number
+          seller_user_id: string
+          sold_at?: string
+          team: string
+          trade_request_id?: string | null
+          year: string
+        }
+        Update: {
+          buyer_user_id?: string | null
+          condition?: number
+          id?: string
+          jersey_id?: string
+          league?: string
+          sale_price_cents?: number
+          seller_user_id?: string
+          sold_at?: string
+          team?: string
+          trade_request_id?: string | null
+          year?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_history_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_history_trade_request_id_fkey"
+            columns: ["trade_request_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -157,6 +214,7 @@ export type Database = {
           deleted_at: string | null
           display_name: string | null
           id: string
+          is_admin: boolean
           updated_at: string
         }
         Insert: {
@@ -167,6 +225,7 @@ export type Database = {
           deleted_at?: string | null
           display_name?: string | null
           id: string
+          is_admin?: boolean
           updated_at?: string
         }
         Update: {
@@ -177,6 +236,7 @@ export type Database = {
           deleted_at?: string | null
           display_name?: string | null
           id?: string
+          is_admin?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -276,8 +336,10 @@ export type Database = {
           id: string
           image_url: string | null
           league: string
+          listing_type: "trade_only" | "buy_now" | "both"
           name: string
           price_cents: number | null
+          sale_price_cents: number | null
           size: string
           team: string
           updated_at: string
@@ -295,8 +357,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           league?: string
+          listing_type?: "trade_only" | "buy_now" | "both"
           name: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team: string
           updated_at?: string
@@ -314,8 +378,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           league?: string
+          listing_type?: "trade_only" | "buy_now" | "both"
           name?: string
           price_cents?: number | null
+          sale_price_cents?: number | null
           size?: string
           team?: string
           updated_at?: string
@@ -326,6 +392,42 @@ export type Database = {
           year?: string
         }
         Relationships: []
+      }
+      jersey_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          jersey_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jersey_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jersey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jersey_favorites_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jersey_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_favorites: {
         Row: {
@@ -368,6 +470,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_recent_sales_by_team_year: {
+        Args: { p_team: string; p_year: string; p_limit?: number }
+        Returns: {
+          id: string
+          jersey_id: string
+          sale_price_cents: number
+          team: string
+          league: string
+          year: string
+          condition: number
+          sold_at: string
+        }[]
+      }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
     }
     Enums: {

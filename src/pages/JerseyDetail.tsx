@@ -263,7 +263,7 @@ const JerseyDetail = () => {
             </div>
 
             {/* Price */}
-            {jersey.is_for_sale && jersey.sale_price_cents ? (
+            {jersey.sale_price_cents ? (
               <div className="rounded-sm border border-border bg-secondary/50 p-6">
                 <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
                 <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
@@ -301,7 +301,12 @@ const JerseyDetail = () => {
             {/* Owner Info */}
             <div className="rounded-sm border border-border p-6">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Verkäufer</p>
-              <p className="font-semibold text-lg">{jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}</p>
+              <p
+                className="font-semibold text-lg cursor-pointer hover:text-primary"
+                onClick={() => navigate(`/seller/${jersey.user_id}`)}
+              >
+                {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
+              </p>
               {jersey.profiles?.bio && (
                 <p className="text-sm text-muted-foreground mt-2">{jersey.profiles.bio}</p>
               )}
@@ -375,11 +380,11 @@ const JerseyDetail = () => {
                     </Button>
                   )}
                   {jersey.available_for_trade && (
-                    <Button variant={jersey.is_for_sale ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
                       Tausch vorschlagen
                     </Button>
                   )}
-                  {!jersey.is_for_sale && !jersey.available_for_trade && (
+                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
                     <p className="text-sm text-muted-foreground text-center py-2">
                       Dieses Trikot ist derzeit nicht verfügbar
                     </p>

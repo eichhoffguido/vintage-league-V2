@@ -9,14 +9,17 @@ import Auth from "./pages/Auth.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
+import Admin from "./pages/Admin.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
 import CommunityPost from "./pages/CommunityPost.tsx";
 import Shop from "./pages/Shop.tsx";
 import Watchlist from "./pages/Watchlist.tsx";
+import Favorites from "./pages/Favorites.tsx";
 import JerseyDetail from "./pages/JerseyDetail.tsx";
 import PaymentSuccess from "./pages/PaymentSuccess.tsx";
+import SellerProfile from "./pages/SellerProfile.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -38,12 +41,15 @@ const App = () => (
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/favorites" element={<Favorites />} />
             <Route path="/jersey/:id" element={<JerseyDetail />} />
-            <Route path="/success" element={<CheckoutSuccess />} />
+            <Route path="/success" element={<PaymentSuccess />} />
+            <Route path="/seller/:userId" element={<SellerProfile />} />
             <Route path="/trade" element={<Trade />} />
             <Route path="/trades" element={<Trades />} />
             <Route path="/community" element={<Community />} />
             <Route path="/community/:id" element={<CommunityPost />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/imprint" element={<Imprint />} />
             <Route path="/privacy" element={<Privacy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
