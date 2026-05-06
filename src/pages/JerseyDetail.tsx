@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
@@ -55,6 +56,8 @@ const JerseyDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (id) {
@@ -128,6 +131,25 @@ const JerseyDetail = () => {
       console.error("Error fetching sale history:", err);
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const handleKaufen = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { jersey_id: jersey?.id, buyer_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -335,8 +357,13 @@ const JerseyDetail = () => {
               ) : (
                 <>
                   {jersey.is_for_sale && jersey.sale_price_cents && (
-                    <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                      Sofort kaufen — {formatEuros(jersey.sale_price_cents)}
+                    <Button
+                      variant="hero"
+                      className="w-full uppercase tracking-wider"
+                      onClick={handleKaufen}
+                      disabled={checkoutLoading}
+                    >
+                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
                     </Button>
                   )}
                   {jersey.available_for_trade && (
