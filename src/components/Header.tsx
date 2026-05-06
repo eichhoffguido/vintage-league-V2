@@ -17,15 +17,7 @@ const Header = () => {
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-3">
-            <img src="/images/logo_vintage_league.png" alt="Vintage League Logo" className="h-10 w-10 object-contain" />
-            <div className="flex flex-col">
-              <span className="font-display text-xl font-bold leading-none tracking-wider">
-                VINTAGE LEAGUE
-              </span>
-              <span className="text-[10px] tracking-[0.2em] text-muted-foreground">
-                SPORTS COLLECTIBLES
-              </span>
-            </div>
+            <img src="/images/vintageleague-logo.svg" alt="Vintage League Logo" className="h-10 object-contain" />
           </Link>
 
           {/* Desktop Nav */}
