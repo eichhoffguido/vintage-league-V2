@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +50,7 @@ const getVintageBonus = (year: string): number => {
 const JerseyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [jersey, setJersey] = useState<JerseyWithProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,6 +65,13 @@ const JerseyDetail = () => {
       fetchJersey();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (searchParams.get("cancelled") === "1") {
+      toast({ title: "Zahlung abgebrochen", description: "Du kannst jederzeit erneut kaufen.", variant: "default" });
+      navigate(`/jersey/${id}`, { replace: true });
+    }
+  }, [searchParams, id]);
 
   useEffect(() => {
     if (jersey) {

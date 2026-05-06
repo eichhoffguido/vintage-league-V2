@@ -16,7 +16,7 @@ import CommunityPost from "./pages/CommunityPost.tsx";
 import Shop from "./pages/Shop.tsx";
 import Watchlist from "./pages/Watchlist.tsx";
 import JerseyDetail from "./pages/JerseyDetail.tsx";
-import CheckoutSuccess from "./pages/CheckoutSuccess.tsx";
+import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
