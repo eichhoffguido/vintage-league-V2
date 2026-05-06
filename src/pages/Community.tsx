@@ -32,13 +32,19 @@ const Community = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "" });
 
-  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useQuery({
+  const { data: categories = [], isError: categoriesError } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("forum_categories").select("*").order("sort_order");
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching categories:", error);
+        throw error;
+      }
+      if (!data) return [];
       return data;
     },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const { data: posts = [], isLoading } = useQuery({
@@ -145,12 +151,12 @@ const Community = () => {
                   </DialogHeader>
                   <div className="space-y-4 pt-2">
                     {categoriesError && (
-                      <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                        Fehler beim Laden der Kategorien. Bitte versuche es erneut.
+                      <div className="rounded-sm border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                        Fehler beim Laden der Kategorien. Bitte versuche es später erneut.
                       </div>
                     )}
-                    <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))} disabled={categoriesLoading}>
-                      <SelectTrigger><SelectValue placeholder={categoriesLoading ? "Kategorien werden geladen..." : "Kategorie wählen"} /></SelectTrigger>
+                    <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))}>
+                      <SelectTrigger disabled={categories.length === 0}><SelectValue placeholder={categories.length === 0 ? "Kategorien werden geladen..." : "Kategorie wählen"} /></SelectTrigger>
                       <SelectContent>
                         {categories.map((c) => (
                           <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -159,7 +165,7 @@ const Community = () => {
                     </Select>
                     <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
                     <Textarea placeholder="Dein Beitrag..." value={newPost.content} onChange={(e) => setNewPost((p) => ({ ...p, content: e.target.value }))} rows={6} maxLength={5000} />
-                    <Button onClick={handleCreatePost} disabled={createPostMutation.isPending} className="w-full uppercase tracking-wider">
+                    <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full uppercase tracking-wider">
                       {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
                     </Button>
                   </div>

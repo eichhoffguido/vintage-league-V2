@@ -73,28 +73,30 @@ const Onboarding = () => {
     try {
       // Use upsert so this works even if the OAuth trigger didn't create
       // the profile row yet (handle_new_user may have silently failed).
+      // This will INSERT if the profile doesn't exist, or UPDATE if it does.
       const { data, error } = await supabase
         .from("profiles")
         .upsert(
           { id: user.id, display_name: formData.displayName.trim() },
+          { onConflict: "id" }
         )
-        .select("id, display_name");
+        .select();
 
       if (error) {
-        throw new Error(error.message || "Fehler beim Aktualisieren des Profils");
+        console.error("Profile update error:", error);
+        throw error;
       }
 
-      // Verify the update was successful
-      if (!data || !data[0]?.display_name) {
-        throw new Error("Das Profil konnte nicht aktualisiert werden. Bitte versuchen Sie es später erneut.");
+      if (!data || data.length === 0) {
+        throw new Error("Profil konnte nicht aktualisiert werden");
       }
 
       toast.success("Profil aktualisiert!");
       setStep("favorite");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Fehler beim Aktualisieren des Profils";
+      console.error("handleUpdateProfile error:", message);
       toast.error(message);
-      console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
     }
