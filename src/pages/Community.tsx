@@ -32,7 +32,7 @@ const Community = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "" });
 
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("forum_categories").select("*").order("sort_order");
@@ -144,8 +144,13 @@ const Community = () => {
                     <DialogTitle className="font-display">Neuer Beitrag</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 pt-2">
-                    <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Kategorie wählen" /></SelectTrigger>
+                    {categoriesError && (
+                      <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                        Fehler beim Laden der Kategorien. Bitte versuche es erneut.
+                      </div>
+                    )}
+                    <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))} disabled={categoriesLoading}>
+                      <SelectTrigger><SelectValue placeholder={categoriesLoading ? "Kategorien werden geladen..." : "Kategorie wählen"} /></SelectTrigger>
                       <SelectContent>
                         {categories.map((c) => (
                           <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
