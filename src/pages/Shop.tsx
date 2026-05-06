@@ -229,6 +229,7 @@ const Shop = () => {
                     condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                     size={jersey.size}
                     available_for_trade={jersey.available_for_trade}
+                    listing_type={jersey.listing_type}
                     onClick={() => {
                       setSelectedJersey(jersey);
                       setIsDetailOpen(true);

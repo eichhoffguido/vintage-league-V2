@@ -337,6 +337,13 @@ const JerseyDetail = () => {
                 <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
                   <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
                 </Button>
+              ) : jersey.listing_type === "sold" ? (
+                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
+                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
+                    Bereits verkauft
+                  </Badge>
+                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
+                </div>
               ) : (
                 <>
                   {jersey.sale_price_cents && (
