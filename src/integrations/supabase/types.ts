@@ -335,6 +335,7 @@ export type Database = {
           deleted_at: string | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           league: string
           listing_type: "trade_only" | "buy_now" | "both"
           name: string
@@ -356,6 +357,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           league?: string
           listing_type?: "trade_only" | "buy_now" | "both"
           name: string
@@ -377,6 +379,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           league?: string
           listing_type?: "trade_only" | "buy_now" | "both"
           name?: string
