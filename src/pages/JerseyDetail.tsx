@@ -226,8 +226,8 @@ const JerseyDetail = () => {
           <div className="relative">
             <div className="sticky top-20">
               {jersey.image_url ? (
-                <div className="overflow-hidden rounded-sm bg-secondary">
-                  <img src={jersey.image_url} alt={jersey.name} className="w-full h-auto object-cover" />
+                <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                  <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" />
                 </div>
               ) : (
                 <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
