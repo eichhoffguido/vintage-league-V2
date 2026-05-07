@@ -17,13 +17,14 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 4. NEVER merge your own PR — Guido merges
 
 ## PR Rules — NON-NEGOTIABLE
-1. Title format: `feat(TASKID): description` or `fix(TASKID): description`
-2. Body must include: what changed, why it changed, QA checklist (testing steps)
-3. Link related issue in body: `Closes #ISSUE_NUMBER` or `Related to #ISSUE_NUMBER`
-4. PR must pass CI (npm run build green) before merging
-5. NO .env files in PR — verify with: `git diff --cached --name-only | grep "^\.env$"`
-6. One PR per task — do not combine multiple TASKID in single PR
-7. Rebase on main before requesting review if conflicts exist
+1. **Agents NEVER close PRs** — only Guido (Product Owner) closes or merges PRs. PRs stay open until Guido takes action.
+2. Title format: `feat(TASKID): description` or `fix(TASKID): description`
+3. Body must include: what changed, why it changed, QA checklist (testing steps)
+4. Link related issue in body: `Closes #ISSUE_NUMBER` or `Related to #ISSUE_NUMBER`
+5. PR must pass CI (npm run build green) before merging
+6. NO .env files in PR — verify with: `git diff --cached --name-only | grep "^\.env$"`
+7. One PR per task — do not combine multiple TASKID in single PR
+8. Rebase on main before requesting review if conflicts exist
 
 ## Issue Status Rules — NON-NEGOTIABLE
 1. When your work is done: mark issue as DONE immediately
