@@ -11,6 +11,8 @@ import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { centsToEuros, formatEuros } from "@/utils/currency";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-jersey.jpg";
 
 
@@ -39,6 +41,8 @@ const fetchJerseys = async () => {
 
 const Shop = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -46,6 +50,7 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedJersey, setSelectedJersey] = useState<any | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const { data: jerseys = [], isLoading, error } = useQuery({
     queryKey: ["shop-jerseys"],
@@ -95,6 +100,24 @@ const Shop = () => {
       searchParams.set("cat", categoryId);
     }
     setSearchParams(searchParams);
+  };
+
+  const handleQuickBuy = async (jerseyId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { jersey_id: jerseyId, buyer_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      setCheckoutLoading(false);
+    }
   };
 
   return (
@@ -230,6 +253,9 @@ const Shop = () => {
                     size={jersey.size}
                     available_for_trade={jersey.available_for_trade}
                     listing_type={jersey.listing_type}
+                    user_id={jersey.user_id}
+                    sale_price_cents={jersey.sale_price_cents}
+                    onQuickBuy={() => handleQuickBuy(jersey.id)}
                     onClick={() => {
                       setSelectedJersey(jersey);
                       setIsDetailOpen(true);

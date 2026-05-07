@@ -1,10 +1,11 @@
-import { ShieldCheck, Gem, Heart } from "lucide-react";
+import { ShieldCheck, Gem, Heart, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { useWatchlist } from "@/hooks/useWatchlist";
+import { useAuth } from "@/hooks/useAuth";
 
 interface JerseyCardProps {
   id: string;
@@ -25,6 +26,8 @@ interface JerseyCardProps {
   sale_price_cents?: number;
   available_for_trade?: boolean;
   listing_type?: string;
+  user_id?: string;
+  onQuickBuy?: () => void;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -84,9 +87,14 @@ const JerseyCard = ({
   sale_price_cents,
   available_for_trade = false,
   listing_type,
+  user_id,
+  onQuickBuy,
 }: JerseyCardProps) => {
   const isSold = listing_type === "sold";
+  const { user } = useAuth();
   const { isFavorited, toggleFavorite } = useWatchlist();
+  const isOwner = user?.id === user_id;
+  const canBuyNow = (listing_type === "buy_now" || listing_type === "both") && !isOwner && sale_price_cents;
   // Use verification_status if provided, otherwise fall back to verified prop
   const isVerified = verification_status ? verification_status === "verified" : verified;
   const vintageBonus = getVintageBonus(year);
@@ -276,6 +284,20 @@ const JerseyCard = ({
               </div>
             )}
           </div>
+        )}
+
+        {/* Sofort kaufen button */}
+        {canBuyNow && onQuickBuy && (
+          <Button
+            variant="default"
+            className="mt-4 w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              onQuickBuy();
+            }}
+          >
+            Sofort kaufen
+          </Button>
         )}
       </div>
     </div>
