@@ -29,11 +29,29 @@ const fetchFeaturedJerseys = async () => {
   return data || [];
 };
 
-const stats = [
-  { label: "Zertifizierte Trikots", value: "12.500+" },
-  { label: "Sammler & Händler", value: "3.200+" },
-  { label: "Erfolgreiche Trades", value: "45.000+" },
-];
+const fetchStats = async () => {
+  const [jerseysRes, profilesRes, tradesRes] = await Promise.all([
+    supabase
+      .from("user_jerseys")
+      .select("*", { count: "exact", head: true })
+      .eq("verification_status", "verified")
+      .is("deleted_at", null),
+    supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .is("deleted_at", null),
+    supabase
+      .from("trade_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "completed"),
+  ]);
+
+  return {
+    jerseys: jerseysRes.count || 0,
+    profiles: profilesRes.count || 0,
+    trades: tradesRes.count || 0,
+  };
+};
 
 const heroSlides = [
   {
@@ -68,6 +86,11 @@ const Index = () => {
   const { data: jerseys = [], isLoading } = useQuery({
     queryKey: ["featured-jerseys"],
     queryFn: fetchFeaturedJerseys,
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["homepage-stats"],
+    queryFn: fetchStats,
   });
 
   useEffect(() => {
@@ -132,16 +155,26 @@ const Index = () => {
             </div>
 
             {/* Stats */}
-            <div className="mt-14 flex gap-8 md:gap-12">
-              {stats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="font-display text-2xl font-bold text-primary md:text-3xl">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-muted-foreground md:text-sm">{stat.label}</p>
-                </div>
-              ))}
-            </div>
+             <div className="mt-14 flex gap-8 md:gap-12">
+               <div>
+                 <p className="font-display text-2xl font-bold text-primary md:text-3xl">
+                   {stats?.jerseys?.toLocaleString() || "..."}
+                 </p>
+                 <p className="text-xs text-muted-foreground md:text-sm">Zertifizierte Trikots</p>
+               </div>
+               <div>
+                 <p className="font-display text-2xl font-bold text-primary md:text-3xl">
+                   {stats?.profiles?.toLocaleString() || "..."}
+                 </p>
+                 <p className="text-xs text-muted-foreground md:text-sm">Sammler & Händler</p>
+               </div>
+               <div>
+                 <p className="font-display text-2xl font-bold text-primary md:text-3xl">
+                   {stats?.trades?.toLocaleString() || "..."}
+                 </p>
+                 <p className="text-xs text-muted-foreground md:text-sm">Erfolgreiche Trades</p>
+               </div>
+             </div>
 
             {/* Slide indicators */}
             <div className="mt-8 flex gap-2">

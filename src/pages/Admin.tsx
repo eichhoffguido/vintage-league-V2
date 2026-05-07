@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ShieldCheck, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { ShieldCheck, CheckCircle, XCircle, Loader2, Star } from "lucide-react";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -60,6 +60,23 @@ const Admin = () => {
       return data;
     },
     enabled: isAdmin === true,
+  });
+
+  // Toggle featured mutation
+  const toggleFeatured = useMutation({
+    mutationFn: async ({ jerseyId, isFeatured }: { jerseyId: string; isFeatured: boolean | null }) => {
+      const { error } = await supabase
+        .from("user_jerseys")
+        .update({ is_featured: !isFeatured })
+        .eq("id", jerseyId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-pending-jerseys"] });
+      toast.success("Featured-Status aktualisiert!");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   // Fetch counts
@@ -245,6 +262,20 @@ const Admin = () => {
                         <>
                           <XCircle className="mr-2 h-4 w-4" /> Ablehnen
                         </>
+                      )}
+                    </Button>
+                    <Button
+                      variant={jersey.is_featured ? "default" : "outline"}
+                      size="sm"
+                      className={jersey.is_featured ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                      onClick={() => toggleFeatured.mutate({ jerseyId: jersey.id, isFeatured: jersey.is_featured })}
+                      disabled={toggleFeatured.isPending}
+                      title="Als featured markieren"
+                    >
+                      {toggleFeatured.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Star className={`h-4 w-4 ${jersey.is_featured ? "fill-current" : ""}`} />
                       )}
                     </Button>
                   </div>
