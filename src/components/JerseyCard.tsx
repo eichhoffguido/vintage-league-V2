@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
+import { getImageUrl } from "@/utils/imageUrl";
 import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface JerseyCardProps {
@@ -118,9 +119,9 @@ const JerseyCard = ({
     <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
        <div className="relative aspect-square overflow-hidden bg-secondary">
-        {imageUrl ? (
+        {getImageUrl(imageUrl) ? (
           <img
-            src={imageUrl}
+            src={getImageUrl(imageUrl)!}
             alt={`${team} ${name}`}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
