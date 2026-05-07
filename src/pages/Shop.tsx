@@ -231,7 +231,20 @@ const Shop = () => {
                     available_for_trade={jersey.available_for_trade}
                     listing_type={jersey.listing_type}
                     onClick={() => {
-                      setSelectedJersey(jersey);
+                      setSelectedJersey({
+                        id: jersey.id,
+                        name: jersey.name,
+                        team: jersey.team,
+                        league: jersey.league,
+                        year: jersey.year,
+                        price_cents: jersey.price_cents,
+                        imageUrl: jersey.image_url,
+                        verified: jersey.verification_status === "verified",
+                        condition: jersey.condition,
+                        size: jersey.size,
+                        sale_price_cents: jersey.sale_price_cents,
+                        listing_type: jersey.listing_type,
+                      });
                       setIsDetailOpen(true);
                     }}
                   />
