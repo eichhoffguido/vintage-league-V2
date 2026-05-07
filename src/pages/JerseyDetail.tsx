@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -13,6 +13,7 @@ import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
+import JerseyCard from "@/components/JerseyCard";
 import type { Tables } from "@/integrations/supabase/types";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
@@ -59,6 +60,8 @@ const JerseyDetail = () => {
   const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [similarJerseys, setSimilarJerseys] = useState<JerseyWithProfile[]>([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -77,6 +80,7 @@ const JerseyDetail = () => {
   useEffect(() => {
     if (jersey) {
       fetchSaleHistory();
+      fetchSimilarJerseys();
     }
   }, [jersey]);
 
@@ -143,6 +147,43 @@ const JerseyDetail = () => {
     }
   };
 
+  const fetchSimilarJerseys = async () => {
+    if (!jersey) return;
+    setLoadingSimilar(true);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from("user_jerseys")
+        .select("*")
+        .eq("team", jersey.team)
+        .eq("league", jersey.league)
+        .eq("year", jersey.year)
+        .neq("id", jersey.id)
+        .is("deleted_at", null)
+        .limit(6);
+
+      if (fetchError) throw fetchError;
+
+      if (data) {
+        // Fetch profiles for each jersey
+        const jerseyWithProfiles = await Promise.all(
+          data.map(async (j: any) => {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", j.user_id)
+              .single();
+            return { ...j, profiles: profile };
+          })
+        );
+        setSimilarJerseys(jerseyWithProfiles);
+      }
+    } catch (err: any) {
+      console.error("Error fetching similar jerseys:", err);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
+
   const handleKaufen = async () => {
     if (!user) {
       navigate("/auth");
@@ -159,6 +200,44 @@ const JerseyDetail = () => {
       toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
     } finally {
       setCheckoutLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = `${jersey?.team} ${jersey?.name} - ${jersey?.year}`;
+    const text = `Schau dir dieses vintage Trikot an: ${title}`;
+
+    // Use Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url,
+        });
+      } catch (err: any) {
+        // User cancelled share, don't show error
+        if (err.name !== "AbortError") {
+          console.error("Share error:", err);
+        }
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Kopiert!",
+          description: "Link wurde in die Zwischenablage kopiert",
+          variant: "default",
+        });
+      } catch {
+        toast({
+          title: "Fehler",
+          description: "Link konnte nicht kopiert werden",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -258,9 +337,16 @@ const JerseyDetail = () => {
           <div className="space-y-6">
             {/* Basic Info */}
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{jersey.league} · {jersey.year}</p>
-              <h1 className="font-display text-5xl font-bold mt-2">{jersey.team}</h1>
-              <p className="text-lg text-muted-foreground mt-2">{jersey.name}</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{jersey.league} · {jersey.year}</p>
+                  <h1 className="font-display text-5xl font-bold mt-2">{jersey.team}</h1>
+                  <p className="text-lg text-muted-foreground mt-2">{jersey.name}</p>
+                </div>
+                <Button variant="outline" size="icon" onClick={handleShare} title="Teilen">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Price */}
@@ -448,6 +534,63 @@ const JerseyDetail = () => {
             )}
           </div>
         </div>
+
+        {/* Similar Jerseys Section */}
+        {(loadingSimilar || similarJerseys.length > 0) && (
+          <div className="mt-16">
+            <div className="mb-8">
+              <h2 className="font-display text-3xl font-bold">Das könnte dir auch gefallen</h2>
+              <p className="text-muted-foreground mt-2">Ähnliche Trikots aus der gleichen Serie</p>
+            </div>
+
+            {loadingSimilar ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="rounded-sm border border-border overflow-hidden">
+                    <Skeleton className="aspect-square" />
+                    <div className="p-4 space-y-3">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-6 w-1/2" />
+                      <Skeleton className="h-4 w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : similarJerseys.length > 0 ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {similarJerseys.map((similar) => (
+                  <JerseyCard
+                    key={similar.id}
+                    id={similar.id}
+                    name={similar.name}
+                    team={similar.team}
+                    league={similar.league}
+                    year={similar.year}
+                    price_cents={similar.price_cents}
+                    imageUrl={similar.image_url}
+                    verified={similar.verification_status === "verified"}
+                    verification_status={similar.verification_status}
+                    condition={similar.condition as 1 | 2 | 3 | 4 | 5}
+                    size={similar.size}
+                    sale_price_cents={similar.sale_price_cents}
+                    available_for_trade={similar.available_for_trade}
+                    listing_type={similar.listing_type}
+                    user_id={similar.user_id}
+                    onClick={() => navigate(`/jersey/${similar.id}`)}
+                    onQuickBuy={() => {
+                      if (!user) {
+                        navigate("/auth");
+                        return;
+                      }
+                      // Trigger checkout for this jersey
+                      window.location.href = `?jersey=${similar.id}&action=quickbuy`;
+                    }}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )}
       </div>
       <Footer />
     </div>
