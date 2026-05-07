@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
-import JerseyDetailSheet from "@/components/JerseyDetailSheet";
 import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,8 +45,6 @@ const Shop = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedJersey, setSelectedJersey] = useState<any | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const { data: jerseys = [], isLoading, error } = useQuery({
     queryKey: ["shop-jerseys"],
@@ -235,10 +232,7 @@ const Shop = () => {
                     sale_price_cents={jersey.sale_price_cents}
                     isOwner={user?.id === jersey.user_id}
                     onBuyNow={() => navigate(`/jersey/${jersey.id}?buy=1`)}
-                    onClick={() => {
-                      setSelectedJersey(jersey);
-                      setIsDetailOpen(true);
-                    }}
+                    onClick={() => navigate(`/jersey/${jersey.id}`)}
                   />
                 </div>
               ))}
@@ -260,12 +254,6 @@ const Shop = () => {
           )}
         </div>
       </section>
-
-      <JerseyDetailSheet
-        jersey={selectedJersey}
-        open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
-      />
 
       <Footer />
     </div>
