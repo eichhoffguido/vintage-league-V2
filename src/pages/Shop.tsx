@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -39,6 +40,7 @@ const fetchJerseys = async () => {
 
 const Shop = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -230,6 +232,9 @@ const Shop = () => {
                     size={jersey.size}
                     available_for_trade={jersey.available_for_trade}
                     listing_type={jersey.listing_type}
+                    sale_price_cents={jersey.sale_price_cents}
+                    isOwner={user?.id === jersey.user_id}
+                    onBuyNow={() => navigate(`/jersey/${jersey.id}?buy=1`)}
                     onClick={() => {
                       setSelectedJersey(jersey);
                       setIsDetailOpen(true);
