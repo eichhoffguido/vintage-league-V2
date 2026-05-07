@@ -377,7 +377,7 @@ const JerseyDetail = () => {
                 </div>
               ) : (
                 <>
-                  {jersey.is_for_sale && jersey.sale_price_cents && (
+                  {jersey.sale_price_cents && (
                     <Button
                       variant="hero"
                       className="w-full uppercase tracking-wider"
