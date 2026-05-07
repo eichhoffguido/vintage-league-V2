@@ -5,6 +5,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface JerseyDetailSheetProps {
   jersey: {
@@ -21,6 +24,8 @@ interface JerseyDetailSheetProps {
     condition: 1 | 2 | 3 | 4 | 5;
     size: string;
     estimatedValue?: number;
+    sale_price_cents?: number;
+    listing_type?: string;
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -68,8 +73,29 @@ const JerseyDetailSheet = ({ jersey, open, onOpenChange }: JerseyDetailSheetProp
 const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSheetProps['jersey']>; onClose: () => void }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const vintageBonus = getVintageBonus(jersey.year);
+
+  const handleKaufen = async () => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { jersey_id: jersey?.id, buyer_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   const handleTauschVorschlagen = () => {
     if (!user) {
@@ -223,14 +249,35 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
         </Button>
       )}
 
-      {/* Tausch vorschlagen Button */}
-      <Button
-        variant="default"
-        className="w-full"
-        onClick={handleTauschVorschlagen}
-      >
-        Tausch vorschlagen
-      </Button>
+      {/* Action Buttons */}
+      {jersey.listing_type === "sold" ? (
+        <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
+          <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
+            Bereits verkauft
+          </Badge>
+          <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
+        </div>
+      ) : (
+        <>
+          {jersey.sale_price_cents && (
+            <Button
+              variant="hero"
+              className="w-full uppercase tracking-wider"
+              onClick={handleKaufen}
+              disabled={checkoutLoading}
+            >
+              {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
+            </Button>
+          )}
+          <Button
+            variant={jersey.sale_price_cents ? "outline" : "hero"}
+            className="w-full uppercase tracking-wider"
+            onClick={handleTauschVorschlagen}
+          >
+            Tausch vorschlagen
+          </Button>
+        </>
+      )}
     </div>
   );
 };

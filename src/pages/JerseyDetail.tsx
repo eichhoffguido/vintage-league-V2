@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
+import { getImageUrl } from "@/utils/imageUrl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -225,9 +226,9 @@ const JerseyDetail = () => {
           {/* Jersey Image */}
           <div className="relative">
             <div className="sticky top-20">
-              {jersey.image_url ? (
+              {getImageUrl(jersey.image_url) ? (
                 <div className="overflow-hidden rounded-sm bg-secondary">
-                  <img src={jersey.image_url} alt={jersey.name} className="w-full h-auto object-cover" />
+                  <img src={getImageUrl(jersey.image_url)!} alt={jersey.name} className="w-full h-auto object-cover" />
                 </div>
               ) : (
                 <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
@@ -376,7 +377,7 @@ const JerseyDetail = () => {
                 </div>
               ) : (
                 <>
-                  {jersey.is_for_sale && jersey.sale_price_cents && (
+                  {jersey.sale_price_cents && (
                     <Button
                       variant="hero"
                       className="w-full uppercase tracking-wider"
