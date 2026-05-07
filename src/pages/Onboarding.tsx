@@ -47,7 +47,7 @@ const Onboarding = () => {
     if (user && !authLoading) {
       supabase
         .from("profiles")
-        .select("display_name")
+        .select("onboarding_completed")
         .eq("id", user.id)
         .single()
         .then(({ data, error }) => {
@@ -57,7 +57,8 @@ const Onboarding = () => {
             setCheckingProfile(false);
             return;
           }
-          if (data?.display_name) {
+          // If onboarding is complete, redirect to collection
+          if (data?.onboarding_completed) {
             navigate("/collection");
           }
           setCheckingProfile(false);
@@ -117,11 +118,30 @@ const Onboarding = () => {
     else if (step === "favorite") setStep("add-jersey");
   };
 
-  const handleNavigateToAddJersey = () => {
+  const completeOnboarding = async () => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", user!.id);
+
+      if (error) {
+        console.error("Error completing onboarding:", error);
+        throw error;
+      }
+    } catch (err) {
+      console.error("completeOnboarding error:", err);
+      // Continue navigation even if update fails
+    }
+  };
+
+  const handleNavigateToAddJersey = async () => {
+    await completeOnboarding();
     navigate("/collection", { state: { openAddJerseyDialog: true } });
   };
 
-  const handleNavigateToCollection = () => {
+  const handleNavigateToCollection = async () => {
+    await completeOnboarding();
     navigate("/collection");
   };
 

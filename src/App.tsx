@@ -28,7 +28,7 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
-// Route guard component that checks profile completeness
+// Route guard component that checks if onboarding is complete
 const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
     if (pathname === "/" || pathname === "") {
       supabase
         .from("profiles")
-        .select("display_name")
+        .select("onboarding_completed")
         .eq("id", user.id)
         .single()
         .then(({ data, error }) => {
@@ -50,9 +50,9 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
             console.error("Error checking profile:", error);
             return;
           }
-          // If profile has display_name, redirect to collection
+          // If onboarding is complete, redirect to collection
           // Otherwise, redirect to onboarding
-          if (data?.display_name) {
+          if (data?.onboarding_completed) {
             navigate("/collection");
           } else {
             navigate("/onboarding");
