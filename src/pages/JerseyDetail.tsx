@@ -299,6 +299,14 @@ const JerseyDetail = () => {
               </div>
             </div>
 
+            {/* Description */}
+            {jersey.description && jersey.description.trim() && (
+              <div className="rounded-sm border border-border p-6">
+                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Beschreibung</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{jersey.description}</p>
+              </div>
+            )}
+
             {/* Owner Info */}
             <div className="rounded-sm border border-border p-6">
               <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Verkäufer</p>

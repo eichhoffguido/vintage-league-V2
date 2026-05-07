@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +48,7 @@ const Collection = () => {
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
     listingType: "trade" as "trade" | "sell" | "both",
+    description: "",
   });
 
   useEffect(() => {
@@ -106,13 +108,14 @@ const Collection = () => {
         available_for_trade: availableForTrade,
         sale_price_cents: salePriceCents,
         listing_type: listingTypeMap[form.listingType],
+        description: form.description.trim() || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false, listingType: "trade" });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false, listingType: "trade", description: "" });
       setSelectedFile(null);
       setImagePreview(null);
       toast.success("Trikot hinzugefügt!");
@@ -133,6 +136,7 @@ const Collection = () => {
           size: jersey.size,
           image_url: jersey.image_url,
           price_cents: eurosToCents(jersey.price_cents),
+          description: jersey.description ? jersey.description.trim() : null,
         })
         .eq("id", jersey.id);
       if (error) throw error;
@@ -348,6 +352,11 @@ const Collection = () => {
                       />
                     </label>
                   )}
+                </div>
+                <div className="space-y-2">
+                  <Label>Beschreibung</Label>
+                  <Textarea placeholder="Erzähle die Geschichte dieses Trikots..." value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} maxLength={500} className="resize-none" rows={4} />
+                  <p className="text-xs text-muted-foreground">{form.description.length}/500</p>
                 </div>
                 <div className="space-y-3">
                   <Label>Listingtyp</Label>
@@ -582,6 +591,12 @@ const Collection = () => {
                             <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
                           </div>
                         )}
+                        {selectedJersey.description && selectedJersey.description.trim() && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">Beschreibung</p>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{selectedJersey.description}</p>
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -628,6 +643,11 @@ const Collection = () => {
                         <div className="space-y-2">
                           <Label>Schätzpreis (€)</Label>
                           <Input type="number" placeholder="80" value={editForm.price_cents} onChange={(e) => setEditForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Beschreibung</Label>
+                          <Textarea placeholder="Erzähle die Geschichte dieses Trikots..." value={editForm.description || ""} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} maxLength={500} className="resize-none" rows={4} />
+                          <p className="text-xs text-muted-foreground">{(editForm.description || "").length}/500</p>
                         </div>
                       </form>
                     </>
