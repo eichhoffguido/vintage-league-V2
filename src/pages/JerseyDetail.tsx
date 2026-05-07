@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -276,6 +276,45 @@ const JerseyDetail = () => {
               </div>
             )}
 
+            {/* Action Buttons - Moved above the fold */}
+            <div className="space-y-3">
+              {isOwner ? (
+                <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
+                  <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
+                </Button>
+              ) : jersey.listing_type === "sold" ? (
+                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
+                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
+                    Bereits verkauft
+                  </Badge>
+                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
+                </div>
+              ) : (
+                <>
+                  {jersey.sale_price_cents && (
+                    <Button
+                      variant="hero"
+                      className="w-full uppercase tracking-wider"
+                      onClick={handleKaufen}
+                      disabled={checkoutLoading}
+                    >
+                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
+                    </Button>
+                  )}
+                  {jersey.available_for_trade && (
+                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                      Tausch vorschlagen
+                    </Button>
+                  )}
+                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      Dieses Trikot ist derzeit nicht verfügbar
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* Specifications */}
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-sm border border-border p-4">
@@ -299,18 +338,64 @@ const JerseyDetail = () => {
               </div>
             </div>
 
-            {/* Owner Info */}
-            <div className="rounded-sm border border-border p-6">
-              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Verkäufer</p>
-              <p
-                className="font-semibold text-lg cursor-pointer hover:text-primary"
+            {/* Owner Info - Enhanced */}
+            <div className="rounded-sm border border-border bg-gradient-to-br from-secondary/30 to-secondary/5 p-6">
+              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Verkäufer</p>
+              <div className="flex items-start gap-4">
+                {/* Avatar */}
+                {jersey.profiles?.avatar_url ? (
+                  <img
+                    src={jersey.profiles.avatar_url}
+                    alt={jersey.profiles?.display_name || "Seller"}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-display font-bold">
+                    {(jersey.profiles?.display_name || jersey.profiles?.id || "?").charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  {/* Seller Name and Rating */}
+                  <p
+                    className="font-semibold text-lg cursor-pointer hover:text-primary break-words"
+                    onClick={() => navigate(`/seller/${jersey.user_id}`)}
+                  >
+                    {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
+                  </p>
+                  {/* Rating */}
+                  {jersey.profiles?.average_rating !== null && jersey.profiles?.average_rating !== undefined && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${
+                              i < Math.round(jersey.profiles!.average_rating!)
+                                ? "fill-primary text-primary"
+                                : "text-muted-foreground/20"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        {jersey.profiles.average_rating.toFixed(1)}
+                      </span>
+                    </div>
+                  )}
+                  {/* Bio */}
+                  {jersey.profiles?.bio && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{jersey.profiles.bio}</p>
+                  )}
+                </div>
+              </div>
+              {/* View Profile Button */}
+              <Button
+                variant="outline"
+                className="w-full mt-4"
                 onClick={() => navigate(`/seller/${jersey.user_id}`)}
               >
-                {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
-              </p>
-              {jersey.profiles?.bio && (
-                <p className="text-sm text-muted-foreground mt-2">{jersey.profiles.bio}</p>
-              )}
+                Verkäuferprofil besuchen
+              </Button>
             </div>
 
             {/* Verification Status */}
@@ -361,45 +446,6 @@ const JerseyDetail = () => {
                 </div>
               </div>
             )}
-
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-4 border-t border-border">
-              {isOwner ? (
-                <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
-                  <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
-                </Button>
-              ) : jersey.listing_type === "sold" ? (
-                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
-                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
-                    Bereits verkauft
-                  </Badge>
-                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
-                </div>
-              ) : (
-                <>
-                  {jersey.sale_price_cents && (
-                    <Button
-                      variant="hero"
-                      className="w-full uppercase tracking-wider"
-                      onClick={handleKaufen}
-                      disabled={checkoutLoading}
-                    >
-                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
-                    </Button>
-                  )}
-                  {jersey.available_for_trade && (
-                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                      Tausch vorschlagen
-                    </Button>
-                  )}
-                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
-                    <p className="text-sm text-muted-foreground text-center py-2">
-                      Dieses Trikot ist derzeit nicht verfügbar
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>
