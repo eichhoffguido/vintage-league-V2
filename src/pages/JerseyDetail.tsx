@@ -276,6 +276,18 @@ const JerseyDetail = () => {
               </div>
             )}
 
+            {/* Buy Button - Above Fold */}
+            {!isOwner && jersey.listing_type !== "sold" && jersey.sale_price_cents && (
+              <Button
+                variant="hero"
+                className="w-full uppercase tracking-wider"
+                onClick={handleKaufen}
+                disabled={checkoutLoading}
+              >
+                {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
+              </Button>
+            )}
+
             {/* Specifications */}
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-sm border border-border p-4">
@@ -377,16 +389,6 @@ const JerseyDetail = () => {
                 </div>
               ) : (
                 <>
-                  {jersey.sale_price_cents && (
-                    <Button
-                      variant="hero"
-                      className="w-full uppercase tracking-wider"
-                      onClick={handleKaufen}
-                      disabled={checkoutLoading}
-                    >
-                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
-                    </Button>
-                  )}
                   {jersey.available_for_trade && (
                     <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
                       Tausch vorschlagen
