@@ -270,7 +270,6 @@ const Index = () => {
                       listing_type={jersey.listing_type}
                       onClick={() => navigate(`/jersey/${jersey.id}`)}
                       onQuickBuy={() => handleQuickBuy(jersey.id)}
-                      onClick={() => navigate(`/jersey/${jersey.id}`)}
                     />
                   </div>
                 ))}
