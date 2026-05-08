@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
-import JerseyDetailSheet from "@/components/JerseyDetailSheet";
 import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,13 +39,12 @@ const fetchJerseys = async () => {
 
 const Shop = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedJersey, setSelectedJersey] = useState<any | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const { data: jerseys = [], isLoading, error } = useQuery({
     queryKey: ["shop-jerseys"],
@@ -230,10 +229,10 @@ const Shop = () => {
                     size={jersey.size}
                     available_for_trade={jersey.available_for_trade}
                     listing_type={jersey.listing_type}
-                    onClick={() => {
-                      setSelectedJersey(jersey);
-                      setIsDetailOpen(true);
-                    }}
+                    sale_price_cents={jersey.sale_price_cents}
+                    isOwner={user?.id === jersey.user_id}
+                    onBuyNow={() => navigate(`/jersey/${jersey.id}?buy=1`)}
+                    onClick={() => navigate(`/jersey/${jersey.id}`)}
                   />
                 </div>
               ))}
@@ -255,12 +254,6 @@ const Shop = () => {
           )}
         </div>
       </section>
-
-      <JerseyDetailSheet
-        jersey={selectedJersey}
-        open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
-      />
 
       <Footer />
     </div>

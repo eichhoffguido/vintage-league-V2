@@ -25,6 +25,8 @@ interface JerseyCardProps {
   sale_price_cents?: number;
   available_for_trade?: boolean;
   listing_type?: string;
+  onBuyNow?: (e: React.MouseEvent) => void;
+  isOwner?: boolean;
 }
 
 const conditionLabels: Record<number, string> = {
@@ -84,6 +86,8 @@ const JerseyCard = ({
   sale_price_cents,
   available_for_trade = false,
   listing_type,
+  onBuyNow,
+  isOwner = false,
 }: JerseyCardProps) => {
   const isSold = listing_type === "sold";
   const { isFavorited, toggleFavorite } = useWatchlist();
@@ -276,6 +280,21 @@ const JerseyCard = ({
               </div>
             )}
           </div>
+        )}
+
+        {/* Sofort kaufen button */}
+        {onBuyNow && !isOwner && sale_price_cents && (
+          <Button
+            variant="hero"
+            size="sm"
+            className="w-full mt-3 uppercase tracking-wider font-display"
+            onClick={(e) => {
+              e.stopPropagation();
+              onBuyNow(e);
+            }}
+          >
+            Sofort kaufen — {formatEuros(sale_price_cents)}
+          </Button>
         )}
       </div>
     </div>

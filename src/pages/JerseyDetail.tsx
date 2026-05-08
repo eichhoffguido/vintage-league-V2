@@ -75,6 +75,12 @@ const JerseyDetail = () => {
   }, [searchParams, id]);
 
   useEffect(() => {
+    if (jersey && searchParams.get("buy") === "1" && user?.id !== jersey.user_id && jersey.sale_price_cents) {
+      handleKaufen();
+    }
+  }, [jersey, searchParams, user]);
+
+  useEffect(() => {
     if (jersey) {
       fetchSaleHistory();
     }
@@ -276,6 +282,45 @@ const JerseyDetail = () => {
               </div>
             )}
 
+            {/* Action Buttons - MOVED ABOVE FOLD */}
+            <div className="space-y-3">
+              {isOwner ? (
+                <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
+                  <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
+                </Button>
+              ) : jersey.listing_type === "sold" ? (
+                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
+                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
+                    Bereits verkauft
+                  </Badge>
+                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
+                </div>
+              ) : (
+                <>
+                  {jersey.sale_price_cents && (
+                    <Button
+                      variant="hero"
+                      className="w-full uppercase tracking-wider"
+                      onClick={handleKaufen}
+                      disabled={checkoutLoading}
+                    >
+                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
+                    </Button>
+                  )}
+                  {jersey.available_for_trade && (
+                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                      Tausch vorschlagen
+                    </Button>
+                  )}
+                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      Dieses Trikot ist derzeit nicht verfügbar
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* Specifications */}
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-sm border border-border p-4">
@@ -299,18 +344,60 @@ const JerseyDetail = () => {
               </div>
             </div>
 
-            {/* Owner Info */}
+            {/* Description */}
+            {jersey.description && jersey.description.trim() && (
+              <div className="rounded-sm border border-border p-6">
+                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Beschreibung</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{jersey.description}</p>
+              </div>
+            )}
+
+            {/* Enhanced Seller Section */}
             <div className="rounded-sm border border-border p-6">
-              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Verkäufer</p>
-              <p
-                className="font-semibold text-lg cursor-pointer hover:text-primary"
-                onClick={() => navigate(`/seller/${jersey.user_id}`)}
-              >
-                {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
-              </p>
-              {jersey.profiles?.bio && (
-                <p className="text-sm text-muted-foreground mt-2">{jersey.profiles.bio}</p>
-              )}
+              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">Verkäufer</p>
+              <div className="flex gap-4 items-start">
+                {/* Avatar */}
+                <div className="flex-shrink-0">
+                  {jersey.profiles?.avatar_url ? (
+                    <img
+                      src={jersey.profiles.avatar_url}
+                      alt={jersey.profiles.display_name || "Seller"}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center font-semibold text-foreground">
+                      {(jersey.profiles?.display_name || jersey.profiles?.id || "A").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Seller Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p
+                      className="font-semibold text-lg cursor-pointer hover:text-primary truncate"
+                      onClick={() => navigate(`/seller/${jersey.user_id}`)}
+                    >
+                      {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
+                    </p>
+                    {jersey.verification_status === "verified" && (
+                      <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
+                    )}
+                  </div>
+
+                  {/* Member Since */}
+                  {jersey.profiles?.created_at && (
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Mitglied seit {new Date(jersey.profiles.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+                    </p>
+                  )}
+
+                  {/* Bio */}
+                  {jersey.profiles?.bio && (
+                    <p className="text-sm text-muted-foreground">{jersey.profiles.bio}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Verification Status */}
@@ -361,45 +448,6 @@ const JerseyDetail = () => {
                 </div>
               </div>
             )}
-
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-4 border-t border-border">
-              {isOwner ? (
-                <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
-                  <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
-                </Button>
-              ) : jersey.listing_type === "sold" ? (
-                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
-                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
-                    Bereits verkauft
-                  </Badge>
-                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
-                </div>
-              ) : (
-                <>
-                  {jersey.sale_price_cents && (
-                    <Button
-                      variant="hero"
-                      className="w-full uppercase tracking-wider"
-                      onClick={handleKaufen}
-                      disabled={checkoutLoading}
-                    >
-                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
-                    </Button>
-                  )}
-                  {jersey.available_for_trade && (
-                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                      Tausch vorschlagen
-                    </Button>
-                  )}
-                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
-                    <p className="text-sm text-muted-foreground text-center py-2">
-                      Dieses Trikot ist derzeit nicht verfügbar
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
           </div>
         </div>
       </div>
