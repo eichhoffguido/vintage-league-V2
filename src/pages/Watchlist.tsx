@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
-import { useWatchlist } from "@/hooks/useWatchlist";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
@@ -33,7 +33,7 @@ const Watchlist = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { favorites } = useWatchlist();
+  const { favoriteIds: favorites } = useFavorites();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const { data: favoriteJerseys = [], isLoading } = useQuery({
