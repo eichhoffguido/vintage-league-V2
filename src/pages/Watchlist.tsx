@@ -22,7 +22,6 @@ const fetchFavoriteJerseys = async (favoriteIds: string[]) => {
     .from("user_jerseys")
     .select("*")
     .in("id", favoriteIds)
-    .eq("available_for_trade", true)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
@@ -162,6 +161,7 @@ const Watchlist = () => {
                       sale_price_cents={jersey.sale_price_cents}
                       listing_type={jersey.listing_type}
                       onQuickBuy={() => handleQuickBuy(jersey.id)}
+                      onClick={() => navigate(`/jersey/${jersey.id}`)}
                     />
                   </div>
                 ))}
