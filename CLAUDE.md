@@ -16,6 +16,18 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 3. After push create PR: gh pr create --base main --head BRANCHNAME --title "TITLE" --body "SUMMARY"
 4. NEVER merge your own PR — Guido merges
 
+## Sequential PR Rule — Same-File Changes
+1. Only one PR per file may be open at a time
+2. Before opening a new PR that touches a file, check if any open PR already modifies that file
+3. If yes: wait for that PR to be merged first, then rebase onto main before starting work
+4. Wave-based execution (Wave 1, Wave 2 etc.) does NOT override this rule — if Wave 1 tasks share files, they must be sequential within the wave
+
+### Common high-traffic files to watch:
+- src/pages/Shop.tsx
+- src/pages/JerseyDetail.tsx
+- src/components/JerseyCard.tsx
+- src/App.tsx
+
 ## PR Rules — NON-NEGOTIABLE
 1. **Agents NEVER close PRs** — only Guido (Product Owner) closes or merges PRs. PRs stay open until Guido takes action.
 2. Title format: `feat(TASKID): description` or `fix(TASKID): description`
