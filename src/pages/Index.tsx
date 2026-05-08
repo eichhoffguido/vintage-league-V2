@@ -269,6 +269,7 @@ const Index = () => {
                       sale_price_cents={jersey.sale_price_cents}
                       listing_type={jersey.listing_type}
                       onQuickBuy={() => handleQuickBuy(jersey.id)}
+                      onClick={() => navigate(`/jersey/${jersey.id}`)}
                     />
                   </div>
                 ))}
