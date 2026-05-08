@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -282,7 +282,7 @@ const JerseyDetail = () => {
               </div>
             )}
 
-            {/* Action Buttons - MOVED ABOVE FOLD */}
+            {/* Action Buttons - Moved above the fold */}
             <div className="space-y-3">
               {isOwner ? (
                 <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
@@ -353,51 +353,63 @@ const JerseyDetail = () => {
             )}
 
             {/* Enhanced Seller Section */}
-            <div className="rounded-sm border border-border p-6">
-              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider">Verkäufer</p>
-              <div className="flex gap-4 items-start">
+            <div className="rounded-sm border border-border bg-gradient-to-br from-secondary/30 to-secondary/5 p-6">
+              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Verkäufer</p>
+              <div className="flex items-start gap-4">
                 {/* Avatar */}
-                <div className="flex-shrink-0">
-                  {jersey.profiles?.avatar_url ? (
-                    <img
-                      src={jersey.profiles.avatar_url}
-                      alt={jersey.profiles.display_name || "Seller"}
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center font-semibold text-foreground">
-                      {(jersey.profiles?.display_name || jersey.profiles?.id || "A").charAt(0).toUpperCase()}
+                {jersey.profiles?.avatar_url ? (
+                  <img
+                    src={jersey.profiles.avatar_url}
+                    alt={jersey.profiles?.display_name || "Seller"}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-display font-bold">
+                    {(jersey.profiles?.display_name || jersey.profiles?.id || "?").charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  {/* Seller Name and Rating */}
+                  <p
+                    className="font-semibold text-lg cursor-pointer hover:text-primary break-words"
+                    onClick={() => navigate(`/seller/${jersey.user_id}`)}
+                  >
+                    {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
+                  </p>
+                  {/* Rating */}
+                  {jersey.profiles?.average_rating !== null && jersey.profiles?.average_rating !== undefined && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${
+                              i < Math.round(jersey.profiles!.average_rating!)
+                                ? "fill-primary text-primary"
+                                : "text-muted-foreground/20"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        {jersey.profiles.average_rating.toFixed(1)}
+                      </span>
                     </div>
                   )}
-                </div>
-
-                {/* Seller Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p
-                      className="font-semibold text-lg cursor-pointer hover:text-primary truncate"
-                      onClick={() => navigate(`/seller/${jersey.user_id}`)}
-                    >
-                      {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
-                    </p>
-                    {jersey.verification_status === "verified" && (
-                      <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
-                    )}
-                  </div>
-
-                  {/* Member Since */}
-                  {jersey.profiles?.created_at && (
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Mitglied seit {new Date(jersey.profiles.created_at).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-                    </p>
-                  )}
-
                   {/* Bio */}
                   {jersey.profiles?.bio && (
-                    <p className="text-sm text-muted-foreground">{jersey.profiles.bio}</p>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{jersey.profiles.bio}</p>
                   )}
                 </div>
               </div>
+              {/* View Profile Button */}
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={() => navigate(`/seller/${jersey.user_id}`)}
+              >
+                Verkäuferprofil besuchen
+              </Button>
             </div>
 
             {/* Verification Status */}
