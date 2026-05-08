@@ -21,7 +21,7 @@ const fetchFeaturedJerseys = async () => {
   const { data, error } = await supabase
     .from("user_jerseys")
     .select("*")
-    .eq("is_featured", true)
+    .in("listing_type", ["buy_now", "both"])
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(8);
@@ -268,6 +268,7 @@ const Index = () => {
                       user_id={jersey.user_id}
                       sale_price_cents={jersey.sale_price_cents}
                       listing_type={jersey.listing_type}
+                      onClick={() => navigate(`/jersey/${jersey.id}`)}
                       onQuickBuy={() => handleQuickBuy(jersey.id)}
                     />
                   </div>
