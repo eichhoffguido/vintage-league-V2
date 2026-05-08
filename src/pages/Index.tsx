@@ -12,6 +12,7 @@ import TrustBanner from "@/components/TrustBanner";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-jersey.jpg";
 import heroCollectibles from "@/assets/hero-collectibles.jpg";
 import heroRarity from "@/assets/hero-rarity.jpg";
@@ -80,8 +81,10 @@ const heroSlides = [
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const { data: jerseys = [], isLoading } = useQuery({
     queryKey: ["featured-jerseys"],
@@ -99,6 +102,24 @@ const Index = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleQuickBuy = async (jerseyId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { jersey_id: jerseyId, buyer_id: user.id },
+      });
+      if (error) throw error;
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      setCheckoutLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -244,6 +265,10 @@ const Index = () => {
                       verified={jersey.verification_status === "verified"}
                       condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                       size={jersey.size}
+                      user_id={jersey.user_id}
+                      sale_price_cents={jersey.sale_price_cents}
+                      listing_type={jersey.listing_type}
+                      onQuickBuy={() => handleQuickBuy(jersey.id)}
                     />
                   </div>
                 ))}

@@ -344,6 +344,7 @@ const JerseyDetail = () => {
               </div>
             </div>
 
+
             {/* Description */}
             {jersey.description && jersey.description.trim() && (
               <div className="rounded-sm border border-border p-6">
@@ -352,7 +353,7 @@ const JerseyDetail = () => {
               </div>
             )}
 
-            {/* Enhanced Seller Section */}
+            {/* Owner Info - Enhanced */}
             <div className="rounded-sm border border-border bg-gradient-to-br from-secondary/30 to-secondary/5 p-6">
               <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Verkäufer</p>
               <div className="flex items-start gap-4">
