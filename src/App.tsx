@@ -40,27 +40,50 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
     const pathname = window.location.pathname;
     // Only apply guard when user first logs in (pathname is "/" or root)
     if (pathname === "/" || pathname === "") {
-      supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", user.id)
-        .single()
-        .then(({ data, error }) => {
+      // Retry loop: 3 attempts, 500ms apart
+      let attempts = 0;
+      const maxAttempts = 3;
+      const retryDelay = 500;
+
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("onboarding_completed")
+            .eq("id", user.id)
+            .single();
+
           if (error) {
-            console.error("Error checking profile:", error);
+            attempts++;
+            if (attempts < maxAttempts) {
+              // Retry after delay
+              setTimeout(fetchProfile, retryDelay);
+              return;
+            }
+            // All retries exhausted, redirect to onboarding as safe default
+            console.error("Error checking profile after retries:", error);
+            navigate("/onboarding");
             return;
           }
-          // If onboarding is complete, redirect to collection
-          // Otherwise, redirect to onboarding
+
+          // Success: check onboarding status
           if (data?.onboarding_completed) {
             navigate("/collection");
           } else {
             navigate("/onboarding");
           }
-        })
-        .catch((err) => {
-          console.error("Profile check failed:", err);
-        });
+        } catch (err) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(fetchProfile, retryDelay);
+          } else {
+            console.error("Profile check failed after retries:", err);
+            navigate("/onboarding");
+          }
+        }
+      };
+
+      fetchProfile();
     }
   }, [user, loading, navigate]);
 

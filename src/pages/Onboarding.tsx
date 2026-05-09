@@ -118,31 +118,45 @@ const Onboarding = () => {
     else if (step === "favorite") setStep("add-jersey");
   };
 
-  const completeOnboarding = async () => {
+  const completeOnboarding = async (): Promise<boolean> => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .update({ onboarding_completed: true })
-        .eq("id", user!.id);
+        .eq("id", user!.id)
+        .select();
 
       if (error) {
         console.error("Error completing onboarding:", error);
         throw error;
       }
+
+      // Verify the update succeeded - check that data was returned
+      if (!data || data.length === 0) {
+        throw new Error("Onboarding-Status konnte nicht aktualisiert werden");
+      }
+
+      return true;
     } catch (err) {
-      console.error("completeOnboarding error:", err);
-      // Continue navigation even if update fails
+      const message = err instanceof Error ? err.message : "Fehler beim Abschließen des Onboardings";
+      console.error("completeOnboarding error:", message);
+      toast.error(message);
+      return false;
     }
   };
 
   const handleNavigateToAddJersey = async () => {
-    await completeOnboarding();
-    navigate("/collection", { state: { openAddJerseyDialog: true } });
+    const success = await completeOnboarding();
+    if (success) {
+      navigate("/collection", { state: { openAddJerseyDialog: true } });
+    }
   };
 
   const handleNavigateToCollection = async () => {
-    await completeOnboarding();
-    navigate("/collection");
+    const success = await completeOnboarding();
+    if (success) {
+      navigate("/collection");
+    }
   };
 
   const ProgressIndicator = () => (
