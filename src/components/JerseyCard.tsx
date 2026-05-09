@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
-import { useWatchlist } from "@/hooks/useWatchlist";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 
 interface JerseyCardProps {
@@ -92,7 +92,7 @@ const JerseyCard = ({
 }: JerseyCardProps) => {
   const isSold = listing_type === "sold";
   const { user } = useAuth();
-  const { isFavorited, toggleFavorite } = useWatchlist();
+  const { isFavorited, toggleFavorite } = useFavorites();
   const isOwner = user?.id === user_id;
   const canBuyNow = (listing_type === "buy_now" || listing_type === "both") && !isOwner && sale_price_cents;
   // Use verification_status if provided, otherwise fall back to verified prop
@@ -151,7 +151,7 @@ const JerseyCard = ({
             className="h-8 w-8 rounded-sm bg-background/80 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              toggleFavorite(id);
+              toggleFavorite.mutate(id);
             }}
           >
             <Heart

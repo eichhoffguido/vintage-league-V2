@@ -12,7 +12,7 @@ import { useEffect } from "react";
 const Favorites = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { favoriteJerseys, isFavorited, toggleFavorite, isFavoritesLoading } = useFavorites();
+  const { favoriteJerseys, isFavoritesLoading } = useFavorites();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -90,8 +90,6 @@ const Favorites = () => {
                 imageUrl={jersey.image_url || ""}
                 condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                 size={jersey.size}
-                isFavorited={isFavorited(jersey.id)}
-                onFavoriteToggle={toggleFavorite.mutate}
                 onClick={() => navigate(`/jersey/${jersey.id}`)}
               />
             ))}
