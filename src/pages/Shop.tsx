@@ -1,17 +1,16 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useFilterState } from "@/hooks/useFilterState";
+import { filterJerseys, sortJerseys } from "@/utils/filterJerseys";
 import { Grid3X3, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
-import CategoryFilter from "@/components/CategoryFilter";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { centsToEuros, formatEuros } from "@/utils/currency";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-jersey.jpg";
 
@@ -26,6 +25,20 @@ const categories = [
   { id: "klassiker", label: "Klassiker" },
   { id: "rarities", label: "Raritäten" },
 ];
+
+const CATEGORY_TO_FILTERS: Record<string, Partial<{
+  leagues: string[];
+  eraPreset: string | null;
+  priceMin: number | null;
+}>> = {
+  bundesliga: { leagues: ["bundesliga"] },
+  "premier-league": { leagues: ["premier-league"] },
+  "la-liga": { leagues: ["la-liga"] },
+  "serie-a": { leagues: ["serie-a"] },
+  nationalteam: { leagues: ["nationalteam"] },
+  klassiker: { eraPreset: null, leagues: [] },
+  rarities: { priceMin: 20000 },
+};
 
 const fetchJerseys = async () => {
   const { data, error } = await supabase
@@ -43,11 +56,8 @@ const Shop = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeCategory, setActiveCategory] = useState(searchParams.get("cat") || "all");
+  const { filters, setFilters, updateFilter, resetFilters } = useFilterState();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("newest");
-  const [searchQuery, setSearchQuery] = useState("");
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const { data: jerseys = [], isLoading, error } = useQuery({
@@ -55,49 +65,37 @@ const Shop = () => {
     queryFn: fetchJerseys,
   });
 
-  const filteredJerseys = jerseys.filter((jersey: any) => {
-    let categoryMatch = true;
-    if (activeCategory !== "all") {
-      if (activeCategory === "klassiker") {
-        const year = parseInt(jersey.year, 10);
-        categoryMatch = !Number.isNaN(year) && year < 2010;
-      } else if (activeCategory === "rarities") {
-        categoryMatch = (jersey.price_cents || 0) > 20000;
-      } else {
-        categoryMatch = jersey.league?.toLowerCase().includes(activeCategory.toLowerCase()) ||
-                       jersey.league?.toLowerCase().replace(" ", "-") === activeCategory;
-      }
-    }
+  const currentCategory = (() => {
+    if (filters.leagues.length === 1) return filters.leagues[0];
+    if (filters.eraTo === 2009 && filters.leagues.length === 0) return "klassiker";
+    if (filters.priceMin === 20000 && filters.leagues.length === 0) return "rarities";
+    return "all";
+  })();
 
-    let searchMatch = true;
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      searchMatch = jersey.name?.toLowerCase().includes(query) ||
-                    jersey.team?.toLowerCase().includes(query);
-    }
-
-    return categoryMatch && searchMatch;
-  });
-
-  const sortedJerseys = [...filteredJerseys].sort((a: any, b: any) => {
-    if (sortBy === "price-asc") return (a.price_cents || 0) - (b.price_cents || 0);
-    if (sortBy === "price-desc") return (b.price_cents || 0) - (a.price_cents || 0);
-    if (sortBy === "year-desc") {
-      const aYear = parseInt(a.year, 10) || 0;
-      const bYear = parseInt(b.year, 10) || 0;
-      return bYear - aYear;
-    }
-    return 0;
-  });
+  const filteredJerseys = filterJerseys(jerseys, filters);
+  const sortedJerseys = sortJerseys(filteredJerseys, filters.sortBy);
 
   const handleCategoryChange = (categoryId: string) => {
-    setActiveCategory(categoryId);
     if (categoryId === "all") {
-      searchParams.delete("cat");
+      resetFilters();
     } else {
-      searchParams.set("cat", categoryId);
+      const cat = CATEGORY_TO_FILTERS[categoryId];
+      if (!cat) return;
+      setFilters({
+        search: null,
+        leagues: cat.leagues || [],
+        sizes: [],
+        conditions: [],
+        priceMin: cat.priceMin ?? null,
+        priceMax: null,
+        eraFrom: null,
+        eraTo: categoryId === "klassiker" ? 2009 : null,
+        eraPreset: null,
+        listingType: [],
+        verified: false,
+        sortBy: "newest",
+      });
     }
-    setSearchParams(searchParams);
   };
 
   const handleQuickBuy = async (jerseyId: string) => {
@@ -150,8 +148,8 @@ const Shop = () => {
             <input
               type="text"
               placeholder="Suche nach Team oder Trikot…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={filters.search || ""}
+              onChange={(e) => updateFilter("search", e.target.value || null)}
               className="w-full rounded-sm border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
             />
           </div>
@@ -162,10 +160,10 @@ const Shop = () => {
               {categories.map((cat) => (
                 <Button
                   key={cat.id}
-                  variant={activeCategory === cat.id ? "default" : "outline"}
+                  variant={currentCategory === cat.id ? "default" : "outline"}
                   size="sm"
                   className={`rounded-full text-xs uppercase tracking-wider transition-colors ${
-                    activeCategory === cat.id
+                    currentCategory === cat.id
                       ? "bg-primary text-primary-foreground"
                       : "border-muted-foreground/30 text-muted-foreground hover:bg-secondary hover:text-foreground"
                   }`}
@@ -179,8 +177,8 @@ const Shop = () => {
             {/* Sort and View Controls */}
             <div className="flex items-center gap-3">
               <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                value={filters.sortBy}
+                onChange={(e) => updateFilter("sortBy", e.target.value)}
                 className="rounded-sm border border-border bg-background px-3 py-1.5 text-xs uppercase tracking-wider text-muted-foreground focus:border-primary focus:outline-none"
               >
                 <option value="newest">Neueste</option>
