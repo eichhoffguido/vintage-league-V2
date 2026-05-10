@@ -5,8 +5,8 @@ import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy, Clock,
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import RichTextEditor from "@/components/RichTextEditor";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -86,7 +86,8 @@ const Community = () => {
   const createPostMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not authenticated");
-      if (!newPost.title.trim() || !newPost.content.trim() || !newPost.category_id) {
+      const textContent = newPost.content.replace(/<[^>]*>/g, "").trim();
+      if (!newPost.title.trim() || !textContent || !newPost.category_id) {
         throw new Error("Bitte alle Felder ausfüllen");
       }
       const { error } = await supabase.from("forum_posts").insert({
@@ -162,7 +163,7 @@ const Community = () => {
                       </SelectContent>
                     </Select>
                     <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
-                    <Textarea placeholder="Dein Beitrag..." value={newPost.content} onChange={(e) => setNewPost((p) => ({ ...p, content: e.target.value }))} rows={6} maxLength={5000} />
+                    <RichTextEditor content={newPost.content} onChange={(v) => setNewPost((p) => ({ ...p, content: v }))} maxLength={5000} placeholder="Dein Beitrag..." />
                     <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full uppercase tracking-wider">
                       {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
                     </Button>
@@ -237,7 +238,7 @@ const Community = () => {
                     <h3 className="font-display text-xl font-semibold group-hover:text-primary transition-colors line-clamp-1">
                       {post.title}
                     </h3>
-                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content.replace(/<[^>]*>/g, "")}</p>
                     <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="h-3 w-3" />
