@@ -2,32 +2,9 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
 
-// Temporary FilterState type definition (until VINA-358 is merged)
-// This will be imported from useFilterState.ts after VINA-358
-export interface FilterState {
-  search: string | null;
-  leagues: string[];
-  sizes: string[];
-  conditions: string[];
-  priceMin: number | null;
-  priceMax: number | null;
-  eraFrom: number | null;
-  eraTo: number | null;
-  eraPreset: string | null; // e.g., "70er", "80er", "90er", "00er", "10er"
-  listingType: string[]; // e.g., ["buy_now"], ["exchange"], ["buy_now", "exchange"]
-  verified: boolean;
-}
-
-// Temporary ERA_PRESETS (until VINA-358 is merged)
-export const ERA_PRESETS = {
-  "70er": { from: 1970, to: 1979 },
-  "80er": { from: 1980, to: 1989 },
-  "90er": { from: 1990, to: 1999 },
-  "00er": { from: 2000, to: 2009 },
-  "10er": { from: 2010, to: 2019 },
-  "20er": { from: 2020, to: 2029 },
-};
+export type { FilterState };
 
 interface ActiveFilterChipsProps {
   filters: FilterState;
