@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowRight, Shirt, Users, TrendingUp, Plus } from "lucide-react";
+import { retryAsync } from "@/utils/retry";
 
 type Step = "welcome" | "profile" | "favorite" | "add-jersey";
 
@@ -45,26 +46,31 @@ const Onboarding = () => {
 
   useEffect(() => {
     if (user && !authLoading) {
-      supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", user.id)
-        .single()
-        .then(({ data, error }) => {
+      retryAsync(
+        async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("onboarding_completed")
+            .eq("id", user.id)
+            .single();
+
           if (error) {
-            console.error("Error checking profile:", error);
-            // If there's an error but we're authenticated, stay on onboarding
-            setCheckingProfile(false);
-            return;
+            throw error;
           }
+
           // If onboarding is complete, redirect to collection
           if (data?.onboarding_completed) {
             navigate("/collection");
           }
-          setCheckingProfile(false);
-        })
+        },
+        3,
+        100
+      )
         .catch((err) => {
-          console.error("Profile check failed:", err);
+          console.error("Profile check failed after retries:", err);
+          // If there's an error but we're authenticated, stay on onboarding
+        })
+        .finally(() => {
           setCheckingProfile(false);
         });
     }
@@ -120,18 +126,35 @@ const Onboarding = () => {
 
   const completeOnboarding = async () => {
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ onboarding_completed: true })
-        .eq("id", user!.id);
+      // Use retry logic to ensure the update succeeds
+      await retryAsync(
+        async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .update({ onboarding_completed: true })
+            .eq("id", user!.id)
+            .select();
 
-      if (error) {
-        console.error("Error completing onboarding:", error);
-        throw error;
-      }
+          if (error) {
+            throw error;
+          }
+
+          // Verify the update was successful
+          if (!data || data.length === 0) {
+            throw new Error("Onboarding completion update failed - no rows returned");
+          }
+
+          // Verify the flag was actually set
+          if (!data[0].onboarding_completed) {
+            throw new Error("Onboarding completion flag not set correctly");
+          }
+        },
+        3,
+        100
+      );
     } catch (err) {
-      console.error("completeOnboarding error:", err);
-      // Continue navigation even if update fails
+      console.error("completeOnboarding error after retries:", err);
+      // Continue navigation even if update fails - user is already authenticated
     }
   };
 

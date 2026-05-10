@@ -4,8 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { retryAsync } from "@/utils/retry";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
@@ -32,6 +33,7 @@ const queryClient = new QueryClient();
 const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const guardExecutedRef = useRef(false);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -39,17 +41,21 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
     // Only redirect after Google OAuth or email signup (on initial page load)
     const pathname = window.location.pathname;
     // Only apply guard when user first logs in (pathname is "/" or root)
-    if (pathname === "/" || pathname === "") {
-      supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", user.id)
-        .single()
-        .then(({ data, error }) => {
+    if ((pathname === "/" || pathname === "") && !guardExecutedRef.current) {
+      guardExecutedRef.current = true;
+
+      retryAsync(
+        async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("onboarding_completed")
+            .eq("id", user.id)
+            .single();
+
           if (error) {
-            console.error("Error checking profile:", error);
-            return;
+            throw error;
           }
+
           // If onboarding is complete, redirect to collection
           // Otherwise, redirect to onboarding
           if (data?.onboarding_completed) {
@@ -57,10 +63,14 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
           } else {
             navigate("/onboarding");
           }
-        })
-        .catch((err) => {
-          console.error("Profile check failed:", err);
-        });
+        },
+        3,
+        100
+      ).catch((err) => {
+        console.error("Profile check failed after retries:", err);
+        // Default to onboarding if check fails
+        navigate("/onboarding");
+      });
     }
   }, [user, loading, navigate]);
 
