@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -11,7 +11,14 @@ import {
   Code,
   Heading2,
   Heading3,
+  Smile,
 } from "lucide-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -64,6 +71,8 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     },
   });
 
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+
   const textLength = editor?.getText().length ?? 0;
   const overLimit = maxLength !== undefined && textLength > maxLength;
 
@@ -75,6 +84,14 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
   const toggleCodeBlock = useCallback(() => editor?.chain().focus().toggleCodeBlock().run(), [editor]);
   const toggleH2 = useCallback(() => editor?.chain().focus().toggleHeading({ level: 2 }).run(), [editor]);
   const toggleH3 = useCallback(() => editor?.chain().focus().toggleHeading({ level: 3 }).run(), [editor]);
+
+  const onEmojiSelect = useCallback(
+    (emoji: EmojiClickData) => {
+      editor?.chain().focus().insertContent(emoji.native).run();
+      setEmojiPickerOpen(false);
+    },
+    [editor],
+  );
 
   if (!editor) return null;
 
@@ -107,6 +124,17 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         <ToolbarButton onClick={toggleCodeBlock} active={editor.isActive("codeBlock")}>
           <Code className="h-4 w-4" />
         </ToolbarButton>
+        <span className="mx-1 h-5 w-px bg-border" />
+        <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
+          <PopoverTrigger asChild>
+            <ToolbarButton onClick={() => {}} active={false}>
+              <Smile className="h-4 w-4" />
+            </ToolbarButton>
+          </PopoverTrigger>
+          <PopoverContent className="w-full max-w-[350px] p-0" align="start">
+            <EmojiPicker onEmojiClick={onEmojiSelect} />
+          </PopoverContent>
+        </Popover>
       </div>
       <EditorContent editor={editor} />
       {maxLength && (
