@@ -87,7 +87,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
 
   const onEmojiSelect = useCallback(
     (emoji: EmojiClickData) => {
-      editor?.chain().focus().insertContent(emoji.native).run();
+      editor?.chain().focus().insertContent(emoji.emoji).run();
       setEmojiPickerOpen(false);
     },
     [editor],
