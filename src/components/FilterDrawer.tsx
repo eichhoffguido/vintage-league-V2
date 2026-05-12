@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +61,13 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     filters.priceMin || 0,
     filters.priceMax || 10000,
   ]);
+
+  // Sync priceRange with filters when drawer opens
+  useEffect(() => {
+    if (open) {
+      setPriceRange([filters.priceMin || 0, filters.priceMax || 10000]);
+    }
+  }, [open, filters.priceMin, filters.priceMax]);
 
   const handlePriceChange = (values: number[]) => {
     setPriceRange([values[0], values[1]]);
