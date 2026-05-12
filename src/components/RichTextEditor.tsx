@@ -1,0 +1,126 @@
+import { useCallback } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  List,
+  ListOrdered,
+  Code,
+  Heading2,
+  Heading3,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface RichTextEditorProps {
+  content: string;
+  onChange: (html: string) => void;
+  maxLength?: number;
+  placeholder?: string;
+}
+
+const ToolbarButton = ({
+  onClick,
+  active,
+  children,
+}: {
+  onClick: () => void;
+  active: boolean;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "rounded-sm p-1.5 transition-colors",
+      active
+        ? "bg-primary/10 text-primary"
+        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+    )}
+  >
+    {children}
+  </button>
+);
+
+const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextEditorProps) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+      }),
+      Underline,
+    ],
+    content,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2",
+      },
+    },
+  });
+
+  const textLength = editor?.getText().length ?? 0;
+  const overLimit = maxLength !== undefined && textLength > maxLength;
+
+  const toggleBold = useCallback(() => editor?.chain().focus().toggleBold().run(), [editor]);
+  const toggleItalic = useCallback(() => editor?.chain().focus().toggleItalic().run(), [editor]);
+  const toggleUnderline = useCallback(() => editor?.chain().focus().toggleUnderline().run(), [editor]);
+  const toggleBulletList = useCallback(() => editor?.chain().focus().toggleBulletList().run(), [editor]);
+  const toggleOrderedList = useCallback(() => editor?.chain().focus().toggleOrderedList().run(), [editor]);
+  const toggleCodeBlock = useCallback(() => editor?.chain().focus().toggleCodeBlock().run(), [editor]);
+  const toggleH2 = useCallback(() => editor?.chain().focus().toggleHeading({ level: 2 }).run(), [editor]);
+  const toggleH3 = useCallback(() => editor?.chain().focus().toggleHeading({ level: 3 }).run(), [editor]);
+
+  if (!editor) return null;
+
+  return (
+    <div className="rounded-sm border border-border">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/50 px-2 py-1.5">
+        <ToolbarButton onClick={toggleBold} active={editor.isActive("bold")}>
+          <Bold className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={toggleItalic} active={editor.isActive("italic")}>
+          <Italic className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={toggleUnderline} active={editor.isActive("underline")}>
+          <UnderlineIcon className="h-4 w-4" />
+        </ToolbarButton>
+        <span className="mx-1 h-5 w-px bg-border" />
+        <ToolbarButton onClick={toggleH2} active={editor.isActive("heading", { level: 2 })}>
+          <Heading2 className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={toggleH3} active={editor.isActive("heading", { level: 3 })}>
+          <Heading3 className="h-4 w-4" />
+        </ToolbarButton>
+        <span className="mx-1 h-5 w-px bg-border" />
+        <ToolbarButton onClick={toggleBulletList} active={editor.isActive("bulletList")}>
+          <List className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={toggleOrderedList} active={editor.isActive("orderedList")}>
+          <ListOrdered className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton onClick={toggleCodeBlock} active={editor.isActive("codeBlock")}>
+          <Code className="h-4 w-4" />
+        </ToolbarButton>
+      </div>
+      <EditorContent editor={editor} />
+      {maxLength && (
+        <div
+          className={cn(
+            "border-t border-border px-3 py-1 text-right text-xs",
+            overLimit ? "text-destructive font-medium" : "text-muted-foreground"
+          )}
+        >
+          {textLength}/{maxLength}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default RichTextEditor;
