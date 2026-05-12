@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
+import FilterDrawer from "@/components/FilterDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-jersey.jpg";
@@ -155,8 +156,8 @@ const Shop = () => {
           </div>
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Category Pills */}
-            <div className="flex flex-wrap gap-2">
+            {/* Category Pills - Hidden on mobile, shown on tablet+ */}
+            <div className="hidden md:flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <Button
                   key={cat.id}
@@ -174,8 +175,27 @@ const Shop = () => {
               ))}
              </div>
 
-            {/* Sort and View Controls */}
-            <div className="flex items-center gap-3">
+            {/* Mobile Filter Button */}
+            <div className="md:hidden flex items-center gap-2">
+              <FilterDrawer
+                filters={filters}
+                onFilterChange={updateFilter}
+                onReset={resetFilters}
+              />
+              <select
+                value={filters.sortBy}
+                onChange={(e) => updateFilter("sortBy", e.target.value)}
+                className="flex-1 rounded-sm border border-border bg-background px-3 py-1.5 text-xs uppercase tracking-wider text-muted-foreground focus:border-primary focus:outline-none"
+              >
+                <option value="newest">Neueste</option>
+                <option value="price-asc">Preis aufsteigend</option>
+                <option value="price-desc">Preis absteigend</option>
+                <option value="year-desc">Jahr (neueste)</option>
+              </select>
+            </div>
+
+            {/* Sort and View Controls - Desktop */}
+            <div className="hidden md:flex items-center gap-3">
               <select
                 value={filters.sortBy}
                 onChange={(e) => updateFilter("sortBy", e.target.value)}
