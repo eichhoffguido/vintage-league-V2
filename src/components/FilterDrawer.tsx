@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/drawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
 
 interface FilterDrawerProps {
@@ -40,10 +41,10 @@ const CONDITIONS = [
   { id: "1", label: "Sammlerstück" },
 ];
 
+// Guido's decision: only Alle / Nur Kaufen
 const LISTING_TYPES = [
+  { id: "all", label: "Alle" },
   { id: "buy_now", label: "Nur Kaufen" },
-  { id: "exchange", label: "Nur Tauschen" },
-  { id: "both", label: "Kaufen & Tauschen" },
 ];
 
 const ERA_PRESET_LIST = Object.entries(ERA_PRESETS).map(([key]) => ({
@@ -57,26 +58,6 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
   onReset,
 }) => {
   const [open, setOpen] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    filters.priceMin || 0,
-    filters.priceMax || 10000,
-  ]);
-
-  // Sync priceRange with filters when drawer opens
-  useEffect(() => {
-    if (open) {
-      setPriceRange([filters.priceMin || 0, filters.priceMax || 10000]);
-    }
-  }, [open, filters.priceMin, filters.priceMax]);
-
-  const handlePriceChange = (values: number[]) => {
-    setPriceRange([values[0], values[1]]);
-  };
-
-  const applyPriceFilter = () => {
-    onFilterChange("priceMin", priceRange[0] || null);
-    onFilterChange("priceMax", priceRange[1] || null);
-  };
 
   const handleLeagueToggle = (league: string) => {
     const newLeagues = filters.leagues.includes(league)
@@ -99,10 +80,9 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     onFilterChange("conditions", newConditions);
   };
 
-  const handleListingTypeToggle = (type: string) => {
-    const newTypes = filters.listingType.includes(type)
-      ? filters.listingType.filter((t) => t !== type)
-      : [...filters.listingType, type];
+  const handleListingTypeChange = (value: string) => {
+    // "all" means no filter (empty array)
+    const newTypes = value === "all" ? [] : [value];
     onFilterChange("listingType", newTypes);
   };
 
@@ -114,12 +94,16 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     }
   };
 
-  const activeFilterCount = Object.values(filters).filter((v) => {
-    if (v === null) return false;
-    if (Array.isArray(v)) return v.length > 0;
-    if (typeof v === "boolean") return v;
-    return true;
-  }).length;
+  // Count active filters (exclude sortBy)
+  const activeFilterCount =
+    (filters.search ? 1 : 0) +
+    filters.leagues.length +
+    filters.sizes.length +
+    filters.conditions.length +
+    (filters.priceMin !== null || filters.priceMax !== null ? 1 : 0) +
+    (filters.eraPreset ? 1 : 0) +
+    filters.listingType.length +
+    (filters.verified ? 1 : 0);
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
@@ -207,37 +191,16 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
             </div>
 
             {/* Price Range */}
-            <div>
-              <h3 className="mb-3 font-semibold text-sm">Preis (€)</h3>
-              <div className="space-y-3">
-                <Slider
-                  min={0}
-                  max={10000}
-                  step={100}
-                  value={priceRange}
-                  onValueChange={handlePriceChange}
-                  className="w-full"
-                />
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Label className="text-xs">Min</Label>
-                    <div className="text-sm font-semibold">€{priceRange[0]}</div>
-                  </div>
-                  <div className="flex-1">
-                    <Label className="text-xs">Max</Label>
-                    <div className="text-sm font-semibold">€{priceRange[1]}</div>
-                  </div>
-                </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={applyPriceFilter}
-                  className="w-full"
-                >
-                  Preis anwenden
-                </Button>
-              </div>
-            </div>
+            <PriceRangeSlider
+              min={0}
+              max={10000}
+              priceMin={filters.priceMin}
+              priceMax={filters.priceMax}
+              onChange={(min, max) => {
+                onFilterChange("priceMin", min);
+                onFilterChange("priceMax", max);
+              }}
+            />
 
             {/* Era Presets */}
             <div>
@@ -260,20 +223,19 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
             {/* Listing Type */}
             <div>
               <h3 className="mb-3 font-semibold text-sm">Listentyp</h3>
-              <div className="space-y-2">
+              <RadioGroup
+                value={filters.listingType.length === 0 ? "all" : filters.listingType[0]}
+                onValueChange={handleListingTypeChange}
+              >
                 {LISTING_TYPES.map((type) => (
                   <div key={type.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`listing-${type.id}`}
-                      checked={filters.listingType.includes(type.id)}
-                      onCheckedChange={() => handleListingTypeToggle(type.id)}
-                    />
+                    <RadioGroupItem value={type.id} id={`listing-${type.id}`} />
                     <Label htmlFor={`listing-${type.id}`} className="cursor-pointer text-sm">
                       {type.label}
                     </Label>
                   </div>
                 ))}
-              </div>
+              </RadioGroup>
             </div>
 
             {/* Verified */}
@@ -292,20 +254,10 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
 
         <DrawerFooter className="border-t">
           <Button
-            variant="outline"
-            onClick={() => {
-              onReset();
-              setOpen(false);
-            }}
-            className="w-full"
-          >
-            Filter zurücksetzen
-          </Button>
-          <Button
             onClick={() => setOpen(false)}
             className="w-full"
           >
-            Fertig
+            Filter anwenden{activeFilterCount > 0 && ` (${activeFilterCount})`}
           </Button>
         </DrawerFooter>
       </DrawerContent>
