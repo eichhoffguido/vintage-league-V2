@@ -1,5 +1,5 @@
-const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY || "";
-const TENOR_API_URL = "https://api.tenor.com/v1";
+const GIPHY_API_KEY = import.meta.env.VITE_GIPHY_API_KEY || "";
+const GIPHY_API_URL = "https://api.giphy.com/v1/gifs";
 
 export interface TenorGif {
   id: string;
@@ -15,34 +15,60 @@ export interface TenorGif {
   tags: string[];
 }
 
-export interface TenorResponse {
-  results: TenorGif[];
+interface GiphyGif {
+  id: string;
+  title: string;
+  images: {
+    original: {
+      url: string;
+    };
+  };
+  tags?: string[];
+}
+
+interface GiphyResponse {
+  data: GiphyGif[];
 }
 
 /**
- * Search for GIFs on Tenor
+ * Transform Giphy response to TenorGif format
+ */
+function transformGiphyToTenor(gif: GiphyGif): TenorGif {
+  return {
+    id: gif.id,
+    title: gif.title,
+    media_formats: {
+      gif: {
+        url: gif.images.original.url,
+      },
+    },
+    tags: gif.tags || [],
+  };
+}
+
+/**
+ * Search for GIFs on Giphy
  */
 export async function searchGifs(query: string, limit: number = 20): Promise<TenorGif[]> {
-  if (!TENOR_API_KEY) {
-    console.warn("Tenor API key not configured");
+  if (!GIPHY_API_KEY) {
+    console.warn("Giphy API key not configured");
     return [];
   }
 
   try {
     const params = new URLSearchParams({
+      api_key: GIPHY_API_KEY,
       q: query,
-      key: TENOR_API_KEY,
       limit: limit.toString(),
-      media_filter: "gif,webm",
     });
 
-    const response = await fetch(`${TENOR_API_URL}/search?${params}`);
+    const response = await fetch(`${GIPHY_API_URL}/search?${params}`);
     if (!response.ok) {
-      throw new Error(`Tenor API error: ${response.statusText}`);
+      throw new Error(`Giphy API error: ${response.statusText}`);
     }
 
-    const data: TenorResponse = await response.json();
-    return data.results;
+    const data: GiphyResponse = await response.json();
+    return data.data.map(transformGiphyToTenor);
   } catch (error) {
     console.error("Failed to search GIFs:", error);
     return [];
@@ -53,25 +79,24 @@ export async function searchGifs(query: string, limit: number = 20): Promise<Ten
  * Get trending GIFs
  */
 export async function getTrendingGifs(limit: number = 20): Promise<TenorGif[]> {
-  if (!TENOR_API_KEY) {
-    console.warn("Tenor API key not configured");
+  if (!GIPHY_API_KEY) {
+    console.warn("Giphy API key not configured");
     return [];
   }
 
   try {
     const params = new URLSearchParams({
-      key: TENOR_API_KEY,
+      api_key: GIPHY_API_KEY,
       limit: limit.toString(),
-      media_filter: "gif,webm",
     });
 
-    const response = await fetch(`${TENOR_API_URL}/trending?${params}`);
+    const response = await fetch(`${GIPHY_API_URL}/trending?${params}`);
     if (!response.ok) {
-      throw new Error(`Tenor API error: ${response.statusText}`);
+      throw new Error(`Giphy API error: ${response.statusText}`);
     }
 
-    const data: TenorResponse = await response.json();
-    return data.results;
+    const data: GiphyResponse = await response.json();
+    return data.data.map(transformGiphyToTenor);
   } catch (error) {
     console.error("Failed to fetch trending GIFs:", error);
     return [];
