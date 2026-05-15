@@ -41,7 +41,7 @@ const CommunityPost = () => {
       .from("forum_posts")
       .select("*, forum_categories(*)")
       .eq("id", id!)
-      .single();
+      .maybeSingle();
     if (error) {
       toast({ title: "Fehler beim Laden", description: error.message, variant: "destructive" });
       setLoading(false);
