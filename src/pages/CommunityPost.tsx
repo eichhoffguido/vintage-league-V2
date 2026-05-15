@@ -7,6 +7,7 @@ import RichTextEditor from "@/components/RichTextEditor";
 import RichTextViewer from "@/components/RichTextViewer";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import ImageUploader from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +30,7 @@ const CommunityPost = () => {
   const [post, setPost] = useState<PostWithRelations | null>(null);
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [replyImages, setReplyImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -73,12 +75,14 @@ const CommunityPost = () => {
       post_id: id!,
       user_id: user.id,
       content: newComment.trim(),
+      image_urls: replyImages.length > 0 ? replyImages : null,
     });
     setSubmitting(false);
     if (error) {
       toast({ title: "Fehler", description: error.message, variant: "destructive" });
     } else {
       setNewComment("");
+      setReplyImages([]);
       fetchComments();
     }
   };
@@ -156,6 +160,13 @@ const CommunityPost = () => {
             <div className="prose prose-sm max-w-none">
               <RichTextViewer content={post.content} />
             </div>
+            {post.image_urls && post.image_urls.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {post.image_urls.map((url, i) => (
+                  <img key={i} src={url} alt="" className="max-h-60 max-w-full rounded-sm border border-border object-contain" />
+                ))}
+              </div>
+            )}
             {user?.id === post.user_id && (
               <div className="mt-6 flex justify-end">
                 <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={handleDeletePost}>
@@ -195,6 +206,13 @@ const CommunityPost = () => {
                   <div className="prose prose-sm max-w-none mt-2">
                     <RichTextViewer content={comment.content} />
                   </div>
+                  {comment.image_urls && comment.image_urls.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {comment.image_urls.map((url, i) => (
+                        <img key={i} src={url} alt="" className="h-16 w-16 rounded-sm border border-border object-cover" />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -209,6 +227,7 @@ const CommunityPost = () => {
                     maxLength={2000}
                     placeholder="Deine Antwort..."
                   />
+                  <ImageUploader images={replyImages} onImagesChange={setReplyImages} />
                   <Button onClick={handleAddComment} disabled={submitting || !newComment.replace(/<[^>]*>/g, "").trim()} size="sm" className="uppercase tracking-wider">
                     <Send className="mr-2 h-4 w-4" />
                     {submitting ? "Wird gesendet..." : "Antworten"}
