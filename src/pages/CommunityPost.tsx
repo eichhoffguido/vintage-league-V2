@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, MessageSquare, Clock, User, Trash2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import Header from "@/components/Header";
+import RichTextEditor from "@/components/RichTextEditor";
+import RichTextViewer from "@/components/RichTextViewer";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
-import ImageUploader from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +29,6 @@ const CommunityPost = () => {
   const [post, setPost] = useState<PostWithRelations | null>(null);
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [commentImages, setCommentImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -85,20 +84,19 @@ const CommunityPost = () => {
 
   const handleAddComment = async () => {
     if (!user) { navigate("/auth"); return; }
-    if (!newComment.trim()) return;
+    const textContent = newComment.replace(/<[^>]*>/g, "").trim();
+    if (!textContent) return;
     setSubmitting(true);
     const { error } = await supabase.from("forum_comments").insert({
       post_id: id!,
       user_id: user.id,
       content: newComment.trim(),
-      image_urls: commentImages.length > 0 ? commentImages : null,
     });
     setSubmitting(false);
     if (error) {
       toast({ title: "Fehler", description: error.message, variant: "destructive" });
     } else {
       setNewComment("");
-      setCommentImages([]);
       fetchComments();
     }
   };
@@ -173,8 +171,8 @@ const CommunityPost = () => {
               </span>
             </div>
             <div className="vintage-divider my-6" />
-            <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
-              {post.content}
+            <div className="prose prose-sm max-w-none">
+              <RichTextViewer content={post.content} />
             </div>
             {post.image_urls && post.image_urls.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -219,14 +217,9 @@ const CommunityPost = () => {
                       </Button>
                     )}
                   </div>
-                  <p className="mt-2 text-sm whitespace-pre-wrap">{comment.content}</p>
-                  {comment.image_urls && comment.image_urls.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {comment.image_urls.map((url, i) => (
-                        <img key={i} src={url} alt="" className="h-16 w-16 rounded-sm border border-border object-cover" />
-                      ))}
-                    </div>
-                  )}
+                  <div className="prose prose-sm max-w-none mt-2">
+                    <RichTextViewer content={comment.content} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -235,15 +228,13 @@ const CommunityPost = () => {
             <div className="mt-6 rounded-sm border border-border bg-card p-4">
               {user ? (
                 <div className="space-y-3">
-                  <Textarea
-                    placeholder="Deine Antwort..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={3}
+                  <RichTextEditor
+                    content={newComment}
+                    onChange={(v) => setNewComment(v)}
                     maxLength={2000}
+                    placeholder="Deine Antwort..."
                   />
-                  <ImageUploader images={commentImages} onImagesChange={setCommentImages} />
-                  <Button onClick={handleAddComment} disabled={submitting || !newComment.trim()} size="sm" className="uppercase tracking-wider">
+                  <Button onClick={handleAddComment} disabled={submitting || !newComment.replace(/<[^>]*>/g, "").trim()} size="sm" className="uppercase tracking-wider">
                     <Send className="mr-2 h-4 w-4" />
                     {submitting ? "Wird gesendet..." : "Antworten"}
                   </Button>
