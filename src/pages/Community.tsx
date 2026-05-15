@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import ImageUploader from "@/components/ImageUploader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,12 @@ const Community = () => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "" });
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const resetDialog = () => {
+    setNewPost({ title: "", content: "", category_id: "" });
+    setImageUrls([]);
+  };
 
   const { data: categories = [], isError: categoriesError } = useQuery({
     queryKey: ["forum-categories"],
@@ -94,12 +101,13 @@ const Community = () => {
         content: newPost.content.trim(),
         category_id: newPost.category_id,
         user_id: user.id,
+        image_urls: imageUrls.length > 0 ? imageUrls : null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Beitrag erstellt!");
-      setNewPost({ title: "", content: "", category_id: "" });
+      resetDialog();
       setDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
     },
@@ -136,7 +144,7 @@ const Community = () => {
             Tipps zur Restaurierung, Pflege und Lagerung — von Sammlern für Sammler.
           </p>
           <div className="mt-6">
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetDialog(); setDialogOpen(open); }}>
               <DialogTrigger asChild>
                 <Button variant="hero" className="uppercase tracking-wider" onClick={() => { if (!user) navigate("/auth"); }}>
                   <Plus className="mr-2 h-4 w-4" /> Beitrag erstellen
@@ -163,6 +171,7 @@ const Community = () => {
                     </Select>
                     <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
                     <Textarea placeholder="Dein Beitrag..." value={newPost.content} onChange={(e) => setNewPost((p) => ({ ...p, content: e.target.value }))} rows={6} maxLength={5000} />
+                    <ImageUploader images={imageUrls} onImagesChange={setImageUrls} />
                     <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full uppercase tracking-wider">
                       {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
                     </Button>
@@ -238,6 +247,13 @@ const Community = () => {
                       {post.title}
                     </h3>
                     <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+                    {post.image_urls && post.image_urls.length > 0 && (
+                      <div className="mt-2 flex gap-1">
+                        {post.image_urls.slice(0, 3).map((url, i) => (
+                          <img key={i} src={url} alt="" className="h-10 w-10 rounded-sm border border-border object-cover" />
+                        ))}
+                      </div>
+                    )}
                     <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <User className="h-3 w-3" />
