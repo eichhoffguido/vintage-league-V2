@@ -36,27 +36,45 @@ const CommunityPost = () => {
   }, [id]);
 
   const fetchPost = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("forum_posts")
       .select("*, forum_categories(*)")
       .eq("id", id!)
       .single();
+    if (error) {
+      toast({ title: "Fehler beim Laden", description: error.message, variant: "destructive" });
+      setLoading(false);
+      return;
+    }
     if (data) {
-      const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user_id).single();
+      const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("id", data.user_id).single();
+      if (profileError) {
+        toast({ title: "Fehler beim Laden", description: profileError.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
       setPost({ ...data, profiles: profile });
     }
     setLoading(false);
   };
 
   const fetchComments = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("forum_comments")
       .select("*")
       .eq("post_id", id!)
       .order("created_at", { ascending: true });
+    if (error) {
+      toast({ title: "Fehler beim Laden", description: error.message, variant: "destructive" });
+      return;
+    }
     if (data) {
       const userIds = [...new Set(data.map((c) => c.user_id))];
-      const { data: profiles } = await supabase.from("profiles").select("*").in("id", userIds);
+      const { data: profiles, error: profilesError } = await supabase.from("profiles").select("*").in("id", userIds);
+      if (profilesError) {
+        toast({ title: "Fehler beim Laden", description: profilesError.message, variant: "destructive" });
+        return;
+      }
       const profileMap: Record<string, Tables<"profiles">> = {};
       profiles?.forEach((p) => { profileMap[p.id] = p; });
       setComments(data.map((c) => ({ ...c, profiles: profileMap[c.user_id] || null })));
