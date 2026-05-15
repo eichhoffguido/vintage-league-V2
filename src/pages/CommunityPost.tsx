@@ -41,19 +41,18 @@ const CommunityPost = () => {
       .from("forum_posts")
       .select("*, forum_categories(*)")
       .eq("id", id!)
-      .single();
+      .maybeSingle();
     if (error) {
       toast({ title: "Fehler beim Laden", description: error.message, variant: "destructive" });
       setLoading(false);
       return;
     }
     if (data) {
-      const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("id", data.user_id).single();
-      if (profileError) {
-        toast({ title: "Fehler beim Laden", description: profileError.message, variant: "destructive" });
-        setLoading(false);
-        return;
-      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user_id)
+        .maybeSingle();
       setPost({ ...data, profiles: profile });
     }
     setLoading(false);
