@@ -140,7 +140,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         <span className="mx-1 h-5 w-px bg-border" />
         <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
           <PopoverTrigger asChild>
-            <ToolbarButton onClick={() => {}} active={false}>
+            <ToolbarButton onClick={() => setEmojiPickerOpen(!emojiPickerOpen)} active={emojiPickerOpen}>
               <Smile className="h-4 w-4" />
             </ToolbarButton>
           </PopoverTrigger>
@@ -150,7 +150,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         </Popover>
         <Popover open={gifPickerOpen} onOpenChange={setGifPickerOpen}>
           <PopoverTrigger asChild>
-            <ToolbarButton onClick={() => {}} active={false}>
+            <ToolbarButton onClick={() => setGifPickerOpen(!gifPickerOpen)} active={gifPickerOpen}>
               <Image className="h-4 w-4" />
             </ToolbarButton>
           </PopoverTrigger>
