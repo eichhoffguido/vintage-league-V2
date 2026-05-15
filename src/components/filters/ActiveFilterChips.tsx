@@ -68,6 +68,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       eraPreset: null,
       listingType: [],
       verified: false,
+      sortBy: "newest",
     });
   };
 
@@ -85,6 +86,12 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
   if (activeFilterCount === 0) {
     return null;
   }
+
+  const listingLabels: Record<string, string> = {
+    buy_now: "Nur Kaufen",
+    exchange: "Nur Tauschen",
+    both: "Kaufen & Tauschen",
+  };
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
@@ -151,7 +158,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       {/* Price chip */}
       {(filters.priceMin !== null || filters.priceMax !== null) && (
         <Badge variant="secondary" className="pl-3 pr-2">
-          <span>€{filters.priceMin ?? 0}–€{filters.priceMax ?? "∞"}</span>
+          <span>€{((filters.priceMin ?? 0) / 100).toFixed(2)}–€{((filters.priceMax ?? 10000) / 100).toFixed(2)}</span>
           <button
             onClick={() => removeFilter("price")}
             className="ml-1.5 hover:text-foreground transition-colors"
@@ -178,25 +185,18 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       )}
 
       {/* Listing type chips */}
-      {filters.listingType.map((type) => {
-        const labels: Record<string, string> = {
-          buy_now: "Nur Kaufen",
-          exchange: "Nur Tauschen",
-          both: "Kaufen & Tauschen",
-        };
-        return (
-          <Badge key={type} variant="secondary" className="pl-3 pr-2">
-            <span>{labels[type] || type}</span>
-            <button
-              onClick={() => removeFilter("listing", type)}
-              className="ml-1.5 hover:text-foreground transition-colors"
-              aria-label={`Remove ${type} filter`}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </Badge>
-        );
-      })}
+      {filters.listingType.map((type) => (
+        <Badge key={type} variant="secondary" className="pl-3 pr-2">
+          <span>{listingLabels[type] || type}</span>
+          <button
+            onClick={() => removeFilter("listing", type)}
+            className="ml-1.5 hover:text-foreground transition-colors"
+            aria-label={`Remove ${type} filter`}
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </Badge>
+      ))}
 
       {/* Verified chip */}
       {filters.verified && (
