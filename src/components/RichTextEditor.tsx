@@ -12,6 +12,7 @@ import {
   Heading2,
   Heading3,
   Smile,
+  Image,
 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import {
@@ -19,6 +20,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import GifPicker from "./GifPicker";
+import { TenorGif } from "@/utils/tenor";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -72,6 +75,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
   });
 
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [gifPickerOpen, setGifPickerOpen] = useState(false);
 
   const textLength = editor?.getText().length ?? 0;
   const overLimit = maxLength !== undefined && textLength > maxLength;
@@ -89,6 +93,15 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     (emoji: EmojiClickData) => {
       editor?.chain().focus().insertContent(emoji.emoji).run();
       setEmojiPickerOpen(false);
+    },
+    [editor],
+  );
+
+  const onGifSelect = useCallback(
+    (gif: TenorGif) => {
+      const html = `<img src="${gif.media_formats.gif.url}" alt="${gif.title}" style="max-width: 100%; height: auto;" />`;
+      editor?.chain().focus().insertContent(html).run();
+      setGifPickerOpen(false);
     },
     [editor],
   );
@@ -133,6 +146,16 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[350px] p-0" align="start">
             <EmojiPicker onEmojiClick={onEmojiSelect} />
+          </PopoverContent>
+        </Popover>
+        <Popover open={gifPickerOpen} onOpenChange={setGifPickerOpen}>
+          <PopoverTrigger asChild>
+            <ToolbarButton onClick={() => {}} active={false}>
+              <Image className="h-4 w-4" />
+            </ToolbarButton>
+          </PopoverTrigger>
+          <PopoverContent className="w-full max-w-[400px] p-0" align="start">
+            <GifPicker onGifSelect={onGifSelect} />
           </PopoverContent>
         </Popover>
       </div>
