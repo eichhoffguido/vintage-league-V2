@@ -48,12 +48,9 @@ const CommunityPost = () => {
       return;
     }
     if (data) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user_id)
-        .maybeSingle();
-      setPost({ ...data, profiles: profile });
+      // Use maybeSingle() so a missing profile (deleted user) doesn't crash the page.
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user_id).maybeSingle();
+      setPost({ ...data, profiles: profile ?? null });
     }
     setLoading(false);
   };
