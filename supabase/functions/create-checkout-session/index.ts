@@ -143,7 +143,7 @@ serve(async (req) => {
   const { data: jersey, error: jerseyError } = await supabase
     .from("user_jerseys")
     .select("id, name, sale_price_cents, user_id, listing_type")
-    .eq("id", jersey_id)
+    .eq("id", jersey_id!)
     .is("deleted_at", null)
     .single();
 
@@ -160,18 +160,14 @@ serve(async (req) => {
   ) {
     return new Response(
       JSON.stringify({ error: "Jersey is not available for purchase" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
-  // Check if already sold: a completed transaction exists for this jersey
   const { data: completedTx } = await supabase
     .from("transactions")
     .select("id")
-    .eq("jersey_id", jersey_id)
+    .eq("jersey_id", jersey_id!)
     .eq("status", "completed")
     .maybeSingle();
 
@@ -182,7 +178,6 @@ serve(async (req) => {
     });
   }
 
-  // Compute 5% platform fee
   const platformFeeCents = Math.round(jersey.sale_price_cents * 0.05);
 
   const session = await stripe.checkout.sessions.create({
@@ -191,16 +186,14 @@ serve(async (req) => {
       {
         price_data: {
           currency: "eur",
-          product_data: {
-            name: jersey.name,
-          },
+          product_data: { name: jersey.name },
           unit_amount: jersey.sale_price_cents,
         },
         quantity: 1,
       },
     ],
     metadata: {
-      jersey_id,
+      jersey_id: jersey_id!,
       buyer_id,
       seller_id: jersey.user_id,
       platform_fee_cents: String(platformFeeCents),

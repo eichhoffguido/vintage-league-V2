@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut, Heart } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut, Heart, Gavel } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -57,6 +57,10 @@ const Header = () => {
                   <ShoppingBag className="mr-2 h-4 w-4" />
                   Sammlung
                 </Button>
+                <Button variant="outline" size="sm" className="border-primary/30 font-medium uppercase tracking-wide btn-animate" onClick={() => navigate("/my-bids")}>
+                  <Gavel className="mr-2 h-4 w-4" />
+                  Gebote
+                </Button>
                 <Button variant="ghost" size="sm" className="text-muted-foreground btn-animate" onClick={async () => { await signOut(); navigate("/"); }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
@@ -101,7 +105,8 @@ const Header = () => {
             {user && (
               <>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
-                 <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
+                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
+                <Link to="/my-bids" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Meine Gebote</Link>
               </>
             )}
             <div className="vintage-divider my-2" />

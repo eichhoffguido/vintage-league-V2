@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import MarketDepth from "@/components/MarketDepth";
+import PlaceBidModal from "@/components/PlaceBidModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -61,6 +62,7 @@ const JerseyDetail = () => {
   const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [bidModalOpen, setBidModalOpen] = useState(false);
   const [lowestAsk, setLowestAsk] = useState<number | null | undefined>(undefined);
   const [highestBid, setHighestBid] = useState<number | null | undefined>(undefined);
   const { toast } = useToast();
@@ -346,8 +348,18 @@ const JerseyDetail = () => {
                       {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
                     </Button>
                   )}
+                  <Button
+                    variant={jersey.sale_price_cents ? "outline" : "hero"}
+                    className="w-full uppercase tracking-wider"
+                    onClick={() => {
+                      if (!user) { navigate("/auth"); return; }
+                      setBidModalOpen(true);
+                    }}
+                  >
+                    Gebot abgeben
+                  </Button>
                   {jersey.available_for_trade && (
-                    <Button variant={jersey.sale_price_cents ? "outline" : "hero"} className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
+                    <Button variant="outline" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
                       Tausch vorschlagen
                     </Button>
                   )}
@@ -507,6 +519,13 @@ const JerseyDetail = () => {
         </div>
       </div>
       <Footer />
+      <PlaceBidModal
+        open={bidModalOpen}
+        onClose={() => setBidModalOpen(false)}
+        jersey={jersey}
+        highestBid={highestBid}
+        lowestAsk={lowestAsk}
+      />
     </div>
   );
 };
