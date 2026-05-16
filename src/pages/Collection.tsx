@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useJerseyImageUpload } from "@/hooks/useJerseyImageUpload";
 import { useNavigate } from "react-router-dom";
+import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -323,6 +324,30 @@ const Collection = () => {
                     <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                   </div>
                 </div>
+                {form.price_cents && form.condition && form.year && (
+                  (() => {
+                    const priceIntel = calculatePriceIntelligence({
+                      priceCents: Math.round(parseFloat(form.price_cents) * 100),
+                      condition: parseInt(form.condition),
+                      year: form.year,
+                    });
+                    return (
+                      <div className="rounded-sm border border-border bg-secondary/50 p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-semibold">Preisanalyse</span>
+                          <Badge
+                            className={`rounded-sm font-display text-xs uppercase tracking-wider ${priceIntel.verdict.bg} text-white`}
+                          >
+                            {priceIntel.verdict.label}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Fairer Bereich: €{Math.round(priceIntel.spectrum.fair * 0.9)}–€{Math.round(priceIntel.spectrum.fair * 1.1)}
+                        </p>
+                      </div>
+                    );
+                  })()
+                )}
                 <div className="space-y-2">
                   <Label>Bild</Label>
                   {imagePreview ? (

@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { getLowestAsk, getHighestBid } from "@/utils/market";
+import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -234,6 +235,13 @@ const JerseyDetail = () => {
   const isOwner = user?.id === jersey.user_id;
   const age = Number.isNaN(parseInt(jersey.year, 10)) ? "—" : new Date().getFullYear() - parseInt(jersey.year, 10);
 
+  // Calculate price intelligence for non-sale items
+  const priceIntelligence = !jersey.sale_price_cents && jersey.price_cents ? calculatePriceIntelligence({
+    priceCents: jersey.price_cents,
+    condition: jersey.condition,
+    year: jersey.year,
+  }) : null;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -301,8 +309,25 @@ const JerseyDetail = () => {
               </div>
             ) : jersey.price_cents && (
               <div className="rounded-sm border border-border bg-secondary/50 p-6">
-                <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
-                <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
+                    <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
+                  </div>
+                  {priceIntelligence && (
+                    <div className="text-right">
+                      <Badge
+                        className={`rounded-sm font-display text-xs uppercase tracking-wider ${priceIntelligence.verdict.bg} text-white mb-2`}
+                      >
+                        {priceIntelligence.verdict.label}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Fairer Bereich<br/>
+                        €{Math.round(priceIntelligence.spectrum.fair * 0.9)}–€{Math.round(priceIntelligence.spectrum.fair * 1.1)}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
