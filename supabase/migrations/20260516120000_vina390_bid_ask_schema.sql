@@ -11,8 +11,8 @@
 --     Stripe/transactions convention; integer cents avoid floating-point rounding.
 --   - status uses TEXT + CHECK constraint rather than an enum so that adding new
 --     states (e.g. 'disputed') requires no DDL migration in future.
---   - expires_at defaults to now() + 30 days; a pg_cron job sweeps expired rows
---     nightly at 02:00 UTC.
+--   - expires_at defaults to now() + 30 days; expiry cleanup is handled via lazy
+--     evaluation in Edge Functions (pg_cron not available on Supabase Free Plan).
 --   - bid_ask_matches RLS grants SELECT to the buyer (via bids.user_id) and the
 --     seller (via asks.user_id) using correlated EXISTS subqueries; INSERT/UPDATE
 --     is reserved for the service role (Supabase webhook / matching engine).
@@ -185,25 +185,11 @@ GRANT SELECT ON public.asks TO anon;
 -- INSERT/UPDATE is performed by the service role (bypasses RLS).
 GRANT SELECT ON public.bid_ask_matches TO authenticated;
 
--- ── pg_cron: Nightly Expiry Sweep ────────────────────────────────────────────
--- Runs daily at 02:00 UTC. Marks any active bid/ask whose expires_at has passed
--- as 'expired'. The cron.schedule() call is idempotent — calling it again with
--- the same name updates the schedule in place rather than creating a duplicate.
-SELECT cron.schedule(
-  'expire-bids-asks',
-  '0 2 * * *',
-  $$
-    UPDATE public.bids
-      SET status = 'expired', updated_at = now()
-      WHERE status = 'active' AND expires_at < now();
+-- NOTE: pg_cron expiry sweep intentionally omitted.
+-- Supabase Free Plan does not support pg_cron. Expiry cleanup is handled via
+-- lazy evaluation inside Edge Functions (see VINA-391).
 
-    UPDATE public.asks
-      SET status = 'expired', updated_at = now()
-      WHERE status = 'active' AND expires_at < now();
-  $$
-);
-
--- ── Verification queries ──────────────────────────────────────────────────────
+--── Verification queries ──────────────────────────────────────────────────────
 -- Run after applying to confirm expected state:
 --
 -- Tables exist:
