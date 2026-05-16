@@ -36,6 +36,21 @@ serve(async (req) => {
     });
   }
 
+  if (!buyer_id) {
+    return new Response(
+      JSON.stringify({ error: "Missing required field: buyer_id" }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // Must provide either match_id (bid-match flow) or jersey_id (direct buy flow)
+  if (!match_id && !jersey_id) {
+    return new Response(
+      JSON.stringify({ error: "Missing required fields: provide match_id or jersey_id" }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -129,17 +144,6 @@ serve(async (req) => {
   }
 
   // ── Direct buy flow (unchanged) ───────────────────────────────────────────
-  if (!jersey_id || !buyer_id) {
-    return new Response(
-      JSON.stringify({ error: "Missing required fields: jersey_id and buyer_id (or match_id for bid/ask flow)" }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  }
-
-  // Validate jersey: must exist, have sale_price_cents set, and listing type must allow purchase
   const { data: jersey, error: jerseyError } = await supabase
     .from("user_jerseys")
     .select("id, name, sale_price_cents, user_id, listing_type")
