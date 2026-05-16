@@ -26,6 +26,7 @@ import SellerProfile from "./pages/SellerProfile.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import MyBids from "./pages/MyBids.tsx";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,7 @@ const App = () => (
               <Route path="/trades" element={<Trades />} />
               <Route path="/community" element={<Community />} />
               <Route path="/community/:id" element={<CommunityPost />} />
+              <Route path="/my-bids" element={<MyBids />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/imprint" element={<Imprint />} />
               <Route path="/privacy" element={<Privacy />} />
