@@ -39,7 +39,109 @@ serve(async (req) => {
     });
   }
 
-  // Only handle checkout.session.completed
+  // ── payment_intent.succeeded — bid/ask match flow ─────────────────────────
+  if (event.type === "payment_intent.succeeded") {
+    const pi = event.data.object as Stripe.PaymentIntent;
+    const meta = pi.metadata ?? {};
+
+    if (meta.flow !== "bid_ask_match") {
+      // Not our bid/ask match event — acknowledge and ignore
+      return new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const { match_id, bid_id, ask_id, jersey_id, buyer_id, seller_id } = meta;
+
+    if (!match_id || !bid_id || !ask_id || !jersey_id || !buyer_id || !seller_id) {
+      console.error("Missing required bid_ask_match metadata:", meta);
+      return new Response(JSON.stringify({ error: "Missing metadata fields" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // 1. Update bid_ask_matches: status=completed, stripe_payment_intent_id
+    const { error: matchUpdateError } = await supabase
+      .from("bid_ask_matches")
+      .update({ status: "completed", stripe_payment_intent_id: pi.id })
+      .eq("id", match_id);
+
+    if (matchUpdateError) {
+      console.error("Failed to update bid_ask_match:", matchUpdateError);
+      return new Response(JSON.stringify({ error: "Failed to update match record" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // 2. Mark jersey as sold
+    const { error: jerseyError } = await supabase
+      .from("user_jerseys")
+      .update({ listing_type: "sold", sale_price_cents: null })
+      .eq("id", jersey_id);
+
+    if (jerseyError) {
+      console.error("Failed to update jersey listing_type:", jerseyError);
+      // Non-fatal: match already recorded
+    }
+
+    // 3. Insert into transactions (same columns as the existing buy flow)
+    const amountCents = pi.amount_received ?? pi.amount ?? 0;
+    const { error: txError } = await supabase.from("transactions").insert({
+      jersey_id,
+      buyer_id,
+      seller_id,
+      amount_cents: amountCents,
+      platform_fee_cents: 0, // no platform fee on bid/ask matches (fee handled separately if needed)
+      stripe_session_id: pi.id, // payment intent id stored in stripe_session_id column
+      status: "completed",
+    });
+
+    if (txError) {
+      console.error("Failed to insert bid_ask_match transaction:", txError);
+      return new Response(JSON.stringify({ error: "Failed to record transaction" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // 4. Insert 2x notifications: buyer and seller
+    const { error: notifError } = await supabase.from("jersey_sold_notifications").insert([
+      {
+        recipient_id: buyer_id,
+        type: "bid_ask_matched",
+        jersey_id,
+        buyer_id,
+        amount_cents: amountCents,
+      },
+      {
+        recipient_id: seller_id,
+        type: "bid_ask_matched",
+        jersey_id,
+        buyer_id,
+        amount_cents: amountCents,
+      },
+    ]);
+
+    if (notifError) {
+      console.error("Failed to insert bid_ask_matched notifications:", notifError);
+      // Non-fatal: transaction already recorded
+    }
+
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // ── checkout.session.completed — direct buy flow (unchanged) ──────────────
   if (event.type !== "checkout.session.completed") {
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
