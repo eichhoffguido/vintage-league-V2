@@ -12,33 +12,148 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      asks: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          jersey_id: string
+          price_cents: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          jersey_id: string
+          price_cents: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          jersey_id?: string
+          price_cents?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asks_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bid_ask_matches: {
+        Row: {
+          ask_id: string
+          bid_id: string
+          created_at: string
+          id: string
+          jersey_id: string
+          matched_price_cents: number
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ask_id: string
+          bid_id: string
+          created_at?: string
+          id?: string
+          jersey_id: string
+          matched_price_cents: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ask_id?: string
+          bid_id?: string
+          created_at?: string
+          id?: string
+          jersey_id?: string
+          matched_price_cents?: number
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_ask_matches_ask_id_fkey"
+            columns: ["ask_id"]
+            isOneToOne: false
+            referencedRelation: "asks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_ask_matches_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_ask_matches_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bids: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          jersey_id: string
+          price_cents: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          jersey_id: string
+          price_cents: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          jersey_id?: string
+          price_cents?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_categories: {
         Row: {
           created_at: string
@@ -72,7 +187,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
-          image_urls: string[] | null
+          image_urls: string[]
           post_id: string
           updated_at: string
           user_id: string
@@ -82,7 +197,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          image_urls?: string[] | null
+          image_urls?: string[]
           post_id: string
           updated_at?: string
           user_id: string
@@ -92,7 +207,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          image_urls?: string[] | null
+          image_urls?: string[]
           post_id?: string
           updated_at?: string
           user_id?: string
@@ -114,7 +229,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
-          image_urls: string[] | null
+          image_urls: string[]
           pinned: boolean
           title: string
           updated_at: string
@@ -126,7 +241,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          image_urls?: string[] | null
+          image_urls?: string[]
           pinned?: boolean
           title: string
           updated_at?: string
@@ -138,7 +253,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          image_urls?: string[] | null
+          image_urls?: string[]
           pinned?: boolean
           title?: string
           updated_at?: string
@@ -154,59 +269,31 @@ export type Database = {
           },
         ]
       }
-      sales_history: {
+      jersey_favorites: {
         Row: {
-          buyer_user_id: string | null
-          condition: number
+          created_at: string
           id: string
           jersey_id: string
-          league: string
-          sale_price_cents: number
-          seller_user_id: string
-          sold_at: string
-          team: string
-          trade_request_id: string | null
-          year: string
+          user_id: string
         }
         Insert: {
-          buyer_user_id?: string | null
-          condition: number
+          created_at?: string
           id?: string
           jersey_id: string
-          league: string
-          sale_price_cents: number
-          seller_user_id: string
-          sold_at?: string
-          team: string
-          trade_request_id?: string | null
-          year: string
+          user_id: string
         }
         Update: {
-          buyer_user_id?: string | null
-          condition?: number
+          created_at?: string
           id?: string
           jersey_id?: string
-          league?: string
-          sale_price_cents?: number
-          seller_user_id?: string
-          sold_at?: string
-          team?: string
-          trade_request_id?: string | null
-          year?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "sales_history_jersey_id_fkey"
+            foreignKeyName: "jersey_favorites_jersey_id_fkey"
             columns: ["jersey_id"]
             isOneToOne: false
             referencedRelation: "user_jerseys"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sales_history_trade_request_id_fkey"
-            columns: ["trade_request_id"]
-            isOneToOne: false
-            referencedRelation: "trade_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -214,79 +301,35 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
-          average_rating: number | null
           bio: string | null
           created_at: string
           deleted_at: string | null
           display_name: string | null
           id: string
-          is_admin: boolean
           onboarding_completed: boolean
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
-          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           id: string
-          is_admin?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
-          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           id?: string
-          is_admin?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
         Relationships: []
-      }
-      trade_ratings: {
-        Row: {
-          comment: string | null
-          created_at: string
-          id: string
-          rated_user_id: string
-          rater_user_id: string
-          rating: number
-          trade_id: string
-        }
-        Insert: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          rated_user_id: string
-          rater_user_id: string
-          rating: number
-          trade_id: string
-        }
-        Update: {
-          comment?: string | null
-          created_at?: string
-          id?: string
-          rated_user_id?: string
-          rater_user_id?: string
-          rating?: number
-          trade_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trade_ratings_trade_id_fkey"
-            columns: ["trade_id"]
-            isOneToOne: false
-            referencedRelation: "trade_requests"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       trade_requests: {
         Row: {
@@ -336,17 +379,62 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount_cents: number
+          buyer_id: string
+          created_at: string
+          id: string
+          jersey_id: string
+          platform_fee_cents: number
+          seller_id: string
+          status: string
+          stripe_session_id: string
+        }
+        Insert: {
+          amount_cents: number
+          buyer_id: string
+          created_at?: string
+          id?: string
+          jersey_id: string
+          platform_fee_cents: number
+          seller_id: string
+          status?: string
+          stripe_session_id: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          jersey_id?: string
+          platform_fee_cents?: number
+          seller_id?: string
+          status?: string
+          stripe_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_jerseys: {
         Row: {
           available_for_trade: boolean
           condition: number
           created_at: string
           deleted_at: string | null
+          description: string | null
           id: string
           image_url: string | null
-          is_featured: boolean | null
+          is_featured: boolean
           league: string
-          listing_type: "trade_only" | "buy_now" | "both"
+          listing_type: string | null
           name: string
           price_cents: number | null
           sale_price_cents: number | null
@@ -364,11 +452,12 @@ export type Database = {
           condition?: number
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
-          is_featured?: boolean | null
+          is_featured?: boolean
           league?: string
-          listing_type?: "trade_only" | "buy_now" | "both"
+          listing_type?: string | null
           name: string
           price_cents?: number | null
           sale_price_cents?: number | null
@@ -386,11 +475,12 @@ export type Database = {
           condition?: number
           created_at?: string
           deleted_at?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
-          is_featured?: boolean | null
+          is_featured?: boolean
           league?: string
-          listing_type?: "trade_only" | "buy_now" | "both"
+          listing_type?: string | null
           name?: string
           price_cents?: number | null
           sale_price_cents?: number | null
@@ -405,96 +495,11 @@ export type Database = {
         }
         Relationships: []
       }
-      jersey_favorites: {
-        Row: {
-          created_at: string
-          id: string
-          jersey_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          jersey_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          jersey_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "jersey_favorites_jersey_id_fkey"
-            columns: ["jersey_id"]
-            isOneToOne: false
-            referencedRelation: "user_jerseys"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "jersey_favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_favorites: {
-        Row: {
-          created_at: string
-          id: string
-          jersey_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          jersey_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          jersey_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_favorites_jersey_id_fkey"
-            columns: ["jersey_id"]
-            isOneToOne: false
-            referencedRelation: "user_jerseys"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_recent_sales_by_team_year: {
-        Args: { p_team: string; p_year: string; p_limit?: number }
-        Returns: {
-          id: string
-          jersey_id: string
-          sale_price_cents: number
-          team: string
-          league: string
-          year: string
-          condition: number
-          sold_at: string
-        }[]
-      }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
     }
     Enums: {
@@ -625,9 +630,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       trade_status: ["pending", "accepted", "declined", "completed"],
@@ -635,3 +637,4 @@ export const Constants = {
     },
   },
 } as const
+<claude-code-hint v="1" type="plugin" value="supabase@claude-plugins-official" />
