@@ -19,7 +19,7 @@ interface GiphyGif {
   id: string;
   title: string;
   images: {
-    original: {
+    fixed_height: {
       url: string;
     };
   };
@@ -39,7 +39,7 @@ function transformGiphyToTenor(gif: GiphyGif): TenorGif {
     title: gif.title,
     media_formats: {
       gif: {
-        url: gif.images.original.url,
+        url: gif.images.fixed_height.url,
       },
     },
     tags: gif.tags || [],
@@ -60,6 +60,7 @@ export async function searchGifs(query: string, limit: number = 20): Promise<Ten
       api_key: GIPHY_API_KEY,
       q: query,
       limit: limit.toString(),
+      rating: "g",
     });
 
     const response = await fetch(`${GIPHY_API_URL}/search?${params}`);
@@ -88,6 +89,7 @@ export async function getTrendingGifs(limit: number = 20): Promise<TenorGif[]> {
     const params = new URLSearchParams({
       api_key: GIPHY_API_KEY,
       limit: limit.toString(),
+      rating: "g",
     });
 
     const response = await fetch(`${GIPHY_API_URL}/trending?${params}`);
