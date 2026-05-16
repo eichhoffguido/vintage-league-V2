@@ -6,6 +6,7 @@ import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import PriceIntelligence from "@/components/PriceIntelligence";
 
 interface JerseyCardProps {
   id: string;
@@ -182,6 +183,18 @@ const JerseyCard = ({
             </span>
           </div>
         )}
+        <div className="absolute bottom-3 right-3 animate-slide-up" style={{ animationDelay: "200ms" }}>
+          {sale_price_cents ? (
+            <PriceIntelligence
+              team={team}
+              year={parseInt(year) || 0}
+              condition={condition}
+              size={size}
+              listingPriceCents={sale_price_cents}
+              compact={true}
+            />
+          ) : null}
+        </div>
       </div>
 
       {/* Info */}

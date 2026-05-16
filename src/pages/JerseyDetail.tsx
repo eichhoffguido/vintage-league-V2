@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import MarketDepth from "@/components/MarketDepth";
 import PlaceBidModal from "@/components/PlaceBidModal";
+import PriceIntelligence from "@/components/PriceIntelligence";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -285,9 +286,18 @@ const JerseyDetail = () => {
 
             {/* Price */}
             {jersey.sale_price_cents ? (
-              <div className="rounded-sm border border-border bg-secondary/50 p-6">
-                <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
-                <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
+              <div className="rounded-sm border border-border bg-secondary/50 p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
+                  <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
+                </div>
+                <PriceIntelligence
+                  team={jersey.team}
+                  year={parseInt(jersey.year) || 0}
+                  condition={jersey.condition}
+                  size={jersey.size}
+                  listingPriceCents={jersey.sale_price_cents}
+                />
               </div>
             ) : jersey.price_cents && (
               <div className="rounded-sm border border-border bg-secondary/50 p-6">

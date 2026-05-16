@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import PriceIntelligence from "@/components/PriceIntelligence";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ const Collection = () => {
   const [editForm, setEditForm] = useState<any>(null);
   const [saleModalOpen, setSaleModalOpen] = useState(false);
   const [salePrice, setSalePrice] = useState("");
+  const [debouncedPrice, setDebouncedPrice] = useState("");
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     image_url: "", price_cents: "", available_for_trade: false,
@@ -54,6 +56,14 @@ const Collection = () => {
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [authLoading, user, navigate]);
+
+  // Debounce price changes for PriceIntelligence preview (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedPrice(form.price_cents);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [form.price_cents]);
 
   const { data: jerseys = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-jerseys", user?.id],
@@ -382,6 +392,18 @@ const Collection = () => {
                   <div className="space-y-2">
                     <Label>Verkaufspreis (€) *</Label>
                     <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} step={0.01} required />
+                    {form.team && form.year && debouncedPrice && (
+                      <div className="mt-3">
+                        <PriceIntelligence
+                          team={form.team}
+                          year={parseInt(form.year) || 0}
+                          condition={parseInt(form.condition)}
+                          size={form.size}
+                          listingPriceCents={Math.round(parseFloat(debouncedPrice) * 100)}
+                          compact={false}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
                 <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending || isUploadingImage}>
