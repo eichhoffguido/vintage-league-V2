@@ -6,11 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import MarketDepth from "@/components/MarketDepth";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
+import { getLowestAsk, getHighestBid } from "@/utils/market";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -59,6 +61,8 @@ const JerseyDetail = () => {
   const [saleHistory, setSaleHistory] = useState<SaleHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [lowestAsk, setLowestAsk] = useState<number | null | undefined>(undefined);
+  const [highestBid, setHighestBid] = useState<number | null | undefined>(undefined);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +89,14 @@ const JerseyDetail = () => {
       fetchSaleHistory();
     }
   }, [jersey]);
+
+  useEffect(() => {
+    if (!id) return;
+    Promise.all([getLowestAsk(id), getHighestBid(id)]).then(([ask, bid]) => {
+      setLowestAsk(ask);
+      setHighestBid(bid);
+    });
+  }, [id]);
 
   const fetchJersey = async () => {
     try {
@@ -282,6 +294,33 @@ const JerseyDetail = () => {
               </div>
             )}
 
+            {/* Market Price Section */}
+            <div className="rounded-sm border border-border bg-secondary/50 p-6">
+              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Marktpreise</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Sofort kaufen ab</p>
+                  {lowestAsk === undefined ? (
+                    <Skeleton className="h-7 w-24" />
+                  ) : lowestAsk !== null ? (
+                    <p className="font-display text-2xl font-bold text-foreground">{formatEuros(lowestAsk)}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Kein Angebot verfügbar</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Höchstes Gebot</p>
+                  {highestBid === undefined ? (
+                    <Skeleton className="h-7 w-24" />
+                  ) : highestBid !== null ? (
+                    <p className="font-display text-2xl font-bold text-primary">{formatEuros(highestBid)}</p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Noch kein Gebot</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons - Moved above the fold */}
             <div className="space-y-3">
               {isOwner ? (
@@ -435,6 +474,9 @@ const JerseyDetail = () => {
                 )}
               </div>
             </div>
+
+            {/* Market Depth */}
+            <MarketDepth jerseyId={id!} />
 
             {/* Price History - Zuletzt verkauft */}
             {saleHistory.length > 0 && (
