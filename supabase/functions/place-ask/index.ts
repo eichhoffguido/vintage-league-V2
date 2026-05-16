@@ -99,6 +99,29 @@ serve(async (req) => {
     });
   }
 
+  // Lazy cleanup: expire stale bids and asks for this jersey before matching
+  const { error: expireBidsError } = await supabase
+    .from("bids")
+    .update({ status: "expired", updated_at: new Date().toISOString() })
+    .eq("jersey_id", jersey_id)
+    .eq("status", "active")
+    .lt("expires_at", new Date().toISOString());
+
+  if (expireBidsError) {
+    console.error("Lazy cleanup failed for bids:", expireBidsError);
+  }
+
+  const { error: expireAsksError } = await supabase
+    .from("asks")
+    .update({ status: "expired", updated_at: new Date().toISOString() })
+    .eq("jersey_id", jersey_id)
+    .eq("status", "active")
+    .lt("expires_at", new Date().toISOString());
+
+  if (expireAsksError) {
+    console.error("Lazy cleanup failed for asks:", expireAsksError);
+  }
+
   // Insert ask
   const { data: ask, error: askError } = await supabase
     .from("asks")
@@ -125,6 +148,7 @@ serve(async (req) => {
     .select("id, user_id, price_cents")
     .eq("jersey_id", jersey_id)
     .eq("status", "active")
+    .gt("expires_at", new Date().toISOString())
     .gte("price_cents", price_cents)
     .order("price_cents", { ascending: false })
     .limit(1)
@@ -167,7 +191,8 @@ serve(async (req) => {
     .from("bids")
     .select("id, user_id")
     .eq("jersey_id", jersey_id)
-    .eq("status", "active");
+    .eq("status", "active")
+    .gt("expires_at", new Date().toISOString());
 
   if (activeBids && activeBids.length > 0) {
     const notifications = activeBids.map((bid) => ({
