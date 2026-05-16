@@ -20,13 +20,15 @@ serve(async (req) => {
     });
   }
 
-  let jersey_id: string;
-  let buyer_id: string;
+  let jersey_id: string | undefined;
+  let buyer_id: string | undefined;
+  let match_id: string | undefined;
 
   try {
     const body = await req.json();
     jersey_id = body.jersey_id;
     buyer_id = body.buyer_id;
+    match_id = body.match_id;
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
       status: 400,
@@ -34,20 +36,108 @@ serve(async (req) => {
     });
   }
 
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
+    apiVersion: "2023-10-16",
+  });
+
+  const siteUrl =
+    Deno.env.get("SITE_URL") || "https://vintage-league-v2.vercel.app";
+
+  // ── Bid/Ask match flow ────────────────────────────────────────────────────
+  if (match_id) {
+    // Look up the pending match
+    const { data: match, error: matchError } = await supabase
+      .from("bid_ask_matches")
+      .select("id, bid_id, ask_id, jersey_id, matched_price_cents, status")
+      .eq("id", match_id)
+      .eq("status", "pending")
+      .single();
+
+    if (matchError || !match) {
+      return new Response(JSON.stringify({ error: "Match not found or not pending" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Fetch bid (buyer) and ask (seller)
+    const { data: bid, error: bidError } = await supabase
+      .from("bids")
+      .select("id, user_id")
+      .eq("id", match.bid_id)
+      .single();
+
+    const { data: ask, error: askError } = await supabase
+      .from("asks")
+      .select("id, user_id")
+      .eq("id", match.ask_id)
+      .single();
+
+    if (bidError || !bid || askError || !ask) {
+      return new Response(JSON.stringify({ error: "Failed to load match participants" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Fetch jersey name for line item
+    const { data: jersey } = await supabase
+      .from("user_jerseys")
+      .select("name")
+      .eq("id", match.jersey_id)
+      .single();
+
+    const jerseyName = jersey?.name ?? "Vintage Jersey";
+    const matchedPriceCents = match.matched_price_cents;
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: { name: jerseyName },
+            unit_amount: matchedPriceCents,
+          },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: {
+        metadata: {
+          match_id: match.id,
+          bid_id: match.bid_id,
+          ask_id: match.ask_id,
+          jersey_id: match.jersey_id,
+          flow: "bid_ask_match",
+          buyer_id: bid.user_id,
+          seller_id: ask.user_id,
+        },
+      },
+      success_url: `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/jersey/${match.jersey_id}`,
+    });
+
+    return new Response(JSON.stringify({ url: session.url }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // ── Direct buy flow (unchanged) ───────────────────────────────────────────
   if (!jersey_id || !buyer_id) {
     return new Response(
-      JSON.stringify({ error: "Missing required fields: jersey_id and buyer_id" }),
+      JSON.stringify({ error: "Missing required fields: jersey_id and buyer_id (or match_id for bid/ask flow)" }),
       {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
 
   // Validate jersey: must exist, have sale_price_cents set, and listing type must allow purchase
   const { data: jersey, error: jerseyError } = await supabase
@@ -94,13 +184,6 @@ serve(async (req) => {
 
   // Compute 5% platform fee
   const platformFeeCents = Math.round(jersey.sale_price_cents * 0.05);
-
-  const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
-    apiVersion: "2023-10-16",
-  });
-
-  const siteUrl =
-    Deno.env.get("SITE_URL") || "https://vintage-league-v2.vercel.app";
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
