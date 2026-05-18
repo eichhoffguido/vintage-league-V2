@@ -308,26 +308,18 @@ const JerseyDetail = () => {
                 />
               </div>
             ) : jersey.price_cents && (
-              <div className="rounded-sm border border-border bg-secondary/50 p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
-                    <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
-                  </div>
-                  {priceIntelligence && (
-                    <div className="text-right">
-                      <Badge
-                        className={`rounded-sm font-display text-xs uppercase tracking-wider ${priceIntelligence.verdict.bg} text-white mb-2`}
-                      >
-                        {priceIntelligence.verdict.label}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Fairer Bereich<br/>
-                        €{Math.round(priceIntelligence.spectrum.fair * 0.9)}–€{Math.round(priceIntelligence.spectrum.fair * 1.1)}
-                      </p>
-                    </div>
-                  )}
+              <div className="rounded-sm border border-border bg-secondary/50 p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
+                  <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
                 </div>
+                <PriceIntelligence
+                  team={jersey.team}
+                  year={parseInt(jersey.year) || 0}
+                  condition={jersey.condition}
+                  size={jersey.size}
+                  listingPriceCents={jersey.price_cents}
+                />
               </div>
             )}
 

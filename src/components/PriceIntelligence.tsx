@@ -13,10 +13,10 @@ export interface PriceIntelligenceProps {
 }
 
 interface PriceIntelligenceData {
-  fair_value_min_cents: number;
-  fair_value_max_cents: number;
-  fair_value_mid_cents: number;
-  comparable_count: number;
+  fair_value_mid: number;
+  min: number;
+  max: number;
+  count: number;
   smart_buy_discount_pct?: number;
 }
 
@@ -54,7 +54,7 @@ const PriceIntelligence = ({
           return;
         }
 
-        if (!result || result.comparable_count < 3) {
+        if (!result || result.count < 3) {
           setData(null);
           return;
         }
@@ -63,8 +63,8 @@ const PriceIntelligence = ({
         let processedData = { ...result };
         if (listingPriceCents !== undefined) {
           const discountPct = Math.round(
-            ((result.fair_value_mid_cents - listingPriceCents) /
-              result.fair_value_mid_cents) *
+            ((result.fair_value_mid - listingPriceCents) /
+              result.fair_value_mid) *
               100
           );
           processedData.smart_buy_discount_pct =
@@ -88,7 +88,7 @@ const PriceIntelligence = ({
     return compact ? null : <div className="h-16 animate-pulse rounded bg-secondary/30" />;
   }
 
-  if (error || !data || data.comparable_count < 3) {
+  if (error || !data || data.count < 3) {
     return null;
   }
 
@@ -96,8 +96,8 @@ const PriceIntelligence = ({
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
     if (!listingPriceCents) return "fair";
     const percentDiff =
-      ((listingPriceCents - data.fair_value_mid_cents) /
-        data.fair_value_mid_cents) *
+      ((listingPriceCents - data.fair_value_mid) /
+        data.fair_value_mid) *
       100;
     if (percentDiff < -15) return "smart_buy";
     if (percentDiff > 15) return "overpriced";
@@ -145,11 +145,11 @@ const PriceIntelligence = ({
       )}
       <div className={cn("text-sm", textColors[priceStatus])}>
         <div className="mb-1">
-          Fair value ~{formatPrice(data.fair_value_mid_cents)} (
-          {formatPrice(data.fair_value_min_cents)}–{formatPrice(data.fair_value_max_cents)})
+          Fair value ~{formatPrice(data.fair_value_mid)} (
+          {formatPrice(data.min)}–{formatPrice(data.max)})
         </div>
         <div className="text-xs opacity-75">
-          Based on {data.comparable_count} comparable sales
+          Based on {data.count} comparable sales
         </div>
       </div>
     </div>
