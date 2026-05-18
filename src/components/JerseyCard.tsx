@@ -6,6 +6,7 @@ import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 
 interface JerseyCardProps {
   id: string;
@@ -38,35 +39,6 @@ const conditionLabels: Record<number, string> = {
   1: "Sammlerstück",
 };
 
-const conditionMultiplier: Record<number, number> = {
-  5: 1.0,
-  4: 0.85,
-  3: 0.7,
-  2: 0.5,
-  1: 0.35,
-};
-
-const getVintageBonus = (year: string): number => {
-  if (!year || year.trim() === "") return 1.0;
-  const yearNum = parseInt(year, 10);
-  if (Number.isNaN(yearNum)) return 1.0;
-  const age = new Date().getFullYear() - yearNum;
-  if (age >= 25) return 1.8;
-  if (age >= 15) return 1.4;
-  if (age >= 5) return 1.1;
-  return 1.0;
-};
-
-const getPriceVerdict = (price: number, minVal: number, maxVal: number, fairVal: number) => {
-  const range = maxVal - minVal;
-  if (range === 0) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
-
-
-  if (price <= fairVal * 0.85) return { label: "Schnäppchen 🔥", color: "text-primary", bg: "bg-primary" };
-  if (price <= fairVal * 1.05) return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
-  if (price <= fairVal * 1.2) return { label: "Über Marktwert", color: "text-green-500", bg: "bg-green-500" };
-  return { label: "Premium-Preis", color: "text-orange-400", bg: "bg-orange-400" };
-};
 
 const JerseyCard = ({
   id,
@@ -97,31 +69,30 @@ const JerseyCard = ({
   const canBuyNow = (listing_type === "buy_now" || listing_type === "both") && !isOwner && sale_price_cents;
   // Use verification_status if provided, otherwise fall back to verified prop
   const isVerified = verification_status ? verification_status === "verified" : verified;
-  const vintageBonus = getVintageBonus(year);
-  const condMult = conditionMultiplier[condition] ?? 0.5;
   const priceCents = price_cents ?? 0;
+
+  // Calculate price intelligence
+  const priceIntelligence = calculatePriceIntelligence({
+    priceCents,
+    estimatedValue: estimatedValueProp,
+    condition,
+    year,
+  });
+
   const price = priceCents / 100;
-
-  // Calculate price spectrum
-  const baseValue = estimatedValueProp ?? price;
-  const topValue = Math.round(baseValue * 1.0 * vintageBonus); // "Neu" value
-  const bottomValue = Math.round(baseValue * 0.35 * vintageBonus); // below "Akzeptabel"
-  const fairValue = Math.round(baseValue * condMult * vintageBonus);
-
-  // Spectrum range
-  const spectrumMin = Math.round(bottomValue * 0.9);
-  const spectrumMax = Math.round(topValue * 1.15);
+  const fairValue = priceIntelligence.fairValue;
+  const spectrumMin = priceIntelligence.spectrum.min;
+  const spectrumMax = priceIntelligence.spectrum.max;
   const range = spectrumMax - spectrumMin;
 
   // Positions as percentages on the bar
-
-  const pricePos = range > 0 ? Math.max(2, Math.min(98, ((price - spectrumMin) / range) * 100)) : 50;
+  const pricePos = priceIntelligence.position.percentile;
 
   // Fair zone (±10% of fair value)
   const fairZoneLeft = range > 0 ? Math.max(0, ((fairValue * 0.9 - spectrumMin) / range) * 100) : 40;
   const fairZoneRight = range > 0 ? Math.min(100, ((fairValue * 1.1 - spectrumMin) / range) * 100) : 60;
 
-  const verdict = getPriceVerdict(price, spectrumMin, spectrumMax, fairValue);
+  const verdict = priceIntelligence.verdict;
 
   return (
     <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
@@ -163,6 +134,14 @@ const JerseyCard = ({
           <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
+          {!sale_price_cents && (
+            <Badge
+              className={`rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down ${verdict.bg} text-white`}
+              style={{ animationDelay: "100ms" }}
+            >
+              {verdict.label}
+            </Badge>
+          )}
           {!!sale_price_cents && !isSold && (
             <Badge variant="default" className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down" style={{ animationDelay: "150ms" }}>
               Kaufen
@@ -182,6 +161,18 @@ const JerseyCard = ({
             </span>
           </div>
         )}
+        <div className="absolute bottom-3 right-3 animate-slide-up" style={{ animationDelay: "200ms" }}>
+          {sale_price_cents ? (
+            <PriceIntelligence
+              team={team}
+              year={parseInt(year) || 0}
+              condition={condition}
+              size={size}
+              listingPriceCents={sale_price_cents}
+              compact={true}
+            />
+          ) : null}
+        </div>
       </div>
 
       {/* Info */}
