@@ -59,7 +59,6 @@ const PriceIntelligence = ({
           return;
         }
 
-        // Calculate smart buy discount if listing price provided
         let processedData = { ...result };
         if (listingPriceCents !== undefined) {
           const discountPct = Math.round(
@@ -73,7 +72,6 @@ const PriceIntelligence = ({
 
         setData(processedData);
       } catch (err) {
-        // Fail silently
         setError(null);
         setData(null);
       } finally {
@@ -92,7 +90,6 @@ const PriceIntelligence = ({
     return null;
   }
 
-  // Determine color based on price position relative to fair value
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
     if (!listingPriceCents) return "fair";
     const percentDiff =
@@ -106,7 +103,6 @@ const PriceIntelligence = ({
 
   const priceStatus = getPriceStatus();
 
-  // Compact variant - only show smart buy badge
   if (compact) {
     if (priceStatus !== "smart_buy") return null;
     return (
@@ -117,7 +113,6 @@ const PriceIntelligence = ({
     );
   }
 
-  // Full variant
   const statusColors = {
     smart_buy: "bg-green-50 border-green-200",
     fair: "bg-slate-50 border-slate-200",
@@ -131,8 +126,7 @@ const PriceIntelligence = ({
   };
 
   const formatPrice = (cents: number) => {
-    const euros = cents / 100;
-    return `€${euros.toFixed(0)}`;
+    return `€${(cents / 100).toFixed(0)}`;
   };
 
   return (
@@ -145,11 +139,11 @@ const PriceIntelligence = ({
       )}
       <div className={cn("text-sm", textColors[priceStatus])}>
         <div className="mb-1">
-          Fair value ~{formatPrice(data.fair_value_mid_cents)} (
+          Fairer Marktwert ~{formatPrice(data.fair_value_mid_cents)} (
           {formatPrice(data.fair_value_min_cents)}–{formatPrice(data.fair_value_max_cents)})
         </div>
         <div className="text-xs opacity-75">
-          Based on {data.comparable_count} comparable sales
+          Basierend auf {data.comparable_count} vergleichbaren Verkäufen
         </div>
       </div>
     </div>
