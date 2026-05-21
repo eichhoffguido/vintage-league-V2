@@ -6,6 +6,7 @@ import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import PriceIntelligence from "@/components/PriceIntelligence";
 import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 
 interface JerseyCardProps {
