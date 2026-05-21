@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { TrendingUp, AlertCircle } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface PriceIntelligenceProps {
@@ -13,10 +13,10 @@ export interface PriceIntelligenceProps {
 }
 
 interface PriceIntelligenceData {
-  fair_value_mid: number;
-  min: number;
-  max: number;
-  count: number;
+  fair_value_mid_cents: number;
+  fair_value_min_cents: number;
+  fair_value_max_cents: number;
+  comparable_count: number;
   smart_buy_discount_pct?: number;
 }
 
@@ -54,17 +54,16 @@ const PriceIntelligence = ({
           return;
         }
 
-        if (!result || result.count < 3) {
+        if (!result || result.comparable_count < 3) {
           setData(null);
           return;
         }
 
-        // Calculate smart buy discount if listing price provided
         let processedData = { ...result };
         if (listingPriceCents !== undefined) {
           const discountPct = Math.round(
-            ((result.fair_value_mid - listingPriceCents) /
-              result.fair_value_mid) *
+            ((result.fair_value_mid_cents - listingPriceCents) /
+              result.fair_value_mid_cents) *
               100
           );
           processedData.smart_buy_discount_pct =
@@ -73,7 +72,6 @@ const PriceIntelligence = ({
 
         setData(processedData);
       } catch (err) {
-        // Fail silently
         setError(null);
         setData(null);
       } finally {
@@ -88,16 +86,15 @@ const PriceIntelligence = ({
     return compact ? null : <div className="h-16 animate-pulse rounded bg-secondary/30" />;
   }
 
-  if (error || !data || data.count < 3) {
+  if (error || !data || data.comparable_count < 3) {
     return null;
   }
 
-  // Determine color based on price position relative to fair value
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
     if (!listingPriceCents) return "fair";
     const percentDiff =
-      ((listingPriceCents - data.fair_value_mid) /
-        data.fair_value_mid) *
+      ((listingPriceCents - data.fair_value_mid_cents) /
+        data.fair_value_mid_cents) *
       100;
     if (percentDiff < -15) return "smart_buy";
     if (percentDiff > 15) return "overpriced";
@@ -106,7 +103,6 @@ const PriceIntelligence = ({
 
   const priceStatus = getPriceStatus();
 
-  // Compact variant - only show smart buy badge
   if (compact) {
     if (priceStatus !== "smart_buy") return null;
     return (
@@ -117,7 +113,6 @@ const PriceIntelligence = ({
     );
   }
 
-  // Full variant
   const statusColors = {
     smart_buy: "bg-green-50 border-green-200",
     fair: "bg-slate-50 border-slate-200",
@@ -131,8 +126,7 @@ const PriceIntelligence = ({
   };
 
   const formatPrice = (cents: number) => {
-    const euros = cents / 100;
-    return `€${euros.toFixed(0)}`;
+    return `€${(cents / 100).toFixed(0)}`;
   };
 
   return (
@@ -145,11 +139,11 @@ const PriceIntelligence = ({
       )}
       <div className={cn("text-sm", textColors[priceStatus])}>
         <div className="mb-1">
-          Fair value ~{formatPrice(data.fair_value_mid)} (
-          {formatPrice(data.min)}–{formatPrice(data.max)})
+          Fairer Marktwert ~{formatPrice(data.fair_value_mid_cents)} (
+          {formatPrice(data.fair_value_min_cents)}–{formatPrice(data.fair_value_max_cents)})
         </div>
         <div className="text-xs opacity-75">
-          Based on {data.count} comparable sales
+          Basierend auf {data.comparable_count} vergleichbaren Verkäufen
         </div>
       </div>
     </div>
