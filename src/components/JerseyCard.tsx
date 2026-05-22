@@ -40,6 +40,16 @@ const conditionLabels: Record<number, string> = {
   1: "Sammlerstück",
 };
 
+const getVintageBonus = (year: string): number => {
+  if (!year || year.trim() === "") return 1.0;
+  const yearNum = parseInt(year, 10);
+  if (Number.isNaN(yearNum)) return 1.0;
+  const age = new Date().getFullYear() - yearNum;
+  if (age >= 25) return 1.8;
+  if (age >= 15) return 1.4;
+  if (age >= 5) return 1.1;
+  return 1.0;
+};
 
 const JerseyCard = ({
   id,
