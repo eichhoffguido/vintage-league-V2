@@ -252,12 +252,33 @@ const JerseyDetail = () => {
         </Button>
 
         <div className="grid gap-8 lg:grid-cols-2">
-          {/* Jersey Image */}
+          {/* Jersey Image(s) */}
           <div className="relative">
             <div className="sticky top-20">
-              {getImageUrl(jersey.image_url) ? (
-                <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                  <img src={getImageUrl(jersey.image_url)!} alt={jersey.name} className="h-full w-full object-cover" />
+              {(jersey.image_urls && jersey.image_urls.length > 0) || getImageUrl(jersey.image_url) ? (
+                <div className="space-y-2">
+                  {(jersey.image_urls && jersey.image_urls.length > 0) ? (
+                    <>
+                      {/* Primary image */}
+                      <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                        <img src={getImageUrl(jersey.image_urls[0])!} alt={`${jersey.name} 1`} className="h-full w-full object-cover" />
+                      </div>
+                      {/* Secondary images grid */}
+                      {jersey.image_urls.length > 1 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {jersey.image_urls.slice(1).map((url: string, index: number) => (
+                            <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                              <img src={getImageUrl(url)!} alt={`${jersey.name} ${index + 2}`} className="h-full w-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                      <img src={getImageUrl(jersey.image_url)!} alt={jersey.name} className="h-full w-full object-cover" />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">

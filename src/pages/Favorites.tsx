@@ -87,7 +87,7 @@ const Favorites = () => {
                 league={jersey.league}
                 year={jersey.year}
                 price_cents={jersey.price_cents}
-                imageUrl={jersey.image_url || ""}
+                imageUrl={(jersey.image_urls && jersey.image_urls.length > 0) ? jersey.image_urls[0] : jersey.image_url || ""}
                 condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                 size={jersey.size}
                 onClick={() => navigate(`/jersey/${jersey.id}`)}
