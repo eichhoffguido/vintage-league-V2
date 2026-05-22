@@ -7,7 +7,7 @@ import { getImageUrl } from "@/utils/imageUrl";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import PriceIntelligence from "@/components/PriceIntelligence";
-import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
+import { calculatePriceIntelligence, getVintageBonus } from "@/utils/priceIntelligence";
 
 interface JerseyCardProps {
   id: string;
@@ -90,6 +90,7 @@ const JerseyCard = ({
     year,
   });
 
+  const vintageBonus = getVintageBonus(year);
   const price = priceCents / 100;
   const fairValue = priceIntelligence.fairValue;
   const spectrumMin = priceIntelligence.spectrum.min;

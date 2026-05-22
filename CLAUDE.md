@@ -54,6 +54,14 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 8. Mark issue as DONE
 9. STOP — wait for CTO or Guido
 
+## Frontend Preview Verification Rule — NON-NEGOTIABLE
+For any UI or frontend changes:
+1. Start the dev server and test the feature in a browser before submitting the PR
+2. Test the golden path (primary user flow) and edge cases
+3. Monitor for regressions in other features
+4. If you cannot test the UI (e.g., for infrastructure changes), state this explicitly in the PR body
+5. Never mark a task as complete without verifying the UI works as expected
+
 ## Never without Guido approval
 - supabase db push
 - Any deployment
