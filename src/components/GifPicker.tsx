@@ -13,6 +13,17 @@ const GifPicker = ({ onGifSelect }: GifPickerProps) => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Check if GIPHY API key is available
+  if (!import.meta.env.VITE_GIPHY_API_KEY) {
+    return (
+      <div className="w-full space-y-3 p-3">
+        <div className="py-8 text-center text-sm text-muted-foreground">
+          GIF nicht verfügbar
+        </div>
+      </div>
+    );
+  }
+
   // Load trending GIFs on mount
   useEffect(() => {
     const loadTrending = async () => {

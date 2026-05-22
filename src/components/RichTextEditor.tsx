@@ -144,7 +144,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
               <Smile className="h-4 w-4" />
             </ToolbarButton>
           </PopoverTrigger>
-          <PopoverContent className="w-full max-w-[350px] p-0" align="start">
+          <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[350px] p-0 z-[9999]" align="start" sideOffset={4}>
             <EmojiPicker onEmojiClick={onEmojiSelect} />
           </PopoverContent>
         </Popover>
@@ -154,7 +154,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
               <Image className="h-4 w-4" />
             </ToolbarButton>
           </PopoverTrigger>
-          <PopoverContent className="w-full max-w-[400px] p-0" align="start">
+          <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[400px] p-0 z-[9999]" align="start" sideOffset={4}>
             <GifPicker onGifSelect={onGifSelect} />
           </PopoverContent>
         </Popover>
