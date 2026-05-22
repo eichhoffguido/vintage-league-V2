@@ -106,9 +106,6 @@ const JerseyCard = ({
 
   const verdict = priceIntelligence.verdict;
 
-  // Calculate vintage bonus
-  const vintageBonus = getVintageBonus(year);
-
   return (
     <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
