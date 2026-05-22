@@ -298,6 +298,48 @@ export type Database = {
           },
         ]
       }
+      jersey_price_references: {
+        Row: {
+          condition: string | null
+          currency: string
+          id: string
+          sale_date: string | null
+          sale_price_cents: number
+          scraped_at: string
+          season: string | null
+          size: string | null
+          source_url: string | null
+          team: string
+          year: number | null
+        }
+        Insert: {
+          condition?: string | null
+          currency?: string
+          id?: string
+          sale_date?: string | null
+          sale_price_cents: number
+          scraped_at?: string
+          season?: string | null
+          size?: string | null
+          source_url?: string | null
+          team: string
+          year?: number | null
+        }
+        Update: {
+          condition?: string | null
+          currency?: string
+          id?: string
+          sale_date?: string | null
+          sale_price_cents?: number
+          scraped_at?: string
+          season?: string | null
+          size?: string | null
+          source_url?: string | null
+          team?: string
+          year?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -432,6 +474,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          image_urls: string[]
           is_featured: boolean
           league: string
           listing_type: string | null
@@ -455,6 +498,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           is_featured?: boolean
           league?: string
           listing_type?: string | null
@@ -478,6 +522,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           is_featured?: boolean
           league?: string
           listing_type?: string | null
@@ -500,6 +545,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_price_intelligence: {
+        Args: {
+          p_condition?: string
+          p_size?: string
+          p_team: string
+          p_year: number
+        }
+        Returns: {
+          comparable_count: number
+          fair_value_max_cents: number
+          fair_value_mid_cents: number
+          fair_value_min_cents: number
+        }[]
+      }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
     }
     Enums: {
@@ -637,4 +696,3 @@ export const Constants = {
     },
   },
 } as const
-<claude-code-hint v="1" type="plugin" value="supabase@claude-plugins-official" />

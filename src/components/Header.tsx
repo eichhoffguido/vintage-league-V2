@@ -11,7 +11,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="sticky top-0 z-30">
       <EmailVerificationBanner />
       {/* Main header */}
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">

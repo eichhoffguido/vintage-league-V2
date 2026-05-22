@@ -3,13 +3,13 @@ import { eurosToCents, formatEuros } from "@/utils/currency";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useJerseyImageUpload } from "@/hooks/useJerseyImageUpload";
 import { useNavigate } from "react-router-dom";
 import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import PriceIntelligence from "@/components/PriceIntelligence";
+import MultiImageUpload from "@/components/MultiImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,20 +36,19 @@ const Collection = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { upload: uploadImage, isUploading: isUploadingImage } = useJerseyImageUpload();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<any>(null);
+  const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [saleModalOpen, setSaleModalOpen] = useState(false);
   const [salePrice, setSalePrice] = useState("");
   const [debouncedPrice, setDebouncedPrice] = useState("");
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
-    image_url: "", price_cents: "", available_for_trade: false,
+    price_cents: "", available_for_trade: false,
     listingType: "trade" as "trade" | "sell" | "both",
     description: "",
   });
@@ -82,19 +81,6 @@ const Collection = () => {
 
   const addJersey = useMutation({
     mutationFn: async () => {
-      let imageUrl: string | null = null;
-
-      // Upload image if selected
-      if (selectedFile && user) {
-        try {
-          const result = await uploadImage(selectedFile, user.id);
-          imageUrl = result.publicUrl;
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : "Image upload failed";
-          throw new Error(msg);
-        }
-      }
-
       const isForSale = form.listingType === "sell" || form.listingType === "both";
       const availableForTrade = form.listingType === "trade" || form.listingType === "both";
       const salePriceCents = isForSale ? eurosToCents(form.price_cents) : null;
@@ -114,7 +100,7 @@ const Collection = () => {
         year: form.year.trim(),
         condition: parseInt(form.condition),
         size: form.size,
-        image_url: imageUrl || form.image_url.trim() || null,
+        image_urls: imageUrls.length > 0 ? imageUrls : [],
         price_cents: eurosToCents(form.price_cents),
         available_for_trade: availableForTrade,
         sale_price_cents: salePriceCents,
@@ -126,9 +112,8 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", image_url: "", price_cents: "", available_for_trade: false, listingType: "trade", description: "" });
-      setSelectedFile(null);
-      setImagePreview(null);
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "" });
+      setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
     onError: (e: any) => toast.error(e.message),
@@ -145,7 +130,7 @@ const Collection = () => {
           year: jersey.year.trim(),
           condition: parseInt(jersey.condition),
           size: jersey.size,
-          image_url: jersey.image_url,
+          image_urls: editImageUrls.length > 0 ? editImageUrls : [],
           price_cents: eurosToCents(jersey.price_cents),
           description: jersey.description ? jersey.description.trim() : null,
         })
@@ -156,6 +141,7 @@ const Collection = () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDetailSheetOpen(false);
       setSelectedJersey(null);
+      setEditImageUrls([]);
       toast.success("Trikot aktualisiert");
     },
     onError: (e: any) => toast.error(e.message),
@@ -266,8 +252,7 @@ const Collection = () => {
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) {
-              setSelectedFile(null);
-              setImagePreview(null);
+              setImageUrls([]);
             }
           }}>
             <DialogTrigger asChild>
@@ -349,44 +334,11 @@ const Collection = () => {
                   })()
                 )}
                 <div className="space-y-2">
-                  <Label>Bild</Label>
-                  {imagePreview ? (
-                    <div className="relative aspect-square overflow-hidden rounded-sm border border-border bg-secondary">
-                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedFile(null);
-                          setImagePreview(null);
-                        }}
-                        className="absolute right-2 top-2 rounded-full bg-background/80 p-1 hover:bg-background"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-border bg-secondary/50 px-4 py-8 hover:border-primary hover:bg-secondary/80 transition">
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                      <span className="text-sm font-medium">Bild hochladen</span>
-                      <span className="text-xs text-muted-foreground mt-1">JPG, PNG oder WebP (max. 5MB)</span>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setSelectedFile(file);
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              setImagePreview(event.target?.result as string);
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+                  <Label>Bilder</Label>
+                  <MultiImageUpload
+                    images={imageUrls}
+                    onImagesChange={setImageUrls}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Beschreibung</Label>
@@ -480,6 +432,7 @@ const Collection = () => {
                 onClick={() => {
                   setSelectedJersey(jersey);
                   setEditForm(jersey);
+                  setEditImageUrls(jersey.image_urls || []);
                   setIsEditing(false);
                   setDetailSheetOpen(true);
                 }}
@@ -582,6 +535,7 @@ const Collection = () => {
           if (!open) {
             setIsEditing(false);
             setEditForm(null);
+            setEditImageUrls([]);
           }
         }}>
           <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
@@ -593,10 +547,22 @@ const Collection = () => {
                 <div className="mt-6 space-y-6">
                   {!isEditing && (
                     <>
-                      {/* Jersey Image */}
-                      {selectedJersey.image_url ? (
-                        <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                          <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                      {/* Jersey Images */}
+                      {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
+                        <div className="space-y-2">
+                          {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {selectedJersey.image_urls.map((url: string, index: number) => (
+                                <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                                  <img src={url} alt={`${selectedJersey.name} ${index + 1}`} className="h-full w-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                              <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
@@ -651,6 +617,13 @@ const Collection = () => {
                   {isEditing && (
                     <>
                       <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
+                        <div className="space-y-2">
+                          <Label>Bilder</Label>
+                          <MultiImageUpload
+                            images={editImageUrls}
+                            onImagesChange={setEditImageUrls}
+                          />
+                        </div>
                         <div className="space-y-2">
                           <Label>Name *</Label>
                           <Input placeholder="Heimtrikot 2024/25" value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} required maxLength={200} />
