@@ -397,8 +397,8 @@ const Collection = () => {
                     )}
                   </div>
                 )}
-                <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending || isUploadingImage}>
-                  {addJersey.isPending || isUploadingImage ? "Wird verarbeitet..." : "Trikot speichern"}
+                <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending}>
+                  {addJersey.isPending ? "Wird verarbeitet..." : "Trikot speichern"}
                 </Button>
               </form>
             </DialogContent>
