@@ -54,20 +54,30 @@ const PriceIntelligence = ({
           return;
         }
 
-        if (!result || result.comparable_count < 3) {
+        if (
+          !result ||
+          result.comparable_count < 3 ||
+          !result.fair_value_mid_cents ||
+          !result.fair_value_min_cents ||
+          !result.fair_value_max_cents
+        ) {
           setData(null);
           return;
         }
 
         let processedData = { ...result };
-        if (listingPriceCents !== undefined) {
+        if (
+          listingPriceCents !== undefined &&
+          result.fair_value_mid_cents &&
+          !isNaN(result.fair_value_mid_cents)
+        ) {
           const discountPct = Math.round(
             ((result.fair_value_mid_cents - listingPriceCents) /
               result.fair_value_mid_cents) *
               100
           );
           processedData.smart_buy_discount_pct =
-            discountPct > 0 ? discountPct : undefined;
+            !isNaN(discountPct) && discountPct > 0 ? discountPct : undefined;
         }
 
         setData(processedData);
@@ -86,7 +96,14 @@ const PriceIntelligence = ({
     return compact ? null : <div className="h-16 animate-pulse rounded bg-secondary/30" />;
   }
 
-  if (error || !data || data.comparable_count < 3) {
+  if (
+    error ||
+    !data ||
+    data.comparable_count < 3 ||
+    !data.fair_value_mid_cents ||
+    !data.fair_value_min_cents ||
+    !data.fair_value_max_cents
+  ) {
     return null;
   }
 
