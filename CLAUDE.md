@@ -30,6 +30,9 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 
 ## PR Rules — NON-NEGOTIABLE
 1. **Agents NEVER close PRs** — only Guido (Product Owner) closes or merges PRs. PRs stay open until Guido takes action.
+   - ⚠️ **CRITICAL**: Closing a PR is equivalent to merging — strictly forbidden without Guido's explicit instruction
+   - This includes using `gh pr close`, API calls to update PR state, or any other method
+   - Violation of this rule will result in immediate task reassignment and agent pausal
 2. Title format: `feat(TASKID): description` or `fix(TASKID): description`
 3. Body must include: what changed, why it changed, QA checklist (testing steps)
 4. Link related issue in body: `Closes #ISSUE_NUMBER` or `Related to #ISSUE_NUMBER`
