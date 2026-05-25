@@ -383,14 +383,14 @@ const Collection = () => {
                   <div className="space-y-2">
                     <Label>Verkaufspreis (€) *</Label>
                     <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} step={0.01} required />
-                    {form.team && form.year && debouncedPrice && (
+                    {form.team && form.year && (
                       <div className="mt-3">
                         <PriceIntelligence
                           team={form.team}
                           year={parseInt(form.year) || 0}
                           condition={parseInt(form.condition)}
                           size={form.size}
-                          listingPriceCents={Math.round(parseFloat(debouncedPrice) * 100)}
+                          listingPriceCents={debouncedPrice ? Math.round(parseFloat(debouncedPrice) * 100) : undefined}
                           compact={false}
                         />
                       </div>
