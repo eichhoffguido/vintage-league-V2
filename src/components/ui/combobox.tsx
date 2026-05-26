@@ -122,6 +122,7 @@ export function Combobox({
                   key={option}
                   value={option}
                   onSelect={() => handleSelect(option)}
+                  onClick={() => handleSelect(option)}
                   className="cursor-pointer"
                 >
                   <Check
