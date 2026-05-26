@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -47,25 +46,17 @@ const Collection = () => {
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [saleModalOpen, setSaleModalOpen] = useState(false);
   const [salePrice, setSalePrice] = useState("");
-  const [debouncedPrice, setDebouncedPrice] = useState("");
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     price_cents: "", available_for_trade: false,
     listingType: "trade" as "trade" | "sell" | "both",
     description: "",
+    sale_price: "",
   });
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
   }, [authLoading, user, navigate]);
-
-  // Debounce price changes for PriceIntelligence preview (500ms)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedPrice(form.price_cents);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [form.price_cents]);
 
   const { data: jerseys = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-jerseys", user?.id],
@@ -85,7 +76,7 @@ const Collection = () => {
     mutationFn: async () => {
       const isForSale = form.listingType === "sell" || form.listingType === "both";
       const availableForTrade = form.listingType === "trade" || form.listingType === "both";
-      const salePriceCents = isForSale ? eurosToCents(form.price_cents) : null;
+      const salePriceCents = isForSale ? eurosToCents(form.sale_price) : null;
 
       // Map listingType to database listing_type enum
       const listingTypeMap: Record<"trade" | "sell" | "both", "trade_only" | "buy_now" | "both"> = {
@@ -114,7 +105,7 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "" });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "", sale_price: "" });
       setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
@@ -323,29 +314,17 @@ const Collection = () => {
                     <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                   </div>
                 </div>
-                {form.price_cents && form.condition && form.year && (
-                  (() => {
-                    const priceIntel = calculatePriceIntelligence({
-                      priceCents: Math.round(parseFloat(form.price_cents) * 100),
-                      condition: parseInt(form.condition),
-                      year: form.year,
-                    });
-                    return (
-                      <div className="rounded-sm border border-border bg-secondary/50 p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-semibold">Preisanalyse</span>
-                          <Badge
-                            className={`rounded-sm font-display text-xs uppercase tracking-wider ${priceIntel.verdict.bg} text-white`}
-                          >
-                            {priceIntel.verdict.label}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Fairer Bereich: €{Math.round(priceIntel.spectrum.fair * 0.9)}–€{Math.round(priceIntel.spectrum.fair * 1.1)}
-                        </p>
-                      </div>
-                    );
-                  })()
+                {form.team && form.year && (
+                  <div className="mt-3">
+                    <PriceIntelligence
+                      team={form.team}
+                      year={parseInt(form.year) || 0}
+                      condition={parseInt(form.condition) || 3}
+                      size={form.size}
+                      listingPriceCents={form.price_cents ? Math.round(parseFloat(form.price_cents) * 100) : undefined}
+                      compact={false}
+                    />
+                  </div>
                 )}
                 <div className="space-y-2">
                   <Label>Bilder</Label>
@@ -382,19 +361,7 @@ const Collection = () => {
                 {(form.listingType === "sell" || form.listingType === "both") && (
                   <div className="space-y-2">
                     <Label>Verkaufspreis (€) *</Label>
-                    <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} step={0.01} required />
-                    {form.team && form.year && (
-                      <div className="mt-3">
-                        <PriceIntelligence
-                          team={form.team}
-                          year={parseInt(form.year) || 0}
-                          condition={parseInt(form.condition)}
-                          size={form.size}
-                          listingPriceCents={debouncedPrice ? Math.round(parseFloat(debouncedPrice) * 100) : undefined}
-                          compact={false}
-                        />
-                      </div>
-                    )}
+                    <Input type="number" placeholder="80" value={form.sale_price} onChange={(e) => setForm(f => ({ ...f, sale_price: e.target.value }))} min={0} max={100000} step={0.01} required />
                   </div>
                 )}
                 <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending}>
