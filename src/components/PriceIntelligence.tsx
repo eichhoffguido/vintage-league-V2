@@ -54,13 +54,7 @@ const PriceIntelligence = ({
           return;
         }
 
-        if (
-          !result ||
-          result.comparable_count < 3 ||
-          !result.fair_value_mid_cents ||
-          !result.fair_value_min_cents ||
-          !result.fair_value_max_cents
-        ) {
+        if (!result) {
           setData(null);
           return;
         }
@@ -96,7 +90,7 @@ const PriceIntelligence = ({
     return compact ? null : <div className="h-16 animate-pulse rounded bg-secondary/30" />;
   }
 
-  if (error || !data || !data.fair_value_mid_cents || !data.fair_value_min_cents || !data.fair_value_max_cents) {
+  if (error || !data) {
     return null;
   }
 
@@ -109,6 +103,10 @@ const PriceIntelligence = ({
         </div>
       </div>
     );
+  }
+
+  if (!data.fair_value_mid_cents || !data.fair_value_min_cents || !data.fair_value_max_cents) {
+    return null;
   }
 
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
