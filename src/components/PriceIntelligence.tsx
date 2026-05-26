@@ -96,15 +96,19 @@ const PriceIntelligence = ({
     return compact ? null : <div className="h-16 animate-pulse rounded bg-secondary/30" />;
   }
 
-  if (
-    error ||
-    !data ||
-    data.comparable_count < 3 ||
-    !data.fair_value_mid_cents ||
-    !data.fair_value_min_cents ||
-    !data.fair_value_max_cents
-  ) {
+  if (error || !data || !data.fair_value_mid_cents || !data.fair_value_min_cents || !data.fair_value_max_cents) {
     return null;
+  }
+
+  // Empty state: < 3 comparables
+  if (data.comparable_count < 3) {
+    return (
+      <div className="rounded border border-slate-200 bg-slate-50 p-3">
+        <div className="text-sm text-slate-700">
+          Noch keine Vergleichsdaten verfügbar
+        </div>
+      </div>
+    );
   }
 
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
@@ -142,19 +146,24 @@ const PriceIntelligence = ({
     overpriced: "text-orange-700",
   };
 
+  // When price not entered, use neutral styling
+  const hasPrice = listingPriceCents !== undefined;
+  const displayStatusColor = hasPrice ? statusColors[priceStatus] : "bg-slate-50 border-slate-200";
+  const displayTextColor = hasPrice ? textColors[priceStatus] : "text-slate-700";
+
   const formatPrice = (cents: number) => {
     return `€${(cents / 100).toFixed(0)}`;
   };
 
   return (
-    <div className={cn("rounded border p-3", statusColors[priceStatus])}>
-      {data.smart_buy_discount_pct && (
-        <div className={cn("mb-2 flex items-center gap-2 font-semibold", textColors[priceStatus])}>
+    <div className={cn("rounded border p-3", displayStatusColor)}>
+      {hasPrice && data.smart_buy_discount_pct && (
+        <div className={cn("mb-2 flex items-center gap-2 font-semibold", displayTextColor)}>
           <TrendingUp className="h-4 w-4" />
           Smart Buy -{data.smart_buy_discount_pct}%
         </div>
       )}
-      <div className={cn("text-sm", textColors[priceStatus])}>
+      <div className={cn("text-sm", displayTextColor)}>
         <div className="mb-1">
           Fairer Marktwert ~{formatPrice(data.fair_value_mid_cents)} (
           {formatPrice(data.fair_value_min_cents)}–{formatPrice(data.fair_value_max_cents)})
