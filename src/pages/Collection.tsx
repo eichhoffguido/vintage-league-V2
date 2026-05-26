@@ -58,11 +58,6 @@ const Collection = () => {
     if (!authLoading && !user) navigate("/auth");
   }, [authLoading, user, navigate]);
 
-  // Debug: Log form state changes
-  useEffect(() => {
-    console.log("Form state updated:", { team: form.team, year: form.year, condition: form.condition, price_cents: form.price_cents });
-  }, [form.team, form.year, form.condition, form.price_cents]);
-
   const { data: jerseys = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ["my-jerseys", user?.id],
     queryFn: async () => {
@@ -273,14 +268,7 @@ const Collection = () => {
                     <Combobox
                       options={COMMON_TEAMS}
                       value={form.team}
-                      onChange={(value) => {
-                        console.log("[Collection] Team onChange called with:", value)
-                        setForm(f => {
-                          const newForm = { ...f, team: value }
-                          console.log("[Collection] Form state updated:", newForm)
-                          return newForm
-                        })
-                      }}
+                      onChange={(value) => setForm(f => ({ ...f, team: value }))}
                       placeholder="FC Bayern München"
                       maxLength={200}
                     />
@@ -326,10 +314,8 @@ const Collection = () => {
                     <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                   </div>
                 </div>
-                {console.log("PriceIntelligence render check:", { team: form.team, year: form.year, condition: form.condition, showComponent: !!(form.team && form.year) })}
                 {form.team && form.year && (
                   <div className="mt-3">
-                    {console.log("PriceIntelligence rendering with:", { team: form.team, year: form.year, condition: form.condition, price: form.price_cents })}
                     <PriceIntelligence
                       team={form.team}
                       year={parseInt(form.year) || 0}
