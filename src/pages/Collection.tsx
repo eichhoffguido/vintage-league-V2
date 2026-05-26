@@ -53,6 +53,7 @@ const Collection = () => {
     price_cents: "", available_for_trade: false,
     listingType: "trade" as "trade" | "sell" | "both",
     description: "",
+    sale_price: "",
   });
 
   useEffect(() => {
@@ -85,7 +86,7 @@ const Collection = () => {
     mutationFn: async () => {
       const isForSale = form.listingType === "sell" || form.listingType === "both";
       const availableForTrade = form.listingType === "trade" || form.listingType === "both";
-      const salePriceCents = isForSale ? eurosToCents(form.price_cents) : null;
+      const salePriceCents = isForSale ? eurosToCents(form.sale_price) : null;
 
       // Map listingType to database listing_type enum
       const listingTypeMap: Record<"trade" | "sell" | "both", "trade_only" | "buy_now" | "both"> = {
@@ -114,7 +115,7 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "" });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "", sale_price: "" });
       setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
@@ -382,7 +383,7 @@ const Collection = () => {
                 {(form.listingType === "sell" || form.listingType === "both") && (
                   <div className="space-y-2">
                     <Label>Verkaufspreis (€) *</Label>
-                    <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} step={0.01} required />
+                    <Input type="number" placeholder="80" value={form.sale_price} onChange={(e) => setForm(f => ({ ...f, sale_price: e.target.value }))} min={0} max={100000} step={0.01} required />
                     {form.team && form.year && (
                       <div className="mt-3">
                         <PriceIntelligence
@@ -390,7 +391,7 @@ const Collection = () => {
                           year={parseInt(form.year) || 0}
                           condition={parseInt(form.condition)}
                           size={form.size}
-                          listingPriceCents={debouncedPrice ? Math.round(parseFloat(debouncedPrice) * 100) : undefined}
+                          listingPriceCents={form.sale_price ? Math.round(parseFloat(form.sale_price) * 100) : undefined}
                           compact={false}
                         />
                       </div>
