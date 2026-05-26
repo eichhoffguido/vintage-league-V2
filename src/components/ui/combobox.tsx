@@ -66,12 +66,14 @@ export function Combobox({
   }, [inputValue, options])
 
   const handleSelect = (option: string) => {
+    console.log("[Combobox] handleSelect called with:", option)
     onChange(option)
     setInputValue(option)
     setOpen(false)
   }
 
   const handleInputChange = (newValue: string) => {
+    console.log("[Combobox] handleInputChange called with:", newValue)
     setInputValue(newValue)
     onChange(newValue)
   }

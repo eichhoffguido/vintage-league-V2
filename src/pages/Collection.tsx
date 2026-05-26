@@ -273,7 +273,14 @@ const Collection = () => {
                     <Combobox
                       options={COMMON_TEAMS}
                       value={form.team}
-                      onChange={(value) => setForm(f => ({ ...f, team: value }))}
+                      onChange={(value) => {
+                        console.log("[Collection] Team onChange called with:", value)
+                        setForm(f => {
+                          const newForm = { ...f, team: value }
+                          console.log("[Collection] Form state updated:", newForm)
+                          return newForm
+                        })
+                      }}
                       placeholder="FC Bayern München"
                       maxLength={200}
                     />
