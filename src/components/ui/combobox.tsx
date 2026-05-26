@@ -130,6 +130,7 @@ export function Combobox({
                   onClick={(e) => {
                     console.log("[CommandItem] onClick triggered for:", option)
                     e.preventDefault()
+                    e.stopPropagation()
                     handleSelect(option)
                   }}
                   className="cursor-pointer"
