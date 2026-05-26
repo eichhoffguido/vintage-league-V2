@@ -54,20 +54,23 @@ const PriceIntelligence = ({
           return;
         }
 
-        if (!result) {
+        // RPC returns an array (SETOF type) — unwrap the first element
+        const item = Array.isArray(result) ? result[0] : result;
+
+        if (!item) {
           setData(null);
           return;
         }
 
-        let processedData = { ...result };
+        let processedData = { ...item };
         if (
           listingPriceCents !== undefined &&
-          result.fair_value_mid_cents &&
-          !isNaN(result.fair_value_mid_cents)
+          item.fair_value_mid_cents &&
+          !isNaN(item.fair_value_mid_cents)
         ) {
           const discountPct = Math.round(
-            ((result.fair_value_mid_cents - listingPriceCents) /
-              result.fair_value_mid_cents) *
+            ((item.fair_value_mid_cents - listingPriceCents) /
+              item.fair_value_mid_cents) *
               100
           );
           processedData.smart_buy_discount_pct =
