@@ -56,6 +56,7 @@ const PriceIntelligence = ({
 
         if (
           !result ||
+          result.comparable_count < 3 ||
           !result.fair_value_mid_cents ||
           !result.fair_value_min_cents ||
           !result.fair_value_max_cents
