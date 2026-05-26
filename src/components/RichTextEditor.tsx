@@ -12,7 +12,8 @@ import {
   Heading2,
   Heading3,
   Smile,
-  Image,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import {
@@ -23,6 +24,8 @@ import {
 import GifPicker from "./GifPicker";
 import { TenorGif } from "@/utils/tenor";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useForumImageUpload } from "@/hooks/useForumImageUpload";
 
 interface RichTextEditorProps {
   content: string;
@@ -55,6 +58,28 @@ const ToolbarButton = ({
 );
 
 const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextEditorProps) => {
+  const { user } = useAuth();
+  const { upload: uploadImage, isUploading } = useForumImageUpload();
+  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
+  const [gifPickerOpen, setGifPickerOpen] = useState(false);
+
+  const handleImageDrop = useCallback(async (files: FileList) => {
+    if (!user || !editor) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) continue;
+
+      try {
+        const result = await uploadImage(file, user.id);
+        const html = `<img src="${result.publicUrl}" alt="Forum image" style="max-width: 100%; height: auto; border-radius: 0.125rem;" />`;
+        editor?.chain().focus().insertContent(html).run();
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+      }
+    }
+  }, [editor, user, uploadImage]);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -72,11 +97,34 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
           "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2",
         "data-placeholder": placeholder || "",
       },
+      handleDOMEvents: {
+        drop: (view, event: DragEvent) => {
+          const files = event.dataTransfer?.files;
+          if (!files || files.length === 0) return false;
+
+          const hasImages = Array.from(files).some(f => f.type.startsWith('image/'));
+          if (!hasImages) return false;
+
+          event.preventDefault();
+          event.stopPropagation();
+
+          handleImageDrop(files);
+          return true;
+        },
+        dragover: (view, event: DragEvent) => {
+          const files = event.dataTransfer?.files;
+          if (!files || files.length === 0) return false;
+
+          const hasImages = Array.from(files).some(f => f.type.startsWith('image/'));
+          if (!hasImages) return false;
+
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'copy';
+          return true;
+        },
+      },
     },
   });
-
-  const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
-  const [gifPickerOpen, setGifPickerOpen] = useState(false);
 
   const textLength = editor?.getText().length ?? 0;
   const overLimit = maxLength !== undefined && textLength > maxLength;
@@ -152,7 +200,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         <Popover open={gifPickerOpen} onOpenChange={setGifPickerOpen}>
           <PopoverTrigger asChild>
             <ToolbarButton active={gifPickerOpen}>
-              <Image className="h-4 w-4" />
+              <ImageIcon className="h-4 w-4" />
             </ToolbarButton>
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[400px] p-0 z-[9999]" align="start" sideOffset={4}>
@@ -161,16 +209,25 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         </Popover>
       </div>
       <EditorContent editor={editor} />
-      {maxLength && (
-        <div
-          className={cn(
-            "border-t border-border px-3 py-1 text-right text-xs",
-            overLimit ? "text-destructive font-medium" : "text-muted-foreground"
-          )}
-        >
-          {textLength}/{maxLength}
-        </div>
-      )}
+      <div className="flex items-center justify-between border-t border-border px-3 py-1">
+        {isUploading && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span>Uploading image...</span>
+          </div>
+        )}
+        {maxLength && (
+          <div
+            className={cn(
+              "text-right text-xs",
+              overLimit ? "text-destructive font-medium" : "text-muted-foreground",
+              isUploading && "ml-auto"
+            )}
+          >
+            {textLength}/{maxLength}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
