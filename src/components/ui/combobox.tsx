@@ -66,14 +66,12 @@ export function Combobox({
   }, [inputValue, options])
 
   const handleSelect = (option: string) => {
-    console.log("[Combobox] handleSelect called with:", option)
     onChange(option)
     setInputValue(option)
     setOpen(false)
   }
 
   const handleInputChange = (newValue: string) => {
-    console.log("[Combobox] handleInputChange called with:", newValue)
     setInputValue(newValue)
     onChange(newValue)
   }
@@ -123,16 +121,7 @@ export function Combobox({
                 <CommandItem
                   key={option}
                   value={option}
-                  onSelect={() => {
-                    console.log("[CommandItem] onSelect triggered for:", option)
-                    handleSelect(option)
-                  }}
-                  onClick={(e) => {
-                    console.log("[CommandItem] onClick triggered for:", option)
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleSelect(option)
-                  }}
+                  onSelect={() => handleSelect(option)}
                   className="cursor-pointer"
                 >
                   <Check
