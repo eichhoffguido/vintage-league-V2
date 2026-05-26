@@ -123,7 +123,15 @@ export function Combobox({
                 <CommandItem
                   key={option}
                   value={option}
-                  onSelect={() => handleSelect(option)}
+                  onSelect={() => {
+                    console.log("[CommandItem] onSelect triggered for:", option)
+                    handleSelect(option)
+                  }}
+                  onClick={(e) => {
+                    console.log("[CommandItem] onClick triggered for:", option)
+                    e.preventDefault()
+                    handleSelect(option)
+                  }}
                   className="cursor-pointer"
                 >
                   <Check
