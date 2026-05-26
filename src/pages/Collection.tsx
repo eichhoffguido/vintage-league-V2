@@ -316,6 +316,7 @@ const Collection = () => {
                 </div>
                 {form.team && form.year && (
                   <div className="mt-3">
+                    {console.log("PriceIntelligence rendering with:", { team: form.team, year: form.year, condition: form.condition, price: form.price_cents })}
                     <PriceIntelligence
                       team={form.team}
                       year={parseInt(form.year) || 0}
