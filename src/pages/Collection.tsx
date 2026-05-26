@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import PriceIntelligence from "@/components/PriceIntelligence";
 import MultiImageUpload from "@/components/MultiImageUpload";
-import { Autocomplete } from "@/components/Autocomplete";
+import { Combobox } from "@/components/ui/combobox";
 import { COMMON_TEAMS, COMMON_LEAGUES } from "@/data/teams-leagues";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -274,7 +274,7 @@ const Collection = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Team *</Label>
-                    <Autocomplete
+                    <Combobox
                       options={COMMON_TEAMS}
                       value={form.team}
                       onChange={(value) => setForm(f => ({ ...f, team: value }))}
@@ -286,7 +286,7 @@ const Collection = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Liga</Label>
-                    <Autocomplete
+                    <Combobox
                       options={COMMON_LEAGUES}
                       value={form.league}
                       onChange={(value) => setForm(f => ({ ...f, league: value }))}
@@ -644,7 +644,7 @@ const Collection = () => {
                         </div>
                         <div className="space-y-2">
                           <Label>Team *</Label>
-                          <Autocomplete
+                          <Combobox
                             options={COMMON_TEAMS}
                             value={editForm.team}
                             onChange={(value) => setEditForm(f => ({ ...f, team: value }))}
@@ -654,7 +654,7 @@ const Collection = () => {
                         </div>
                         <div className="space-y-2">
                           <Label>Liga</Label>
-                          <Autocomplete
+                          <Combobox
                             options={COMMON_LEAGUES}
                             value={editForm.league}
                             onChange={(value) => setEditForm(f => ({ ...f, league: value }))}
