@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star } from "lucide-react";
+import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
@@ -470,7 +471,15 @@ const JerseyDetail = () => {
             {jersey.description && jersey.description.trim() && (
               <div className="rounded-sm border border-border p-6">
                 <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Beschreibung</p>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{jersey.description}</p>
+                <div
+                  className="text-sm text-foreground prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(jersey.description, {
+                      ALLOWED_TAGS: ["p", "br", "strong", "em", "u", "a", "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6"],
+                      ALLOWED_ATTR: ["href", "target", "rel"],
+                    }),
+                  }}
+                />
               </div>
             )}
 
