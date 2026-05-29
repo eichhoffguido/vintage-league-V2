@@ -107,7 +107,7 @@ const JerseyCard = ({
   const verdict = priceIntelligence.verdict;
 
   return (
-    <div className="group card-hover cursor-pointer overflow-hidden rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
+    <div className="group card-hover cursor-pointer rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
       {/* Image */}
        <div className="relative aspect-square overflow-hidden bg-secondary">
         {getImageUrl(imageUrl) ? (

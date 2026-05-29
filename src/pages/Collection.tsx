@@ -113,6 +113,18 @@ const Collection = () => {
 
   const updateJersey = useMutation({
     mutationFn: async (jersey: any) => {
+      // Determine listing_type based on sale_price_cents and available_for_trade
+      let newListingType: "trade_only" | "buy_now" | "both" = "trade_only";
+      if (jersey.sale_price_cents !== null && jersey.available_for_trade) {
+        newListingType = "both";
+      } else if (jersey.sale_price_cents !== null && !jersey.available_for_trade) {
+        newListingType = "buy_now";
+      } else if (jersey.sale_price_cents === null && jersey.available_for_trade) {
+        newListingType = "trade_only";
+      } else {
+        newListingType = "trade_only";
+      }
+
       const { error } = await supabase
         .from("user_jerseys")
         .update({
@@ -124,6 +136,8 @@ const Collection = () => {
           size: jersey.size,
           image_urls: editImageUrls.length > 0 ? editImageUrls : [],
           price_cents: eurosToCents(jersey.price_cents),
+          sale_price_cents: jersey.sale_price_cents,
+          listing_type: newListingType,
           description: jersey.description ? jersey.description.trim() : null,
         })
         .eq("id", jersey.id);
@@ -518,85 +532,86 @@ const Collection = () => {
             setEditImageUrls([]);
           }
         }}>
-          <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
             {selectedJersey && editForm && (
               <>
                 <DialogHeader>
                   <DialogTitle className="font-display text-2xl">{isEditing ? "Trikot bearbeiten" : selectedJersey.team}</DialogTitle>
                 </DialogHeader>
-                <div className="mt-6 space-y-6">
-                  {!isEditing && (
-                    <>
-                      {/* Jersey Images */}
-                      {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
-                        <div className="space-y-2">
-                          {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
-                            <div className="grid grid-cols-2 gap-2">
-                              {selectedJersey.image_urls.map((url: string, index: number) => (
-                                <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                                  <img src={url} alt={`${selectedJersey.name} ${index + 1}`} className="h-full w-full object-cover" />
-                                </div>
-                              ))}
+                <div className="mt-6 grid sm:grid-cols-[1fr_1fr] gap-6">
+                  {/* Left Column: Images and Info (View Mode) / Images (Edit Mode) */}
+                  <div className="space-y-6">
+                    {!isEditing && (
+                      <>
+                        {/* Jersey Images */}
+                        {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
+                          <div className="space-y-2">
+                            {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
+                              <div className="grid grid-cols-2 gap-2">
+                                {selectedJersey.image_urls.map((url: string, index: number) => (
+                                  <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                                    <img src={url} alt={`${selectedJersey.name} ${index + 1}`} className="h-full w-full object-cover" />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                                <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
+                            <span className="font-display text-6xl text-muted-foreground/30">{selectedJersey.team.charAt(0)}</span>
+                          </div>
+                        )}
+
+                        {/* Jersey Info */}
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Name</p>
+                            <p className="font-semibold">{selectedJersey.name}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Liga</p>
+                            <p className="font-semibold">{selectedJersey.league || "—"}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Jahr</p>
+                            <p className="font-semibold">{selectedJersey.year || "—"}</p>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Größe</p>
+                              <p className="font-semibold">{selectedJersey.size}</p>
                             </div>
-                          ) : (
-                            <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                              <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Zustand</p>
+                              <p className="font-semibold">{selectedJersey.condition}/5</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Schätzpreis</p>
+                              <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
+                            </div>
+                          </div>
+                          {selectedJersey.sale_price_cents && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Verkaufspreis</p>
+                              <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
+                            </div>
+                          )}
+                          {selectedJersey.description && selectedJersey.description.trim() && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Beschreibung</p>
+                              <p className="text-sm text-foreground whitespace-pre-wrap">{selectedJersey.description}</p>
                             </div>
                           )}
                         </div>
-                      ) : (
-                        <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
-                          <span className="font-display text-6xl text-muted-foreground/30">{selectedJersey.team.charAt(0)}</span>
-                        </div>
-                      )}
+                      </>
+                    )}
 
-                      {/* Jersey Info */}
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Name</p>
-                          <p className="font-semibold">{selectedJersey.name}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Liga</p>
-                          <p className="font-semibold">{selectedJersey.league || "—"}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Jahr</p>
-                          <p className="font-semibold">{selectedJersey.year || "—"}</p>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Größe</p>
-                            <p className="font-semibold">{selectedJersey.size}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Zustand</p>
-                            <p className="font-semibold">{selectedJersey.condition}/5</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Schätzpreis</p>
-                            <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
-                          </div>
-                        </div>
-                        {selectedJersey.sale_price_cents && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Verkaufspreis</p>
-                            <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
-                          </div>
-                        )}
-                        {selectedJersey.description && selectedJersey.description.trim() && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Beschreibung</p>
-                            <p className="text-sm text-foreground whitespace-pre-wrap">{selectedJersey.description}</p>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-
-                  {isEditing && (
-                    <>
-                      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
+                    {isEditing && (
+                      <>
                         <div className="space-y-2">
                           <Label>Bilder</Label>
                           <MultiImageUpload
@@ -604,6 +619,14 @@ const Collection = () => {
                             onImagesChange={setEditImageUrls}
                           />
                         </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Right Column: Form Fields (Edit Mode) / Action Buttons (View Mode) */}
+                  <div className="space-y-4">
+                    {isEditing && (
+                      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
                         <div className="space-y-2">
                           <Label>Name *</Label>
                           <Input placeholder="Heimtrikot 2024/25" value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} required maxLength={200} />
@@ -669,84 +692,88 @@ const Collection = () => {
                           <Input type="number" placeholder="80" value={editForm.price_cents} onChange={(e) => setEditForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                         </div>
                         <div className="space-y-2">
+                          <Label>Verkaufspreis (€)</Label>
+                          <Input type="number" placeholder="100" value={editForm.sale_price_cents ? (editForm.sale_price_cents / 100).toString() : ""} onChange={(e) => setEditForm(f => ({ ...f, sale_price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))} min={0} max={100000} step={0.01} />
+                        </div>
+                        <div className="space-y-2">
                           <Label>Beschreibung</Label>
                           <Textarea placeholder="Erzähle die Geschichte dieses Trikots..." value={editForm.description || ""} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} maxLength={500} className="resize-none" rows={4} />
                           <p className="text-xs text-muted-foreground">{(editForm.description || "").length}/500</p>
                         </div>
                       </form>
-                    </>
-                  )}
+                    )}
 
-                  {/* Action Buttons */}
-                  <div className="space-y-3 border-t border-border pt-6">
-                    {!isEditing && (
-                      <>
-                        {selectedJersey.available_for_trade ? (
-                          <Badge variant="default" className="w-full justify-center py-2">
-                            <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
-                          </Badge>
-                        ) : (
+                    {/* Action Buttons */}
+                    <div className="space-y-3 border-t border-border pt-6">
+                      {!isEditing && (
+                        <>
+                          {selectedJersey.available_for_trade ? (
+                            <Badge variant="default" className="w-full justify-center py-2">
+                              <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
+                            </Badge>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              className="w-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTrade.mutate({ id: selectedJersey.id, available: true });
+                              }}
+                              disabled={toggleTrade.isPending}
+                            >
+                              {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
+                            </Button>
+                          )}
+                          {selectedJersey.sale_price_cents ? (
+                            <Badge variant="default" className="w-full justify-center py-2">
+                              Zum Verkauf ({formatEuros(selectedJersey.sale_price_cents)})
+                            </Badge>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              className="w-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSalePrice(selectedJersey.sale_price_cents ? (selectedJersey.sale_price_cents / 100).toString() : "");
+                                setSaleModalOpen(true);
+                              }}
+                            >
+                              Zum Verkauf anbieten
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             className="w-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleTrade.mutate({ id: selectedJersey.id, available: true });
-                            }}
-                            disabled={toggleTrade.isPending}
+                            onClick={() => setIsEditing(true)}
                           >
-                            {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
+                            Bearbeiten
                           </Button>
-                        )}
-                        {selectedJersey.sale_price_cents ? (
-                          <Badge variant="default" className="w-full justify-center py-2">
-                            Zum Verkauf ({formatEuros(selectedJersey.sale_price_cents)})
-                          </Badge>
-                        ) : (
+                        </>
+                      )}
+                      {isEditing && (
+                        <>
+                          <Button
+                            variant="hero"
+                            className="w-full uppercase tracking-wider"
+                            onClick={() => updateJersey.mutate(editForm)}
+                            disabled={updateJersey.isPending}
+                          >
+                            {updateJersey.isPending ? "Wird gespeichert..." : "Speichern"}
+                          </Button>
                           <Button
                             variant="outline"
                             className="w-full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSalePrice(selectedJersey.sale_price_cents ? (selectedJersey.sale_price_cents / 100).toString() : "");
-                              setSaleModalOpen(true);
+                            onClick={() => {
+                              setIsEditing(false);
+                              setEditForm(selectedJersey);
                             }}
+                            disabled={updateJersey.isPending}
                           >
-                            Zum Verkauf anbieten
+                            Abbrechen
                           </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => setIsEditing(true)}
-                        >
-                          Bearbeiten
-                        </Button>
-                      </>
-                    )}
-                    {isEditing && (
-                      <>
-                        <Button
-                          variant="hero"
-                          className="w-full uppercase tracking-wider"
-                          onClick={() => updateJersey.mutate(editForm)}
-                          disabled={updateJersey.isPending}
-                        >
-                          {updateJersey.isPending ? "Wird gespeichert..." : "Speichern"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => {
-                            setIsEditing(false);
-                            setEditForm(selectedJersey);
-                          }}
-                          disabled={updateJersey.isPending}
-                        >
-                          Abbrechen
-                        </Button>
-                      </>
-                    )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </>
