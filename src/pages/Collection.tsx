@@ -18,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
@@ -510,8 +509,8 @@ const Collection = () => {
           </div>
         )}
 
-        {/* Jersey Detail Sheet */}
-        <Sheet open={detailSheetOpen} onOpenChange={(open) => {
+        {/* Jersey Detail Dialog */}
+        <Dialog open={detailSheetOpen} onOpenChange={(open) => {
           setDetailSheetOpen(open);
           if (!open) {
             setIsEditing(false);
@@ -519,12 +518,12 @@ const Collection = () => {
             setEditImageUrls([]);
           }
         }}>
-          <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+          <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto">
             {selectedJersey && editForm && (
               <>
-                <SheetHeader>
-                  <SheetTitle className="font-display text-2xl">{isEditing ? "Trikot bearbeiten" : selectedJersey.team}</SheetTitle>
-                </SheetHeader>
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl">{isEditing ? "Trikot bearbeiten" : selectedJersey.team}</DialogTitle>
+                </DialogHeader>
                 <div className="mt-6 space-y-6">
                   {!isEditing && (
                     <>
@@ -633,6 +632,18 @@ const Collection = () => {
                           <Label>Jahr</Label>
                           <Input placeholder="2024" value={editForm.year} onChange={(e) => setEditForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
                         </div>
+                        {editForm.team && editForm.year && (
+                          <div className="mt-3">
+                            <PriceIntelligence
+                              team={editForm.team}
+                              year={parseInt(editForm.year) || 0}
+                              condition={editForm.condition || 3}
+                              size={editForm.size}
+                              listingPriceCents={editForm.price_cents ? Math.round(parseFloat(editForm.price_cents) * 100) : undefined}
+                              compact={false}
+                            />
+                          </div>
+                        )}
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label>Zustand</Label>
@@ -740,8 +751,8 @@ const Collection = () => {
                 </div>
               </>
             )}
-          </SheetContent>
-        </Sheet>
+          </DialogContent>
+        </Dialog>
 
         {/* Sale Price Modal */}
         <Dialog open={saleModalOpen} onOpenChange={setSaleModalOpen}>
