@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { eurosToCents, formatEuros } from "@/utils/currency";
+import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -609,7 +609,10 @@ const Collection = () => {
                           {selectedJersey.description && selectedJersey.description.trim() && (
                             <div>
                               <p className="text-xs text-muted-foreground">Beschreibung</p>
-                              <div className="prose prose-sm max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedJersey.description) }} />
+                              <div
+                                className="text-sm text-foreground prose prose-sm max-w-none dark:prose-invert"
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedJersey.description) }}
+                              />
                             </div>
                           )}
                         </div>
