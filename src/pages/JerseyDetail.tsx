@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { getLowestAsk, getHighestBid } from "@/utils/market";
+import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -470,7 +471,10 @@ const JerseyDetail = () => {
             {jersey.description && jersey.description.trim() && (
               <div className="rounded-sm border border-border p-6">
                 <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Beschreibung</p>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{jersey.description}</p>
+                <div
+                  className="text-sm text-foreground prose prose-sm max-w-none dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(jersey.description) }}
+                />
               </div>
             )}
 
