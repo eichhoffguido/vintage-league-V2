@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { getLowestAsk, getHighestBid } from "@/utils/market";
-import { calculatePriceIntelligence } from "@/utils/priceIntelligence";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -51,6 +50,24 @@ const getVintageBonus = (year: string): number => {
   if (age >= 15) return 1.4;
   if (age >= 5) return 1.1;
   return 1.0;
+};
+
+const getVintageTier = (age: number | string): string | null => {
+  if (age === "—") return null;
+  const ageNum = typeof age === "string" ? parseInt(age, 10) : age;
+  if (Number.isNaN(ageNum)) return null;
+  if (ageNum >= 25) return "Klassiker";
+  if (ageNum >= 15) return "Retro";
+  if (ageNum >= 5) return "Vintage";
+  return null;
+};
+
+const getConditionColor = (condition: number): string => {
+  if (condition >= 5) return "bg-green-100 text-green-800";
+  if (condition >= 4) return "bg-green-100 text-green-800";
+  if (condition >= 3) return "bg-yellow-100 text-yellow-800";
+  if (condition >= 2) return "bg-orange-100 text-orange-800";
+  return "bg-red-100 text-red-800";
 };
 
 const JerseyDetail = () => {
@@ -235,13 +252,6 @@ const JerseyDetail = () => {
   const isOwner = user?.id === jersey.user_id;
   const age = Number.isNaN(parseInt(jersey.year, 10)) ? "—" : new Date().getFullYear() - parseInt(jersey.year, 10);
 
-  // Calculate price intelligence for non-sale items
-  const priceIntelligence = !jersey.sale_price_cents && jersey.price_cents ? calculatePriceIntelligence({
-    priceCents: jersey.price_cents,
-    condition: jersey.condition,
-    year: jersey.year,
-  }) : null;
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -422,24 +432,36 @@ const JerseyDetail = () => {
 
             {/* Specifications */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-sm border border-border p-4">
-                <p className="text-xs text-muted-foreground mb-2">Größe</p>
-                <p className="font-semibold text-lg">{jersey.size}</p>
+              <div className="rounded-sm border border-border p-4 space-y-2">
+                <p className="text-xs text-muted-foreground">Größe</p>
+                <Badge variant="secondary" className="text-base py-1">{jersey.size}</Badge>
               </div>
-              <div className="rounded-sm border border-border p-4">
-                <p className="text-xs text-muted-foreground mb-2">Zustand</p>
-                <p className="font-semibold text-lg">{jersey.condition}/5</p>
-                <p className="text-xs text-muted-foreground mt-1">{conditionLabels[jersey.condition]}</p>
+              <div className="rounded-sm border border-border p-4 space-y-2">
+                <p className="text-xs text-muted-foreground">Zustand</p>
+                <div className="space-y-1">
+                  <p className="font-semibold">{jersey.condition}/5</p>
+                  <Badge className={getConditionColor(jersey.condition)}>
+                    {conditionLabels[jersey.condition]}
+                  </Badge>
+                </div>
               </div>
-              <div className="rounded-sm border border-border p-4">
-                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+              <div className="rounded-sm border border-border p-4 space-y-2">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" /> Alter
                 </p>
-                <p className="font-semibold text-lg">{age !== "—" ? `${age} Jahre` : "—"}</p>
+                <div className="space-y-1">
+                  <p className="font-semibold">{age !== "—" ? `${age} Jahre` : "—"}</p>
+                  {getVintageTier(age) && (
+                    <Badge variant="default">{getVintageTier(age)}</Badge>
+                  )}
+                </div>
               </div>
-              <div className="rounded-sm border border-border p-4">
-                <p className="text-xs text-muted-foreground mb-2">Vintage Faktor</p>
-                <p className="font-semibold text-lg">{vintageBonus}x</p>
+              <div className="rounded-sm border border-border p-4 space-y-2">
+                <p className="text-xs text-muted-foreground">Vintage Faktor</p>
+                <div className="flex items-center gap-2">
+                  <Gem className="h-4 w-4 text-amber-600" />
+                  <p className="font-semibold text-lg">{vintageBonus}x</p>
+                </div>
               </div>
             </div>
 
