@@ -748,6 +748,18 @@ const Collection = () => {
                           >
                             Bearbeiten
                           </Button>
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteJersey.mutate(selectedJersey.id);
+                              setDetailSheetOpen(false);
+                            }}
+                            disabled={deleteJersey.isPending}
+                          >
+                            {deleteJersey.isPending ? "Wird gelöscht..." : "Löschen"}
+                          </Button>
                         </>
                       )}
                       {isEditing && (
