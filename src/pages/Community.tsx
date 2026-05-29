@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
+import ImageUploader from "@/components/ImageUploader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -30,10 +31,10 @@ const Community = () => {
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "" });
+  const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "", images: [] as string[] });
 
   const resetDialog = () => {
-    setNewPost({ title: "", content: "", category_id: "" });
+    setNewPost({ title: "", content: "", category_id: "", images: [] });
   };
 
   const { data: categories = [], isError: categoriesError } = useQuery({
@@ -99,6 +100,7 @@ const Community = () => {
         content: newPost.content.trim(),
         category_id: newPost.category_id,
         user_id: user.id,
+        image_urls: newPost.images,
       });
       if (error) throw error;
     },
@@ -168,6 +170,7 @@ const Community = () => {
                     </Select>
                     <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
                     <RichTextEditor content={newPost.content} onChange={(v) => setNewPost((p) => ({ ...p, content: v }))} maxLength={5000} placeholder="Dein Beitrag..." />
+                    <ImageUploader images={newPost.images} onImagesChange={(imgs) => setNewPost((p) => ({ ...p, images: imgs }))} />
                     <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full uppercase tracking-wider">
                       {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
                     </Button>

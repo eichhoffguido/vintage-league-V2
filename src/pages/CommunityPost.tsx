@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import RichTextEditor from "@/components/RichTextEditor";
 import RichTextViewer from "@/components/RichTextViewer";
+import ImageUploader from "@/components/ImageUploader";
 import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +30,7 @@ const CommunityPost = () => {
   const [post, setPost] = useState<PostWithRelations | null>(null);
   const [comments, setComments] = useState<CommentWithProfile[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [commentImages, setCommentImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -87,12 +89,14 @@ const CommunityPost = () => {
       post_id: id!,
       user_id: user.id,
       content: newComment.trim(),
+      image_urls: commentImages,
     });
     setSubmitting(false);
     if (error) {
       toast({ title: "Fehler", description: error.message, variant: "destructive" });
     } else {
       setNewComment("");
+      setCommentImages([]);
       fetchComments();
     }
   };
@@ -216,6 +220,13 @@ const CommunityPost = () => {
                   <div className="prose prose-sm max-w-none mt-2">
                     <RichTextViewer content={comment.content} />
                   </div>
+                  {comment.image_urls && comment.image_urls.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {comment.image_urls.map((url, i) => (
+                        <img key={i} src={url} alt="" className="max-h-60 max-w-full rounded-sm border border-border object-contain" />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -230,6 +241,7 @@ const CommunityPost = () => {
                     maxLength={2000}
                     placeholder="Deine Antwort..."
                   />
+                  <ImageUploader images={commentImages} onImagesChange={setCommentImages} />
                   <Button onClick={handleAddComment} disabled={submitting || !newComment.replace(/<[^>]*>/g, "").trim()} size="sm" className="uppercase tracking-wider">
                     <Send className="mr-2 h-4 w-4" />
                     {submitting ? "Wird gesendet..." : "Antworten"}
