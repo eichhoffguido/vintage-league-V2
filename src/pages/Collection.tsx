@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import PriceIntelligence from "@/components/PriceIntelligence";
 import MultiImageUpload from "@/components/MultiImageUpload";
+import RichTextEditor from "@/components/RichTextEditor";
 import { Combobox } from "@/components/ui/combobox";
 import { COMMON_TEAMS, COMMON_LEAGUES } from "@/data/teams-leagues";
 import { Button } from "@/components/ui/button";
@@ -348,8 +349,12 @@ const Collection = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Beschreibung</Label>
-                  <Textarea placeholder="Erzähle die Geschichte dieses Trikots..." value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} maxLength={500} className="resize-none" rows={4} />
-                  <p className="text-xs text-muted-foreground">{form.description.length}/500</p>
+                  <RichTextEditor
+                    content={form.description}
+                    onChange={(html) => setForm(f => ({ ...f, description: html }))}
+                    maxLength={500}
+                    placeholder="Erzähle die Geschichte dieses Trikots..."
+                  />
                 </div>
                 <div className="space-y-3">
                   <Label>Listingtyp</Label>
@@ -603,7 +608,7 @@ const Collection = () => {
                           {selectedJersey.description && selectedJersey.description.trim() && (
                             <div>
                               <p className="text-xs text-muted-foreground">Beschreibung</p>
-                              <p className="text-sm text-foreground whitespace-pre-wrap">{selectedJersey.description}</p>
+                              <div className="prose prose-sm max-w-none text-sm" dangerouslySetInnerHTML={{ __html: selectedJersey.description }} />
                             </div>
                           )}
                         </div>
@@ -697,8 +702,12 @@ const Collection = () => {
                         </div>
                         <div className="space-y-2">
                           <Label>Beschreibung</Label>
-                          <Textarea placeholder="Erzähle die Geschichte dieses Trikots..." value={editForm.description || ""} onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))} maxLength={500} className="resize-none" rows={4} />
-                          <p className="text-xs text-muted-foreground">{(editForm.description || "").length}/500</p>
+                          <RichTextEditor
+                            content={editForm.description || ""}
+                            onChange={(html) => setEditForm(f => ({ ...f, description: html }))}
+                            maxLength={500}
+                            placeholder="Erzähle die Geschichte dieses Trikots..."
+                          />
                         </div>
                       </form>
                     )}

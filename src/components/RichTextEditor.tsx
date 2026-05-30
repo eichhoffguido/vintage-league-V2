@@ -70,6 +70,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
       attributes: {
         class:
           "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2",
+        "data-placeholder": placeholder || "",
       },
     },
   });

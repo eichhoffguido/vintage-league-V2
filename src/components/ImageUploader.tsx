@@ -18,6 +18,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleSelect = () => {
     inputRef.current?.click();
@@ -78,6 +79,60 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
     }
   };
 
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0 || !user) return;
+
+    for (let i = 0; i < Math.min(files.length, MAX_IMAGES - images.length); i++) {
+      const file = files[i];
+      if (!ALLOWED_TYPES.includes(file.type) || file.size > MAX_FILE_SIZE) {
+        continue;
+      }
+
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/${crypto.randomUUID()}.${ext}`;
+
+      setUploading(true);
+      setProgress(0);
+
+      const { error } = await supabase.storage
+        .from("forum_images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      setUploading(false);
+      setProgress(0);
+
+      if (error) {
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("forum_images")
+        .getPublicUrl(filePath);
+
+      if (urlData) {
+        onImagesChange([...images, urlData.publicUrl]);
+      }
+    }
+  };
+
   const remaining = MAX_IMAGES - images.length;
 
   return (
@@ -114,17 +169,27 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
           Upload läuft...
         </div>
       ) : remaining > 0 ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleSelect}
-          disabled={!user}
-          className="text-xs uppercase tracking-wider"
+        <div
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          className={`rounded-sm border-2 border-dashed transition-colors ${
+            dragActive ? "border-primary bg-primary/5" : "border-border"
+          }`}
         >
-          <ImagePlus className="mr-1 h-3 w-3" />
-          Bild hinzufügen ({remaining} übrig)
-        </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleSelect}
+            disabled={!user}
+            className="w-full text-xs uppercase tracking-wider"
+          >
+            <ImagePlus className="mr-1 h-3 w-3" />
+            Bild hinzufügen ({remaining} übrig)
+          </Button>
+        </div>
       ) : null}
     </div>
   );
