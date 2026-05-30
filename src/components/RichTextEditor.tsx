@@ -111,11 +111,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
           return true;
         },
         dragover: (view, event: DragEvent) => {
-          const files = event.dataTransfer?.files;
-          if (!files || files.length === 0) return false;
-
-          const hasImages = Array.from(files).some(f => f.type.startsWith('image/'));
-          if (!hasImages) return false;
+          if (!event.dataTransfer?.types.includes('Files')) return false;
 
           event.preventDefault();
           event.dataTransfer.dropEffect = 'copy';
