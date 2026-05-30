@@ -83,7 +83,8 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
+      const hasFiles = e.dataTransfer.types.includes("Files");
+      setDragActive(hasFiles);
     } else if (e.type === "dragleave") {
       setDragActive(false);
     }
