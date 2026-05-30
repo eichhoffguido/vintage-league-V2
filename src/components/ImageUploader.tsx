@@ -42,7 +42,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
     setProgress(0);
 
     const { error } = await supabase.storage
-      .from("forum_images")
+      .from("forum-images")
       .upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
@@ -56,7 +56,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
     }
 
     const { data: urlData } = supabase.storage
-      .from("forum_images")
+      .from("forum-images")
       .getPublicUrl(filePath);
 
     if (urlData) {
@@ -72,9 +72,9 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
     const url = images[index];
     onImagesChange(images.filter((_, i) => i !== index));
 
-    const pathMatch = url.match(/forum_images\/(.+)/);
+    const pathMatch = url.match(/forum-images\/(.+)/);
     if (pathMatch) {
-      supabase.storage.from("forum_images").remove([pathMatch[1]]);
+      supabase.storage.from("forum-images").remove([pathMatch[1]]);
     }
   };
 
