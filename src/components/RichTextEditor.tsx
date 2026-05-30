@@ -55,6 +55,8 @@ const ToolbarButton = ({
 );
 
 const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextEditorProps) => {
+  const [dragActive, setDragActive] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -107,10 +109,29 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     [editor],
   );
 
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      const hasFiles = e.dataTransfer.types.includes("Files");
+      setDragActive(hasFiles);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
   if (!editor) return null;
 
   return (
-    <div className="rounded-sm border border-border">
+    <div
+      className={cn(
+        "rounded-sm border transition-colors",
+        dragActive ? "border-primary bg-primary/5" : "border-border"
+      )}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+    >
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/50 px-2 py-1.5">
         <ToolbarButton onClick={toggleBold} active={editor.isActive("bold")}>
           <Bold className="h-4 w-4" />
