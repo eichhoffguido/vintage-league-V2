@@ -57,6 +57,15 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 8. Mark issue as DONE
 9. STOP — wait for CTO or Guido
 
+## CTO Merge-Ready Notification Rule — NON-NEGOTIABLE
+When code is merge-ready (PR created, CI green, all checks pass):
+1. PR is created with descriptive title and body (step 7 complete)
+2. npm run build is green (no CI failures)
+3. .env files are NOT included (verify: `git diff --cached --name-only | grep "^\.env$"`)
+4. Issue is marked DONE (step 8 complete)
+5. CTO is automatically aware via issue status and PR link — no extra notification needed
+6. Agent workflow ends here — do not push further changes or reopen the PR
+
 ## Frontend Preview Verification Rule — NON-NEGOTIABLE
 For any UI or frontend changes:
 1. Start the dev server and test the feature in a browser before submitting the PR
