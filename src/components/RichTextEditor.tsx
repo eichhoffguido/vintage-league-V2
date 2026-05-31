@@ -56,6 +56,7 @@ const ToolbarButton = ({
 
 const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextEditorProps) => {
   const [dragActive, setDragActive] = useState(false);
+  const [dragCounter, setDragCounter] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -114,10 +115,16 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
       const hasFiles = e.dataTransfer.types.includes("Files");
+      setDragCounter((prev) => prev + 1);
       setDragActive(hasFiles);
     } else if (e.type === "dragleave") {
-      setDragActive(false);
+      setDragCounter((prev) => Math.max(0, prev - 1));
     }
+  };
+
+  const handleDragEnd = () => {
+    setDragActive(false);
+    setDragCounter(0);
   };
 
   if (!editor) return null;
@@ -126,11 +133,13 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     <div
       className={cn(
         "rounded-sm border transition-colors",
-        dragActive ? "border-primary bg-primary/5" : "border-border"
+        dragActive && dragCounter > 0 ? "border-primary bg-primary/5" : "border-border"
       )}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
+      onDragEnd={handleDragEnd}
+      onDrop={handleDragEnd}
     >
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/50 px-2 py-1.5">
         <ToolbarButton onClick={toggleBold} active={editor.isActive("bold")}>
@@ -161,20 +170,26 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         </ToolbarButton>
         <span className="mx-1 h-5 w-px bg-border" />
         <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
-          <PopoverTrigger asChild>
-            <ToolbarButton active={emojiPickerOpen}>
-              <Smile className="h-4 w-4" />
-            </ToolbarButton>
+          <PopoverTrigger className={cn(
+            "rounded-sm p-1.5 transition-colors",
+            emojiPickerOpen
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          )}>
+            <Smile className="h-4 w-4" />
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[350px] p-0 z-[9999]" align="start" sideOffset={4}>
             <EmojiPicker onEmojiClick={onEmojiSelect} />
           </PopoverContent>
         </Popover>
         <Popover open={gifPickerOpen} onOpenChange={setGifPickerOpen}>
-          <PopoverTrigger asChild>
-            <ToolbarButton active={gifPickerOpen}>
-              <Image className="h-4 w-4" />
-            </ToolbarButton>
+          <PopoverTrigger className={cn(
+            "rounded-sm p-1.5 transition-colors",
+            gifPickerOpen
+              ? "bg-primary/10 text-primary"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          )}>
+            <Image className="h-4 w-4" />
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[400px] p-0 z-[9999]" align="start" sideOffset={4}>
             <GifPicker onGifSelect={onGifSelect} />
