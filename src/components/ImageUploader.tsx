@@ -111,7 +111,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
       setProgress(0);
 
       const { error } = await supabase.storage
-        .from("forum_images")
+        .from("forum-images")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
@@ -125,7 +125,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
       }
 
       const { data: urlData } = supabase.storage
-        .from("forum_images")
+        .from("forum-images")
         .getPublicUrl(filePath);
 
       if (urlData) {
