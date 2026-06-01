@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import Image from "@tiptap/extension-image";
 
 interface RichTextViewerProps {
   content: string;
@@ -13,6 +14,7 @@ const RichTextViewer = ({ content }: RichTextViewerProps) => {
         heading: { levels: [2, 3] },
       }),
       Underline,
+      Image,
     ],
     content,
     editable: false,
