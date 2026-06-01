@@ -103,8 +103,10 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
 
   const onGifSelect = useCallback(
     (gif: TenorGif) => {
-      const html = `<img src="${gif.media_formats.gif.url}" alt="${gif.title}" style="max-width: 100%; height: auto;" />`;
-      editor?.chain().focus().insertContent(html).run();
+      editor?.chain().focus().insertImage({
+        src: gif.media_formats.gif.url,
+        alt: gif.title,
+      }).run();
       setGifPickerOpen(false);
     },
     [editor],
