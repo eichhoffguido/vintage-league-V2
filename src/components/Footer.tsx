@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import vlLogo from "@/assets/vl-logo.png";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -65,14 +64,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
-            <div className="flex items-center gap-3">
-              <img src={vlLogo} alt="Vintage League Logo" className="h-9 w-9 object-contain" loading="lazy" width={512} height={512} />
-              <div>
-                <span className="font-display text-lg font-bold leading-none tracking-wider">
-                  VINTAGE LEAGUE
-                </span>
-              </div>
-            </div>
+            <img src="/vintageleague-icon.svg" alt="Vintage League Signet" className="h-12 w-12 object-contain" loading="lazy" />
             <p className="mt-4 font-serif text-sm italic leading-relaxed text-muted-foreground">
               Dein Marktplatz für authentische Fußballtrikots — von aktuellen Raritäten bis zu legendären Klassikern.
             </p>
