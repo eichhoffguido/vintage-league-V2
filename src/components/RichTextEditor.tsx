@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import Image from "@tiptap/extension-image";
 import {
   Bold,
   Italic,
@@ -12,7 +13,7 @@ import {
   Heading2,
   Heading3,
   Smile,
-  Image,
+  Image as ImageIcon,
 } from "lucide-react";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import {
@@ -64,6 +65,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         heading: { levels: [2, 3] },
       }),
       Underline,
+      Image,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -189,7 +191,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
               ? "bg-primary/10 text-primary"
               : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           )}>
-            <Image className="h-4 w-4" />
+            <ImageIcon className="h-4 w-4" />
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[400px] p-0 z-[9999]" align="start" sideOffset={4}>
             <GifPicker onGifSelect={onGifSelect} />
