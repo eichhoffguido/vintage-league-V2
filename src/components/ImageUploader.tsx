@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const MAX_IMAGES = 3;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 interface ImageUploaderProps {
   images: string[];
@@ -141,7 +141,7 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={handleFileChange}
       />
