@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 356 315" role="img" aria-labelledby="vl-icon-title vl-icon-desc">
+<title id="vl-icon-title">VintageLeague VL Icon</title>
+<desc id="vl-icon-desc">Green interlocking V and L monogram for VintageLeague.</desc>
+
+<style><![CDATA[
+  .vl-accent { fill: #1DAF52; }
+]]></style>
+<g transform="translate(-40 -78)">
+  <path class="vl-accent" d="M40 79 L182 326 L200 296 L94 113 L142 113 L223 254 L240 224 L157 78 Z"/>
+  <path class="vl-accent" d="M396 79 L276 80 L234 154 L251 185 L297 110 L342 112 L182 393 L343 392 L394 299 L302 299 L286 330 L342 331 L323 363 L233 360 Z"/>
+</g>
+</svg>
