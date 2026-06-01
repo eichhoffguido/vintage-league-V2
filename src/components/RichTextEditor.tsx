@@ -74,7 +74,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2",
+          "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2 text-foreground",
         "data-placeholder": placeholder || "",
       },
     },

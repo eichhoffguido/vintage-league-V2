@@ -171,7 +171,7 @@ const CommunityPost = () => {
               </span>
             </div>
             <div className="vintage-divider my-6" />
-            <div className="prose prose-sm max-w-none">
+            <div className="prose prose-sm max-w-none text-foreground">
               <RichTextViewer content={post.content} />
             </div>
             {post.image_urls && post.image_urls.length > 0 && (
@@ -217,7 +217,7 @@ const CommunityPost = () => {
                       </Button>
                     )}
                   </div>
-                  <div className="prose prose-sm max-w-none mt-2">
+                  <div className="prose prose-sm max-w-none text-foreground mt-2">
                     <RichTextViewer content={comment.content} />
                   </div>
                   {comment.image_urls && comment.image_urls.length > 0 && (
