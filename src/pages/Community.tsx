@@ -31,6 +31,8 @@ const Community = () => {
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const [newPost, setNewPost] = useState({ title: "", content: "", category_id: "", images: [] as string[] });
 
   const resetDialog = () => {
@@ -50,7 +52,7 @@ const Community = () => {
     },
   });
 
-  const { data: posts = [], isLoading } = useQuery({
+  const { data: postsRaw = [], isLoading } = useQuery({
     queryKey: ["forum-posts", activeCategory],
     queryFn: async () => {
       let query = supabase
@@ -87,6 +89,32 @@ const Community = () => {
       return data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 }));
     },
   });
+
+  // Filter and sort posts client-side
+  const posts = postsRaw
+    .filter((post) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        post.title.toLowerCase().includes(searchLower) ||
+        post.content.toLowerCase().includes(searchLower)
+      );
+    })
+    .sort((a, b) => {
+      // Pinned posts always come first
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+
+      // Then apply selected sort
+      switch (sortBy) {
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "most-comments":
+          return b.comment_count - a.comment_count;
+        case "newest":
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
 
   const createPostMutation = useMutation({
     mutationFn: async () => {
@@ -185,6 +213,31 @@ const Community = () => {
       {/* Categories + Posts */}
       <section className="py-12">
         <div className="container mx-auto px-4">
+          {/* Search and Sort */}
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="flex-1 min-w-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Beiträge durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full sm:w-[160px]">
+                <SelectValue placeholder="Sortieren nach" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Neueste</SelectItem>
+                <SelectItem value="oldest">Älteste</SelectItem>
+                <SelectItem value="most-comments">Meiste Antworten</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Category filter */}
           <div className="mb-8 flex flex-wrap gap-2">
             <button
