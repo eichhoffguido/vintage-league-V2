@@ -211,9 +211,9 @@ const Community = () => {
 
           {/* Posts list */}
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 animate-pulse rounded-sm border border-border bg-secondary/30" />
+                <div key={i} className="h-40 animate-pulse rounded-sm border border-border bg-secondary/30" />
               ))}
             </div>
           ) : posts.length === 0 ? (
@@ -222,12 +222,12 @@ const Community = () => {
               <p className="text-muted-foreground">Noch keine Beiträge in dieser Kategorie.</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {posts.map((post) => (
                 <button
                   key={post.id}
                   onClick={() => navigate(`/community/${post.id}`)}
-                  className="group flex w-full items-start gap-4 rounded-sm border border-border bg-card p-5 text-left transition-colors hover:border-primary/30 hover:bg-secondary/30"
+                  className="group flex flex-col items-start gap-4 rounded-sm border border-border bg-card p-5 text-left transition-colors hover:border-primary/30 hover:bg-secondary/30"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
