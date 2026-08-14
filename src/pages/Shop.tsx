@@ -22,7 +22,7 @@ const fetchJerseys = async () => {
   const { data, error } = await supabase
     .from("user_jerseys")
     .select("*")
-    .in("listing_type", ["buy_now", "both"])
+    .in("listing_type", ["buy_now", "both", "trade_only"])
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 

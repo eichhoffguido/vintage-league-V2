@@ -93,6 +93,10 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     onChange({ ...filters, verified: checked });
   };
 
+  const handleTradeableChange = (checked: boolean) => {
+    onChange({ ...filters, tradeable: checked });
+  };
+
   const activeFilterCount =
     (filters.search ? 1 : 0) +
     filters.leagues.length +
@@ -101,7 +105,8 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     (filters.priceMin !== null || filters.priceMax !== null ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
     filters.listingType.length +
-    (filters.verified ? 1 : 0);
+    (filters.verified ? 1 : 0) +
+    (filters.tradeable ? 1 : 0);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -221,6 +226,17 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
                 id="drawer-verified"
                 checked={filters.verified}
                 onCheckedChange={handleVerifiedChange}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="drawer-tradeable" className="text-sm font-semibold">
+                Auch zum Tausch
+              </Label>
+              <Switch
+                id="drawer-tradeable"
+                checked={filters.tradeable}
+                onCheckedChange={handleTradeableChange}
               />
             </div>
           </div>

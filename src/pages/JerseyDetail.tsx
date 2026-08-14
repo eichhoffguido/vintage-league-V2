@@ -297,6 +297,13 @@ const JerseyDetail = () => {
                   </span>
                 </div>
               )}
+              {jersey.available_for_trade && (
+                <div className="absolute right-3 top-3 flex items-center gap-1 rounded-sm bg-background/80 border border-border px-2 py-1 backdrop-blur-sm">
+                  <span className="font-display text-xs font-bold uppercase tracking-wider text-foreground">
+                    Tausch möglich
+                  </span>
+                </div>
+              )}
               {vintageBonus > 1.0 && (
                 <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm">
                   <Gem className="h-4 w-4 text-primary" />

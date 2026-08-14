@@ -139,7 +139,16 @@ const JerseyCard = ({
           <Badge variant="secondary" className="rounded-sm font-display text-[10px] uppercase tracking-wider text-center">
             {size}
           </Badge>
-          {!sale_price_cents && (
+          {available_for_trade && (
+            <Badge
+              variant="outline"
+              className="rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down bg-background/80 backdrop-blur-sm"
+              style={{ animationDelay: "100ms" }}
+            >
+              Tausch möglich
+            </Badge>
+          )}
+          {!sale_price_cents && listing_type !== "trade_only" && (
             <Badge
               className={`rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down ${verdict.bg} text-white`}
               style={{ animationDelay: "100ms" }}
@@ -194,6 +203,11 @@ const JerseyCard = ({
                 <p className="text-xs text-muted-foreground">Verkaufspreis</p>
                 <p className="font-display text-xl font-bold text-primary">{formatEuros(sale_price_cents)}</p>
               </>
+            ) : listing_type === "trade_only" ? (
+              <>
+                <p className="text-xs text-muted-foreground">Status</p>
+                <p className="font-display text-xl font-bold text-foreground">Nur Tausch</p>
+              </>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">Preis</p>
@@ -201,7 +215,7 @@ const JerseyCard = ({
               </>
             )}
           </div>
-          {!sale_price_cents && (
+          {!sale_price_cents && listing_type !== "trade_only" && (
             <Badge
               variant="outline"
               className={`text-xs font-bold ${verdict.color} border-current`}

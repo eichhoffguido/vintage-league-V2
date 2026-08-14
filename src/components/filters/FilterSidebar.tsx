@@ -105,6 +105,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     onChange({ ...filters, verified: checked });
   };
 
+  const handleTradeableChange = (checked: boolean) => {
+    onChange({ ...filters, tradeable: checked });
+  };
+
   const handleResetFilters = () => {
     onChange({
       search: null,
@@ -118,6 +122,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       eraPreset: null,
       listingType: [],
       verified: false,
+      tradeable: false,
       sortBy: "newest",
     });
   };
@@ -130,7 +135,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     (filters.priceMin !== null || filters.priceMax !== null ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
     filters.listingType.length +
-    (filters.verified ? 1 : 0);
+    (filters.verified ? 1 : 0) +
+    (filters.tradeable ? 1 : 0);
 
   return (
     <aside className={`w-64 shrink-0 ${className}`}>
@@ -271,6 +277,19 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             />
             <Label htmlFor="sidebar-verified" className="cursor-pointer text-sm flex-1">
               Nur verifizierte Trikots
+            </Label>
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Tausch">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="sidebar-tradeable"
+              checked={filters.tradeable}
+              onCheckedChange={handleTradeableChange}
+            />
+            <Label htmlFor="sidebar-tradeable" className="cursor-pointer text-sm flex-1">
+              Auch zum Tausch
             </Label>
           </div>
         </CollapsibleSection>

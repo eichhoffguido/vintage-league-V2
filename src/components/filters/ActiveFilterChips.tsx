@@ -51,6 +51,9 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       case "verified":
         newFilters.verified = false;
         break;
+      case "tradeable":
+        newFilters.tradeable = false;
+        break;
     }
 
     onChange(newFilters);
@@ -70,6 +73,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       eraPreset: null,
       listingType: [],
       verified: false,
+      tradeable: false,
       sortBy: "newest",
     });
   };
@@ -83,7 +87,8 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
     (filters.priceMin || filters.priceMax ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
     filters.listingType.length +
-    (filters.verified ? 1 : 0);
+    (filters.verified ? 1 : 0) +
+    (filters.tradeable ? 1 : 0);
 
   if (activeFilterCount === 0) {
     return null;
@@ -208,6 +213,20 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
             onClick={() => removeFilter("verified")}
             className="ml-1.5 hover:text-foreground transition-colors"
             aria-label="Remove verified filter"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </Badge>
+      )}
+
+      {/* Tradeable chip */}
+      {filters.tradeable && (
+        <Badge variant="secondary" className="pl-3 pr-2">
+          <span>Auch zum Tausch</span>
+          <button
+            onClick={() => removeFilter("tradeable")}
+            className="ml-1.5 hover:text-foreground transition-colors"
+            aria-label="Remove tradeable filter"
           >
             <X className="h-3 w-3" />
           </button>
