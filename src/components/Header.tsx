@@ -2,13 +2,28 @@ import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import { HEADER_CATEGORY_CHIPS, categoryToShopUrl, isCategoryChipActive, isJustDroppedActive } from "@/data/categoryFilters";
+import { parseFiltersFromParams } from "@/hooks/useFilterState";
+
+const JUST_DROPPED_CHIP = { label: "Just Dropped", url: "/shop?sort=newest" };
+
+const chipClassName = (active: boolean, base: string) =>
+  `${base} ${active ? "text-primary underline underline-offset-4 decoration-2" : "text-muted-foreground"}`;
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const shopFilters = location.pathname === "/shop" ? parseFiltersFromParams(new URLSearchParams(location.search)) : null;
+  const isJustDroppedChipActive = shopFilters !== null && isJustDroppedActive(shopFilters);
+  const activeCategoryChipKey = shopFilters !== null
+    ? HEADER_CATEGORY_CHIPS.find((chip) => isCategoryChipActive(chip.key, shopFilters))?.key ?? null
+    : null;
 
   return (
     <header className="sticky top-0 z-30">
@@ -29,14 +44,9 @@ const Header = () => {
               Community
             </Link>
             {user && (
-              <>
-                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Sammlung
-                </Link>
-                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Tauschbörse
-                </Link>
-              </>
+              <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                Sammlung
+              </Link>
             )}
           </nav>
 
@@ -84,13 +94,19 @@ const Header = () => {
       {/* Category bar - desktop */}
       <div className="hidden border-b border-border bg-secondary lg:block">
         <div className="container mx-auto flex items-center gap-6 px-4 py-2">
-          {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams", "Klassiker", "Raritäten"].map((cat) => (
+          <Link
+            to={JUST_DROPPED_CHIP.url}
+            className={chipClassName(isJustDroppedChipActive, "text-xs font-medium uppercase tracking-wider transition-colors hover:text-primary")}
+          >
+            {JUST_DROPPED_CHIP.label}
+          </Link>
+          {HEADER_CATEGORY_CHIPS.map((chip) => (
             <Link
-              key={cat}
-              to={`/trade?cat=${cat.toLowerCase()}`}
-              className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+              key={chip.key}
+              to={categoryToShopUrl(chip.key)}
+              className={chipClassName(activeCategoryChipKey === chip.key, "text-xs font-medium uppercase tracking-wider transition-colors hover:text-primary")}
             >
-              {cat}
+              {chip.label}
             </Link>
           ))}
         </div>
@@ -105,13 +121,13 @@ const Header = () => {
             {user && (
               <>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
-                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
                 <Link to="/my-bids" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Meine Gebote</Link>
               </>
             )}
             <div className="vintage-divider my-2" />
-            {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams"].map((cat) => (
-              <Link key={cat} to={`/trade?cat=${cat.toLowerCase()}`} className="text-xs text-muted-foreground">{cat}</Link>
+            <Link to={JUST_DROPPED_CHIP.url} className={chipClassName(isJustDroppedChipActive, "text-xs")}>{JUST_DROPPED_CHIP.label}</Link>
+            {HEADER_CATEGORY_CHIPS.map((chip) => (
+              <Link key={chip.key} to={categoryToShopUrl(chip.key)} className={chipClassName(activeCategoryChipKey === chip.key, "text-xs")}>{chip.label}</Link>
             ))}
             {user ? (
               <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide" onClick={async () => { await signOut(); navigate("/"); }}>
