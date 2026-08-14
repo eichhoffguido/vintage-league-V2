@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
+import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
+import { formatEuros } from "@/utils/currency";
 
 export type { FilterState };
 
@@ -158,7 +160,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       {/* Price chip */}
       {(filters.priceMin !== null || filters.priceMax !== null) && (
         <Badge variant="secondary" className="pl-3 pr-2">
-          <span>€{((filters.priceMin ?? 0) / 100).toFixed(2)}–€{((filters.priceMax ?? 10000) / 100).toFixed(2)}</span>
+          <span>{formatEuros(filters.priceMin ?? PRICE_RANGE_MIN_CENTS)}–{formatEuros(filters.priceMax ?? PRICE_RANGE_MAX_CENTS)}</span>
           <button
             onClick={() => removeFilter("price")}
             className="ml-1.5 hover:text-foreground transition-colors"

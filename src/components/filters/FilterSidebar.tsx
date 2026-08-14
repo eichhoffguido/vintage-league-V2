@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
+import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
 
 interface FilterSidebarProps {
@@ -162,8 +163,8 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
         <CollapsibleSection title="Preis">
           <PriceRangeSlider
-            min={0}
-            max={50000}
+            min={PRICE_RANGE_MIN_CENTS}
+            max={PRICE_RANGE_MAX_CENTS}
             priceMin={filters.priceMin}
             priceMax={filters.priceMax}
             onChange={handlePriceChange}

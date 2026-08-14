@@ -2,16 +2,28 @@ import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
-import { HEADER_CATEGORY_CHIPS, categoryToShopUrl } from "@/data/categoryFilters";
+import { HEADER_CATEGORY_CHIPS, categoryToShopUrl, isCategoryChipActive, isJustDroppedActive } from "@/data/categoryFilters";
+import { parseFiltersFromParams } from "@/hooks/useFilterState";
 
 const JUST_DROPPED_CHIP = { label: "Just Dropped", url: "/shop?sort=newest" };
+
+const chipClassName = (active: boolean, base: string) =>
+  `${base} ${active ? "text-primary underline underline-offset-4 decoration-2" : "text-muted-foreground"}`;
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const shopFilters = location.pathname === "/shop" ? parseFiltersFromParams(new URLSearchParams(location.search)) : null;
+  const isJustDroppedChipActive = shopFilters !== null && isJustDroppedActive(shopFilters);
+  const activeCategoryChipKey = shopFilters !== null
+    ? HEADER_CATEGORY_CHIPS.find((chip) => isCategoryChipActive(chip.key, shopFilters))?.key ?? null
+    : null;
 
   return (
     <header className="sticky top-0 z-30">
@@ -84,7 +96,7 @@ const Header = () => {
         <div className="container mx-auto flex items-center gap-6 px-4 py-2">
           <Link
             to={JUST_DROPPED_CHIP.url}
-            className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+            className={chipClassName(isJustDroppedChipActive, "text-xs font-medium uppercase tracking-wider transition-colors hover:text-primary")}
           >
             {JUST_DROPPED_CHIP.label}
           </Link>
@@ -92,7 +104,7 @@ const Header = () => {
             <Link
               key={chip.key}
               to={categoryToShopUrl(chip.key)}
-              className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+              className={chipClassName(activeCategoryChipKey === chip.key, "text-xs font-medium uppercase tracking-wider transition-colors hover:text-primary")}
             >
               {chip.label}
             </Link>
@@ -113,9 +125,9 @@ const Header = () => {
               </>
             )}
             <div className="vintage-divider my-2" />
-            <Link to={JUST_DROPPED_CHIP.url} className="text-xs text-muted-foreground">{JUST_DROPPED_CHIP.label}</Link>
+            <Link to={JUST_DROPPED_CHIP.url} className={chipClassName(isJustDroppedChipActive, "text-xs")}>{JUST_DROPPED_CHIP.label}</Link>
             {HEADER_CATEGORY_CHIPS.map((chip) => (
-              <Link key={chip.key} to={categoryToShopUrl(chip.key)} className="text-xs text-muted-foreground">{chip.label}</Link>
+              <Link key={chip.key} to={categoryToShopUrl(chip.key)} className={chipClassName(activeCategoryChipKey === chip.key, "text-xs")}>{chip.label}</Link>
             ))}
             {user ? (
               <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide" onClick={async () => { await signOut(); navigate("/"); }}>

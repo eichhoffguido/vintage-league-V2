@@ -45,7 +45,7 @@ function parseCommaParam(value: string | null): string[] {
   return value.split(",").filter(Boolean);
 }
 
-function parseFiltersFromParams(searchParams: URLSearchParams): FilterState {
+export function parseFiltersFromParams(searchParams: URLSearchParams): FilterState {
   const eraPreset = searchParams.get("era");
 
   let eraFrom: number | null = null;
