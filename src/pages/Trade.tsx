@@ -17,10 +17,7 @@ import { toast } from "sonner";
 import { ArrowLeftRight, Send, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig", 4: "Sehr gut", 3: "Gut erhalten", 2: "Gebraucht", 1: "Sammlerstück",
-};
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 const Trade = () => {
   const { user, loading: authLoading } = useAuth();

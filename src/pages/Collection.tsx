@@ -25,14 +25,7 @@ import { toast } from "sonner";
 import { Plus, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
-};
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 const Collection = () => {
   const { user, loading: authLoading } = useAuth();
@@ -49,7 +42,7 @@ const Collection = () => {
   const [salePrice, setSalePrice] = useState("");
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
-    price_cents: "", available_for_trade: false,
+    available_for_trade: false,
     listingType: "trade" as "trade" | "sell" | "both",
     description: "",
     sale_price: "",
@@ -95,7 +88,6 @@ const Collection = () => {
         condition: parseInt(form.condition),
         size: form.size,
         image_urls: imageUrls.length > 0 ? imageUrls : [],
-        price_cents: eurosToCents(form.price_cents),
         available_for_trade: availableForTrade,
         sale_price_cents: salePriceCents,
         listing_type: listingTypeMap[form.listingType],
@@ -106,7 +98,7 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", price_cents: "", available_for_trade: false, listingType: "trade", description: "", sale_price: "" });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", available_for_trade: false, listingType: "trade", description: "", sale_price: "" });
       setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
@@ -252,9 +244,9 @@ const Collection = () => {
       <Header />
       <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-display text-5xl font-bold md:text-7xl">Meine Sammlung</h1>
+            <h1 className="font-display text-4xl font-bold sm:text-5xl md:text-7xl">Meine Sammlung</h1>
             <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots in deiner Sammlung</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -264,7 +256,7 @@ const Collection = () => {
             }
           }}>
             <DialogTrigger asChild>
-              <Button variant="hero" className="uppercase tracking-wider">
+              <Button variant="hero" className="w-full uppercase tracking-wider sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
               </Button>
             </DialogTrigger>
@@ -301,11 +293,11 @@ const Collection = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Jahr</Label>
-                    <Input placeholder="2024" value={form.year} onChange={(e) => setForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
+                    <Label>Saison</Label>
+                    <Input placeholder="z.B. 1997/98" value={form.year} onChange={(e) => setForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Zustand</Label>
                     <Select value={form.condition} onValueChange={(v) => setForm(f => ({ ...f, condition: v }))}>
@@ -324,10 +316,6 @@ const Collection = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Schätzpreis (€)</Label>
-                    <Input type="number" placeholder="80" value={form.price_cents} onChange={(e) => setForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
-                  </div>
                 </div>
                 {form.team && form.year && (
                   <div className="mt-3">
@@ -336,7 +324,6 @@ const Collection = () => {
                       year={parseInt(form.year) || 0}
                       condition={parseInt(form.condition) || 3}
                       size={form.size}
-                      listingPriceCents={form.price_cents ? Math.round(parseFloat(form.price_cents) * 100) : undefined}
                       compact={false}
                     />
                   </div>
@@ -455,9 +442,15 @@ const Collection = () => {
                     </div>
                     <div className="flex flex-col gap-1 items-end">
                       <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                      {!!jersey.sale_price_cents && <Badge variant="default" className="text-[10px]">Kaufen</Badge>}
+                      {!!jersey.sale_price_cents && <Badge variant="default" className="text-[10px]">Verkauf</Badge>}
+                      {jersey.available_for_trade && <Badge variant="outline" className="text-[10px]">Tausch</Badge>}
                     </div>
                   </div>
+                  {jersey.description && (
+                    <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
+                      {jersey.description.replace(/<[^>]*>/g, "")}
+                    </p>
+                  )}
                   <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                     <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
                     {jersey.sale_price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
@@ -509,7 +502,7 @@ const Collection = () => {
                         setSaleModalOpen(true);
                       }}
                     >
-                      Zum Verkauf anbieten
+                      {jersey.sale_price_cents ? "Preis ändern" : "Zum Verkauf anbieten"}
                     </Button>
                   </div>
                 </div>
@@ -572,7 +565,7 @@ const Collection = () => {
                             <p className="font-semibold">{selectedJersey.league || "—"}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Jahr</p>
+                            <p className="text-xs text-muted-foreground">Saison</p>
                             <p className="font-semibold">{selectedJersey.year || "—"}</p>
                           </div>
                           <div className="grid grid-cols-3 gap-4">
@@ -650,8 +643,8 @@ const Collection = () => {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Jahr</Label>
-                          <Input placeholder="2024" value={editForm.year} onChange={(e) => setEditForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
+                          <Label>Saison</Label>
+                          <Input placeholder="z.B. 1997/98" value={editForm.year} onChange={(e) => setEditForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
                         </div>
                         {editForm.team && editForm.year && (
                           <div className="mt-3">

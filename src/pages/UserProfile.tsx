@@ -20,14 +20,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2, CheckCircle2 } from "lucide-react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
-};
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 const UserProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -396,7 +389,7 @@ const UserProfile = () => {
                       <p className="font-semibold">{selectedJersey.league || "—"}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Jahr</p>
+                      <p className="text-xs text-muted-foreground">Saison</p>
                       <p className="font-semibold">{selectedJersey.year || "—"}</p>
                     </div>
                     <div className="grid grid-cols-3 gap-4">

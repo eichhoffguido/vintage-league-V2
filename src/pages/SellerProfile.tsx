@@ -12,18 +12,11 @@ import { formatEuros } from "@/utils/currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Shirt } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 type ProfileData = Tables<"profiles">;
 type JerseyData = Tables<"user_jerseys">;
 type RatingData = Tables<"trade_ratings">;
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
-};
 
 const StarRating = ({ rating }: { rating: number | null }) => {
   if (rating === null) return null;
