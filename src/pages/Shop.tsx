@@ -18,20 +18,6 @@ import { FilterSidebar } from "@/components/filters/FilterSidebar";
 import { FilterDrawer } from "@/components/filters/FilterDrawer";
 import { ActiveFilterChips } from "@/components/filters/ActiveFilterChips";
 
-const CATEGORY_TO_FILTERS: Record<string, Partial<{
-  leagues: string[];
-  eraPreset: string | null;
-  priceMin: number | null;
-}>> = {
-  bundesliga: { leagues: ["bundesliga"] },
-  "premier-league": { leagues: ["premier-league"] },
-  "la-liga": { leagues: ["la-liga"] },
-  "serie-a": { leagues: ["serie-a"] },
-  nationalteam: { leagues: ["nationalteam"] },
-  klassiker: { eraPreset: null, leagues: [] },
-  rarities: { priceMin: 20000 },
-};
-
 const fetchJerseys = async () => {
   const { data, error } = await supabase
     .from("user_jerseys")

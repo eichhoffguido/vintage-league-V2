@@ -5,6 +5,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import { HEADER_CATEGORY_CHIPS, categoryToShopUrl } from "@/data/categoryFilters";
+
+const JUST_DROPPED_CHIP = { label: "Just Dropped", url: "/shop?sort=newest" };
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -29,14 +32,9 @@ const Header = () => {
               Community
             </Link>
             {user && (
-              <>
-                <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Sammlung
-                </Link>
-                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
-                  Tauschbörse
-                </Link>
-              </>
+              <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground link-animate">
+                Sammlung
+              </Link>
             )}
           </nav>
 
@@ -84,13 +82,19 @@ const Header = () => {
       {/* Category bar - desktop */}
       <div className="hidden border-b border-border bg-secondary lg:block">
         <div className="container mx-auto flex items-center gap-6 px-4 py-2">
-          {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams", "Klassiker", "Raritäten"].map((cat) => (
+          <Link
+            to={JUST_DROPPED_CHIP.url}
+            className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
+          >
+            {JUST_DROPPED_CHIP.label}
+          </Link>
+          {HEADER_CATEGORY_CHIPS.map((chip) => (
             <Link
-              key={cat}
-              to={`/trade?cat=${cat.toLowerCase()}`}
+              key={chip.key}
+              to={categoryToShopUrl(chip.key)}
               className="text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-primary"
             >
-              {cat}
+              {chip.label}
             </Link>
           ))}
         </div>
@@ -105,13 +109,13 @@ const Header = () => {
             {user && (
               <>
                 <Link to="/collection" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Sammlung</Link>
-                <Link to="/trade" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Tauschbörse</Link>
                 <Link to="/my-bids" className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Meine Gebote</Link>
               </>
             )}
             <div className="vintage-divider my-2" />
-            {["Bundesliga", "Premier League", "La Liga", "Serie A", "Nationalteams"].map((cat) => (
-              <Link key={cat} to={`/trade?cat=${cat.toLowerCase()}`} className="text-xs text-muted-foreground">{cat}</Link>
+            <Link to={JUST_DROPPED_CHIP.url} className="text-xs text-muted-foreground">{JUST_DROPPED_CHIP.label}</Link>
+            {HEADER_CATEGORY_CHIPS.map((chip) => (
+              <Link key={chip.key} to={categoryToShopUrl(chip.key)} className="text-xs text-muted-foreground">{chip.label}</Link>
             ))}
             {user ? (
               <Button variant="outline" size="sm" className="mt-2 w-full border-primary/30 font-medium uppercase tracking-wide" onClick={async () => { await signOut(); navigate("/"); }}>
