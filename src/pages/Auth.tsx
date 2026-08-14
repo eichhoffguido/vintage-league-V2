@@ -12,30 +12,36 @@ import { Mail, Lock, ArrowRight, Chrome } from "lucide-react";
 // Email/password signup is parked for the private beta (no verified sender
 // domain yet for confirmation mails) — only login stays available here.
 // useAuth().signUp is kept in the hook, intentionally unused for now.
+const LOGIN_ERROR_MESSAGE = "E-Mail oder Passwort ist falsch.";
+
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setLoginError(null);
 
     try {
       const { error } = await signIn(email, password);
       if (error) {
         // Same message for "email unknown" and "wrong password" on purpose
         // (don't leak which one it was).
-        toast.error("E-Mail oder Passwort ist falsch.");
+        setLoginError(LOGIN_ERROR_MESSAGE);
+        toast.error(LOGIN_ERROR_MESSAGE);
       } else {
         toast.success("Willkommen zurück!");
         // Navigate to "/" so ProfileGuard decides collection vs. onboarding.
         navigate("/");
       }
     } catch {
-      toast.error("E-Mail oder Passwort ist falsch.");
+      setLoginError(LOGIN_ERROR_MESSAGE);
+      toast.error(LOGIN_ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
@@ -74,7 +80,7 @@ const Auth = () => {
                   type="email"
                   placeholder="deine@email.de"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setLoginError(null); }}
                   className="pl-10"
                   required
                   maxLength={255}
@@ -91,13 +97,19 @@ const Auth = () => {
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); setLoginError(null); }}
                   className="pl-10"
                   required
                   minLength={6}
                 />
               </div>
             </div>
+
+            {loginError && (
+              <p role="alert" className="text-sm text-destructive">
+                {loginError}
+              </p>
+            )}
 
             <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={loading}>
               {loading ? "Laden..." : "Anmelden"}

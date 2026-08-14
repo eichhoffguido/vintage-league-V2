@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/drawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
@@ -34,13 +33,6 @@ const LEAGUES = [
 ];
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL", "4XL"];
-
-const LISTING_TYPES = [
-  { id: "all", label: "Alle" },
-  { id: "buy_now", label: "Nur Kaufen" },
-  { id: "exchange", label: "Nur Tauschen" },
-  { id: "both", label: "Kaufen & Tauschen" },
-];
 
 const ERA_PRESET_LIST = Object.entries(ERA_PRESETS).map(([key]) => ({
   id: key,
@@ -78,10 +70,6 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     onChange({ ...filters, priceMin: min, priceMax: max });
   };
 
-  const handleListingTypeChange = (value: string) => {
-    onChange({ ...filters, listingType: value === "all" ? [] : [value] });
-  };
-
   const handleEraPresetToggle = (preset: string) => {
     onChange({
       ...filters,
@@ -104,7 +92,6 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
     filters.conditions.length +
     (filters.priceMin !== null || filters.priceMax !== null ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
-    filters.listingType.length +
     (filters.verified ? 1 : 0) +
     (filters.tradeable ? 1 : 0);
 
@@ -201,23 +188,6 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
               </div>
             </div>
 
-            <div>
-              <h3 className="mb-3 font-semibold text-sm">Listentyp</h3>
-              <RadioGroup
-                value={filters.listingType.length === 0 ? "all" : filters.listingType[0]}
-                onValueChange={handleListingTypeChange}
-              >
-                {LISTING_TYPES.map((type) => (
-                  <div key={type.id} className="flex items-center space-x-2">
-                    <RadioGroupItem value={type.id} id={`drawer-listing-${type.id}`} />
-                    <Label htmlFor={`drawer-listing-${type.id}`} className="cursor-pointer text-sm">
-                      {type.label}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-
             <div className="flex items-center justify-between">
               <Label htmlFor="drawer-verified" className="text-sm font-semibold">
                 Nur verifizierte Angebote
@@ -231,7 +201,7 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
 
             <div className="flex items-center justify-between">
               <Label htmlFor="drawer-tradeable" className="text-sm font-semibold">
-                Auch zum Tausch
+                Tauschbar
               </Label>
               <Switch
                 id="drawer-tradeable"
