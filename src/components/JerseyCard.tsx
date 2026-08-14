@@ -8,6 +8,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import PriceIntelligence from "@/components/PriceIntelligence";
 import { calculatePriceIntelligence, getVintageBonus } from "@/utils/priceIntelligence";
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 interface JerseyCardProps {
   id: string;
@@ -31,14 +32,6 @@ interface JerseyCardProps {
   user_id?: string;
   onQuickBuy?: () => void;
 }
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
-};
 
 const getVintageBonus = (year: string): number => {
   if (!year || year.trim() === "") return 1.0;

@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 interface JerseyDetailSheetProps {
   jersey: {
@@ -25,14 +26,6 @@ interface JerseyDetailSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
-};
 
 const getVintageBonus = (year: string): number => {
   if (!year || year.trim() === "") return 1.0;
@@ -168,7 +161,7 @@ const JerseyDetails = ({ jersey, onClose }: { jersey: NonNullable<JerseyDetailSh
             <p className="font-medium">{jersey.size}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Jahr</p>
+            <p className="text-muted-foreground">Saison</p>
             <p className="font-medium">{jersey.year}</p>
           </div>
           <div>

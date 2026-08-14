@@ -245,7 +245,7 @@ const Onboarding = () => {
                 className="flex-1 uppercase tracking-wider"
                 onClick={() => setStep("profile")}
               >
-                Los geht's
+                Weiter zu Schritt 2 von 4
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
               <Button
@@ -314,16 +314,6 @@ const Onboarding = () => {
               >
                 {isLoading ? "Wird gespeichert..." : "Weiter"}
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full uppercase tracking-wider"
-                onClick={handleSkipStep}
-                disabled={isLoading}
-              >
-                Überspringen
               </Button>
             </form>
           </div>

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
 import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
+import { CONDITION_OPTIONS as CONDITIONS } from "@/data/condition";
 
 interface FilterSidebarProps {
   filters: FilterState;
@@ -24,14 +25,6 @@ const LEAGUES = [
 ];
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL", "4XL"];
-
-const CONDITIONS = [
-  { id: "5", label: "Neuwertig" },
-  { id: "4", label: "Sehr gut" },
-  { id: "3", label: "Gut erhalten" },
-  { id: "2", label: "Gebraucht" },
-  { id: "1", label: "Sammlerstück" },
-];
 
 const ERA_PRESET_LIST = Object.entries(ERA_PRESETS).map(([key]) => ({
   id: key,

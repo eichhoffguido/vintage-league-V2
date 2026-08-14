@@ -59,6 +59,26 @@ export const COMMON_TEAMS = [
   "Nantes",
   "Montpellier",
   "Bordeaux",
+
+  // Nationalmannschaften
+  "Deutschland",
+  "England",
+  "Frankreich",
+  "Italien",
+  "Spanien",
+  "Niederlande",
+  "Portugal",
+  "Brasilien",
+  "Argentinien",
+  "Belgien",
+  "Kroatien",
+  "Österreich",
+  "Schweiz",
+  "Türkei",
+  "Uruguay",
+  "Schweden",
+  "Dänemark",
+  "Polen",
 ];
 
 // Common football leagues

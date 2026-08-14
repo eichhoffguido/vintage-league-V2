@@ -19,6 +19,7 @@ import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
   profiles?: Tables<"profiles"> | null;
@@ -32,14 +33,6 @@ type SaleHistory = {
   price_cents: number | null;
   condition: number;
   sold_at: string;
-};
-
-const conditionLabels: Record<number, string> = {
-  5: "Neuwertig",
-  4: "Sehr gut",
-  3: "Gut erhalten",
-  2: "Gebraucht",
-  1: "Sammlerstück",
 };
 
 const getVintageBonus = (year: string): number => {
