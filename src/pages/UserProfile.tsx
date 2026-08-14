@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/utils/compressImage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
@@ -27,6 +28,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editMode, setEditMode] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -88,6 +90,53 @@ const UserProfile = () => {
     },
     onError: (e: any) => toast.error(e.message),
   });
+
+  // Upload profile avatar
+  const AVATAR_MAX_BYTES = 2 * 1024 * 1024; // matches the avatars bucket's file_size_limit
+  const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+  const uploadAvatar = useMutation({
+    mutationFn: async (file: File) => {
+      if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {
+        throw new Error("Bitte lade ein JPG-, PNG- oder WebP-Bild hoch.");
+      }
+
+      const compressed = await compressImage(file, { maxDimension: 512, maxBytes: AVATAR_MAX_BYTES });
+
+      // Fixed per-user path (required by the avatars bucket's RLS policies)
+      // so re-uploading always replaces the previous avatar.
+      const path = `${user!.id}/avatar.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      // Cache-bust: the path never changes on re-upload, so without this the
+      // browser may keep showing the previous cached image at that URL.
+      const avatarUrl = `${data.publicUrl}?t=${Date.now()}`;
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: avatarUrl })
+        .eq("id", user!.id);
+      if (profileError) throw profileError;
+
+      return avatarUrl;
+    },
+    onSuccess: (avatarUrl) => {
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      setProfileForm((f) => ({ ...f, avatar_url: avatarUrl }));
+      toast.success("Profilbild aktualisiert!");
+    },
+    onError: (e: any) => toast.error(e.message || "Profilbild-Upload fehlgeschlagen."),
+  });
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) uploadAvatar.mutate(file);
+  };
 
   // Delete jersey
   const deleteJersey = useMutation({
@@ -153,12 +202,38 @@ const UserProfile = () => {
         <div className="mb-12 rounded-sm border border-border bg-card p-8">
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div className="flex items-start gap-6">
-              <Avatar className="h-20 w-20 rounded-sm">
-                {profileForm.avatar_url && <AvatarImage src={profileForm.avatar_url} />}
-                <AvatarFallback className="rounded-sm bg-secondary text-lg font-bold">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative">
+                <Avatar className="h-20 w-20 rounded-sm">
+                  {profileForm.avatar_url && <AvatarImage src={profileForm.avatar_url} />}
+                  <AvatarFallback className="rounded-sm bg-secondary text-lg font-bold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                {editMode && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={uploadAvatar.isPending}
+                      className="absolute inset-0 flex items-center justify-center rounded-sm bg-background/70 text-foreground opacity-0 transition-opacity hover:opacity-100 disabled:opacity-100"
+                      aria-label="Profilbild ändern"
+                    >
+                      {uploadAvatar.isPending ? (
+                        <span className="text-[10px]">Lädt…</span>
+                      ) : (
+                        <Upload className="h-5 w-5" />
+                      )}
+                    </button>
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarFileChange}
+                    />
+                  </>
+                )}
+              </div>
               <div className="flex-1">
                 <h1 className="font-display text-3xl font-bold">
                   {profileForm.display_name || user?.email?.split("@")[0] || "Benutzer"}
