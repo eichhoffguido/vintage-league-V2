@@ -129,7 +129,6 @@ const Collection = () => {
           condition: parseInt(jersey.condition),
           size: jersey.size,
           image_urls: editImageUrls.length > 0 ? editImageUrls : [],
-          price_cents: eurosToCents(jersey.price_cents),
           sale_price_cents: jersey.sale_price_cents,
           listing_type: newListingType,
           description: jersey.description ? jersey.description.trim() : null,
@@ -653,7 +652,6 @@ const Collection = () => {
                               year={parseInt(editForm.year) || 0}
                               condition={editForm.condition || 3}
                               size={editForm.size}
-                              listingPriceCents={editForm.price_cents ? Math.round(parseFloat(editForm.price_cents) * 100) : undefined}
                               compact={false}
                             />
                           </div>
@@ -677,10 +675,6 @@ const Collection = () => {
                               </SelectContent>
                             </Select>
                           </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Schätzpreis (€)</Label>
-                          <Input type="number" placeholder="80" value={editForm.price_cents} onChange={(e) => setEditForm(f => ({ ...f, price_cents: e.target.value }))} min={0} max={100000} />
                         </div>
                         <div className="space-y-2">
                           <Label>Verkaufspreis (€)</Label>
