@@ -59,10 +59,6 @@ export function filterJerseys(jerseys: Jersey[], filters: FilterState): Jersey[]
       if (isNaN(year) || year > filters.eraTo) return false;
     }
 
-    if (filters.listingType.length > 0) {
-      if (!filters.listingType.includes(jersey.listing_type)) return false;
-    }
-
     if (filters.verified) {
       if (jersey.verification_status !== "verified") return false;
     }

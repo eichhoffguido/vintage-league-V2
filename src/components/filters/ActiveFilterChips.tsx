@@ -45,9 +45,6 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
         newFilters.eraFrom = null;
         newFilters.eraTo = null;
         break;
-      case "listing":
-        newFilters.listingType = newFilters.listingType.filter((t) => t !== value);
-        break;
       case "verified":
         newFilters.verified = false;
         break;
@@ -71,7 +68,6 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       eraFrom: null,
       eraTo: null,
       eraPreset: null,
-      listingType: [],
       verified: false,
       tradeable: false,
       sortBy: "newest",
@@ -86,19 +82,12 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
     filters.conditions.length +
     (filters.priceMin || filters.priceMax ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
-    filters.listingType.length +
     (filters.verified ? 1 : 0) +
     (filters.tradeable ? 1 : 0);
 
   if (activeFilterCount === 0) {
     return null;
   }
-
-  const listingLabels: Record<string, string> = {
-    buy_now: "Nur Kaufen",
-    exchange: "Nur Tauschen",
-    both: "Kaufen & Tauschen",
-  };
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
@@ -191,20 +180,6 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
         </Badge>
       )}
 
-      {/* Listing type chips */}
-      {filters.listingType.map((type) => (
-        <Badge key={type} variant="secondary" className="pl-3 pr-2">
-          <span>{listingLabels[type] || type}</span>
-          <button
-            onClick={() => removeFilter("listing", type)}
-            className="ml-1.5 hover:text-foreground transition-colors"
-            aria-label={`Remove ${type} filter`}
-          >
-            <X className="h-3 w-3" />
-          </button>
-        </Badge>
-      ))}
-
       {/* Verified chip */}
       {filters.verified && (
         <Badge variant="secondary" className="pl-3 pr-2">
@@ -222,7 +197,7 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
       {/* Tradeable chip */}
       {filters.tradeable && (
         <Badge variant="secondary" className="pl-3 pr-2">
-          <span>Auch zum Tausch</span>
+          <span>Tauschbar</span>
           <button
             onClick={() => removeFilter("tradeable")}
             className="ml-1.5 hover:text-foreground transition-colors"

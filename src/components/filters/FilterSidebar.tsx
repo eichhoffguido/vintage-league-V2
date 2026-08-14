@@ -3,7 +3,6 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
 import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
@@ -97,10 +96,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     });
   };
 
-  const handleListingTypeChange = (value: string) => {
-    onChange({ ...filters, listingType: value === "all" ? [] : [value] });
-  };
-
   const handleVerifiedChange = (checked: boolean) => {
     onChange({ ...filters, verified: checked });
   };
@@ -120,7 +115,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       eraFrom: null,
       eraTo: null,
       eraPreset: null,
-      listingType: [],
       verified: false,
       tradeable: false,
       sortBy: "newest",
@@ -134,7 +128,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     filters.conditions.length +
     (filters.priceMin !== null || filters.priceMax !== null ? 1 : 0) +
     (filters.eraPreset ? 1 : 0) +
-    filters.listingType.length +
     (filters.verified ? 1 : 0) +
     (filters.tradeable ? 1 : 0);
 
@@ -236,38 +229,6 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Listentyp">
-          <RadioGroup
-            value={filters.listingType.length === 0 ? "all" : filters.listingType[0]}
-            onValueChange={handleListingTypeChange}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="all" id="sidebar-listing-all" />
-              <Label htmlFor="sidebar-listing-all" className="cursor-pointer text-sm">
-                Alle
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="buy_now" id="sidebar-listing-buy" />
-              <Label htmlFor="sidebar-listing-buy" className="cursor-pointer text-sm">
-                Nur Kaufen
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="exchange" id="sidebar-listing-exchange" />
-              <Label htmlFor="sidebar-listing-exchange" className="cursor-pointer text-sm">
-                Nur Tauschen
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="both" id="sidebar-listing-both" />
-              <Label htmlFor="sidebar-listing-both" className="cursor-pointer text-sm">
-                Kaufen & Tauschen
-              </Label>
-            </div>
-          </RadioGroup>
-        </CollapsibleSection>
-
         <CollapsibleSection title="Verifiziert">
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -289,7 +250,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               onCheckedChange={handleTradeableChange}
             />
             <Label htmlFor="sidebar-tradeable" className="cursor-pointer text-sm flex-1">
-              Auch zum Tausch
+              Tauschbar
             </Label>
           </div>
         </CollapsibleSection>
