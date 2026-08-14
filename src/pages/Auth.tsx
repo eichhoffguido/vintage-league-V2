@@ -23,14 +23,22 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await signIn(email, password);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Willkommen zurück!");
-      navigate("/collection");
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        // Same message for "email unknown" and "wrong password" on purpose
+        // (don't leak which one it was).
+        toast.error("E-Mail oder Passwort ist falsch.");
+      } else {
+        toast.success("Willkommen zurück!");
+        // Navigate to "/" so ProfileGuard decides collection vs. onboarding.
+        navigate("/");
+      }
+    } catch {
+      toast.error("E-Mail oder Passwort ist falsch.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
