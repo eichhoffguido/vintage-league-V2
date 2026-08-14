@@ -13,6 +13,7 @@ export interface FilterState {
   eraPreset: string | null;
   listingType: string[];
   verified: boolean;
+  tradeable: boolean;
   sortBy: string;
 }
 
@@ -37,6 +38,7 @@ export const DEFAULT_FILTERS: FilterState = {
   eraPreset: null,
   listingType: [],
   verified: false,
+  tradeable: false,
   sortBy: "newest",
 };
 
@@ -73,6 +75,7 @@ export function parseFiltersFromParams(searchParams: URLSearchParams): FilterSta
     eraPreset,
     listingType: parseCommaParam(searchParams.get("listing")),
     verified: searchParams.get("verified") === "true",
+    tradeable: searchParams.get("tradeable") === "true",
     sortBy: searchParams.get("sort") || "newest",
   };
 }
@@ -94,6 +97,7 @@ function serializeFiltersToParams(filters: FilterState): Record<string, string> 
   }
   if (filters.listingType.length > 0) params.listing = filters.listingType.join(",");
   if (filters.verified) params.verified = "true";
+  if (filters.tradeable) params.tradeable = "true";
   if (filters.sortBy && filters.sortBy !== "newest") params.sort = filters.sortBy;
 
   return params;
@@ -152,6 +156,7 @@ export function useFilterState() {
     if (filters.eraPreset) count++;
     count += filters.listingType.length;
     if (filters.verified) count++;
+    if (filters.tradeable) count++;
     return count;
   }, [filters]);
 

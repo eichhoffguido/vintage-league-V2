@@ -67,6 +67,10 @@ export function filterJerseys(jerseys: Jersey[], filters: FilterState): Jersey[]
       if (jersey.verification_status !== "verified") return false;
     }
 
+    if (filters.tradeable) {
+      if (jersey.listing_type !== "both" && jersey.listing_type !== "trade_only") return false;
+    }
+
     return true;
   });
 }
