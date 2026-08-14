@@ -5,6 +5,11 @@
 interface CompressImageOptions {
   maxDimension: number;
   maxBytes: number;
+  // Center-crop to a square before resizing. Use for avatars (always
+  // displayed in square containers) so portrait/landscape sources never
+  // rely on object-fit alone to avoid looking stretched. Aspect ratio is
+  // otherwise always preserved when this is off.
+  square?: boolean;
 }
 
 function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob> {
@@ -17,19 +22,35 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob>
   });
 }
 
-export async function compressImage(file: File, { maxDimension, maxBytes }: CompressImageOptions): Promise<Blob> {
+export async function compressImage(file: File, { maxDimension, maxBytes, square = false }: CompressImageOptions): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
 
-  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
-
   const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Bild konnte nicht verarbeitet werden.");
-  ctx.drawImage(bitmap, 0, 0, width, height);
+
+  if (square) {
+    // Center-crop the source to a square, then scale that square down to
+    // (at most) maxDimension. Aspect ratio inside the crop is 1:1 by
+    // construction, so nothing gets stretched.
+    const cropSize = Math.min(bitmap.width, bitmap.height);
+    const sx = (bitmap.width - cropSize) / 2;
+    const sy = (bitmap.height - cropSize) / 2;
+    const outputSize = Math.min(maxDimension, cropSize);
+
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    ctx.drawImage(bitmap, sx, sy, cropSize, cropSize, 0, 0, outputSize, outputSize);
+  } else {
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+
+    canvas.width = width;
+    canvas.height = height;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+  }
+
   bitmap.close();
 
   let quality = 0.85;

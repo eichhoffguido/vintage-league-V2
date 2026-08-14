@@ -7,6 +7,7 @@ import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import JerseyCard from "@/components/JerseyCard";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 import { useEffect } from "react";
 
 const Favorites = () => {
@@ -87,7 +88,7 @@ const Favorites = () => {
                 league={jersey.league}
                 year={jersey.year}
                 price_cents={jersey.price_cents}
-                imageUrl={(jersey.image_urls && jersey.image_urls.length > 0) ? jersey.image_urls[0] : jersey.image_url || ""}
+                imageUrl={getPrimaryImage(jersey) ?? undefined}
                 condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                 size={jersey.size}
                 onClick={() => navigate(`/jersey/${jersey.id}`)}

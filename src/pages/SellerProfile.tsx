@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Shirt } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 
 type ProfileData = Tables<"profiles">;
 type JerseyData = Tables<"user_jerseys">;
@@ -275,9 +276,9 @@ const SellerProfile = () => {
                 className="overflow-hidden rounded-sm border border-border bg-card cursor-pointer transition-shadow hover:shadow-md"
                 onClick={() => navigate(`/jersey/${jersey.id}`)}
               >
-                {jersey.image_url ? (
+                {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">

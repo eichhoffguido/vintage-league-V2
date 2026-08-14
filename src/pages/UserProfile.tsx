@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/utils/compressImage";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
@@ -101,7 +102,7 @@ const UserProfile = () => {
         throw new Error("Bitte lade ein JPG-, PNG- oder WebP-Bild hoch.");
       }
 
-      const compressed = await compressImage(file, { maxDimension: 512, maxBytes: AVATAR_MAX_BYTES });
+      const compressed = await compressImage(file, { maxDimension: 512, maxBytes: AVATAR_MAX_BYTES, square: true });
 
       // Fixed per-user path (required by the avatars bucket's RLS policies)
       // so re-uploading always replaces the previous avatar.
@@ -387,9 +388,9 @@ const UserProfile = () => {
                   setDetailSheetOpen(true);
                 }}
               >
-                {(jersey.image_urls && jersey.image_urls.length > 0) || jersey.image_url ? (
+                {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={(jersey.image_urls && jersey.image_urls.length > 0) ? jersey.image_urls[0] : jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">
@@ -443,9 +444,9 @@ const UserProfile = () => {
                 </SheetHeader>
                 <div className="mt-6 space-y-6">
                   {/* Jersey Image */}
-                  {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
+                  {getPrimaryImage(selectedJersey) ? (
                     <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                      <img src={(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? selectedJersey.image_urls[0] : selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                      <img src={getPrimaryImage(selectedJersey)!} alt={selectedJersey.name} className="h-full w-full object-cover" />
                     </div>
                   ) : (
                     <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">

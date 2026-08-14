@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface PlaceBidModalProps {
@@ -88,7 +89,7 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
     }
   };
 
-  const imageUrl = getImageUrl(jersey.image_url);
+  const imageUrl = getImageUrl(getPrimaryImage(jersey));
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>

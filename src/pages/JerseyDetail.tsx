@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
   profiles?: Tables<"profiles"> | null;
@@ -259,7 +260,7 @@ const JerseyDetail = () => {
           {/* Jersey Image(s) */}
           <div className="relative">
             <div className="sticky top-20">
-              {(jersey.image_urls && jersey.image_urls.length > 0) || getImageUrl(jersey.image_url) ? (
+              {getImageUrl(getPrimaryImage(jersey)) ? (
                 <div className="space-y-2">
                   {(jersey.image_urls && jersey.image_urls.length > 0) ? (
                     <>

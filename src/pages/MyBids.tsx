@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 import { getLowestAsk } from "@/utils/market";
 
 type BidStatus = "active" | "matched" | "cancelled" | "expired";
@@ -39,6 +40,7 @@ interface BidRow {
     league: string;
     year: string;
     image_url: string | null;
+    image_urls: string[] | null;
   } | null;
   lowestAsk?: number | null;
 }
@@ -89,7 +91,7 @@ const MyBids = () => {
       if (jerseyIds.length > 0) {
         const { data: jerseys } = await supabase
           .from("user_jerseys")
-          .select("id, name, team, league, year, image_url")
+          .select("id, name, team, league, year, image_url, image_urls")
           .in("id", jerseyIds);
 
         const jerseyMap = new Map((jerseys || []).map((j: any) => [j.id, j]));
@@ -170,7 +172,7 @@ const MyBids = () => {
 
             {bids.map((bid, idx) => {
               const cfg = statusConfig[bid.status] || statusConfig.expired;
-              const imageUrl = getImageUrl(bid.jersey?.image_url ?? null);
+              const imageUrl = getImageUrl(bid.jersey ? getPrimaryImage(bid.jersey) : null);
               const expiresDate = new Date(bid.expires_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
 
               return (
