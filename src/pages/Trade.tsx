@@ -18,6 +18,7 @@ import { ArrowLeftRight, Send, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 
 const Trade = () => {
   const { user, loading: authLoading } = useAuth();
@@ -110,9 +111,9 @@ const Trade = () => {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {availableJerseys.map((jersey: any) => (
               <div key={jersey.id} className="group overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-primary/30">
-                {jersey.image_url ? (
+                {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">

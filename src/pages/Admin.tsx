@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ShieldCheck, CheckCircle, XCircle, Loader2, Star } from "lucide-react";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -213,9 +214,9 @@ const Admin = () => {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {jerseys.map((jersey: any) => (
               <div key={jersey.id} className="overflow-hidden rounded-sm border border-border bg-card">
-                {jersey.image_url ? (
+                {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" />
+                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">

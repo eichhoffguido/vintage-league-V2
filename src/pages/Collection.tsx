@@ -26,6 +26,7 @@ import { Plus, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+import { getPrimaryImage } from "@/utils/jerseyImage";
 
 const Collection = () => {
   const { user, loading: authLoading } = useAuth();
@@ -442,9 +443,9 @@ const Collection = () => {
                   setDetailSheetOpen(true);
                 }}
               >
-                {(jersey.image_urls && jersey.image_urls.length > 0) || jersey.image_url ? (
+                {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={(jersey.image_urls && jersey.image_urls.length > 0) ? jersey.image_urls[0] : jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">
@@ -577,7 +578,7 @@ const Collection = () => {
                     {!isEditing && (
                       <>
                         {/* Jersey Images */}
-                        {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
+                        {getPrimaryImage(selectedJersey) ? (
                           <div className="space-y-2">
                             {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
                               <div className="grid grid-cols-2 gap-2">
