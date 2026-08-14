@@ -108,7 +108,7 @@ const Collection = () => {
   const updateJersey = useMutation({
     mutationFn: async (jersey: any) => {
       // Determine listing_type based on sale_price_cents and available_for_trade
-      let newListingType: "trade_only" | "buy_now" | "both" = "trade_only";
+      let newListingType: "trade_only" | "buy_now" | "both" | "unlisted";
       if (jersey.sale_price_cents !== null && jersey.available_for_trade) {
         newListingType = "both";
       } else if (jersey.sale_price_cents !== null && !jersey.available_for_trade) {
@@ -116,7 +116,7 @@ const Collection = () => {
       } else if (jersey.sale_price_cents === null && jersey.available_for_trade) {
         newListingType = "trade_only";
       } else {
-        newListingType = "trade_only";
+        newListingType = "unlisted";
       }
 
       const { error } = await supabase
@@ -169,7 +169,7 @@ const Collection = () => {
       if (fetchError) throw fetchError;
 
       // Update listing_type based on trade availability and sale status
-      let newListingType: "trade_only" | "buy_now" | "both" = jersey.listing_type;
+      let newListingType: "trade_only" | "buy_now" | "both" | "unlisted";
       if (available) {
         // If toggling to available for trade:
         // - If has sale price, listing_type should be "both"
@@ -178,8 +178,8 @@ const Collection = () => {
       } else {
         // If toggling to unavailable for trade:
         // - If has sale price, listing_type should be "buy_now"
-        // - If no sale price, keep as "trade_only"
-        newListingType = jersey.sale_price_cents ? "buy_now" : "trade_only";
+        // - If no sale price either, neither for sale nor trade -> "unlisted"
+        newListingType = jersey.sale_price_cents ? "buy_now" : "unlisted";
       }
 
       const { error } = await supabase
@@ -188,9 +188,9 @@ const Collection = () => {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, { available }) => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
-      toast.success("Trikot ist jetzt zum Tausch verfügbar!");
+      toast.success(available ? "Trikot ist jetzt zum Tausch verfügbar!" : "Tauschangebot zurückgezogen.");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -209,7 +209,7 @@ const Collection = () => {
       if (fetchError) throw fetchError;
 
       // Update listing_type based on sale price and trade availability
-      let newListingType: "trade_only" | "buy_now" | "both" = "trade_only";
+      let newListingType: "trade_only" | "buy_now" | "both" | "unlisted";
       if (priceCents !== null && jersey.available_for_trade) {
         newListingType = "both";
       } else if (priceCents !== null && !jersey.available_for_trade) {
@@ -217,8 +217,8 @@ const Collection = () => {
       } else if (priceCents === null && jersey.available_for_trade) {
         newListingType = "trade_only";
       } else {
-        // priceCents === null && !available_for_trade
-        newListingType = "trade_only";
+        // priceCents === null && !available_for_trade -> neither for sale nor trade
+        newListingType = "unlisted";
       }
 
       const { error } = await supabase
@@ -232,6 +232,25 @@ const Collection = () => {
       setSaleModalOpen(false);
       setSalePrice("");
       toast.success("Trikot zum Verkauf angeboten!");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const withdrawSale = useMutation({
+    mutationFn: async ({ id, previousSalePriceCents, availableForTrade }: { id: string; previousSalePriceCents: number | null; availableForTrade: boolean }) => {
+      const { error } = await supabase
+        .from("user_jerseys")
+        .update({
+          sale_price_cents: null,
+          last_sale_price_cents: previousSalePriceCents,
+          listing_type: availableForTrade ? "trade_only" : "unlisted",
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
+      toast.success("Verkaufsangebot zurückgezogen.");
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -472,37 +491,64 @@ const Collection = () => {
                     )}
                   </div>
                   <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-                    <div className="flex items-center justify-between">
-                      <div
-                        className="flex items-center gap-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Switch
-                          checked={jersey.available_for_trade}
-                          onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
-                        />
-                        <span className="text-xs text-muted-foreground">
-                          {jersey.available_for_trade ? (
-                            <span className="flex items-center gap-1 text-primary">
-                              <ArrowLeftRight className="h-3 w-3" /> Im Tausch
-                            </span>
-                          ) : "Zum Tausch anbieten"}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full text-xs"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedJersey(jersey);
-                        setSalePrice(jersey.sale_price_cents ? (jersey.sale_price_cents / 100).toString() : "");
-                        setSaleModalOpen(true);
-                      }}
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {jersey.sale_price_cents ? "Preis ändern" : "Zum Verkauf anbieten"}
-                    </Button>
+                      <Switch
+                        checked={jersey.available_for_trade}
+                        onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {jersey.available_for_trade ? (
+                          <span className="flex items-center gap-1 text-primary">
+                            <ArrowLeftRight className="h-3 w-3" /> Im Tausch
+                          </span>
+                        ) : "Zum Tausch anbieten"}
+                      </span>
+                    </div>
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Switch
+                        checked={!!jersey.sale_price_cents}
+                        onCheckedChange={(v) => {
+                          if (v) {
+                            setSelectedJersey(jersey);
+                            const prefillCents = jersey.sale_price_cents ?? jersey.last_sale_price_cents;
+                            setSalePrice(prefillCents ? (prefillCents / 100).toString() : "");
+                            setSaleModalOpen(true);
+                          } else {
+                            withdrawSale.mutate({
+                              id: jersey.id,
+                              previousSalePriceCents: jersey.sale_price_cents,
+                              availableForTrade: jersey.available_for_trade,
+                            });
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {jersey.sale_price_cents ? (
+                          <span className="text-primary">Zum Verkauf</span>
+                        ) : "Zum Verkauf anbieten"}
+                      </span>
+                    </div>
+                    {!!jersey.sale_price_cents && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedJersey(jersey);
+                          setSalePrice((jersey.sale_price_cents / 100).toString());
+                          setSaleModalOpen(true);
+                        }}
+                      >
+                        Preis ändern
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
