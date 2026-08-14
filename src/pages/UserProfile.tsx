@@ -319,9 +319,9 @@ const UserProfile = () => {
                   setDetailSheetOpen(true);
                 }}
               >
-                {jersey.image_url ? (
+                {(jersey.image_urls && jersey.image_urls.length > 0) || jersey.image_url ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={(jersey.image_urls && jersey.image_urls.length > 0) ? jersey.image_urls[0] : jersey.image_url} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
                   </div>
                 ) : (
                   <div className="flex aspect-square items-center justify-center bg-secondary">
@@ -375,9 +375,9 @@ const UserProfile = () => {
                 </SheetHeader>
                 <div className="mt-6 space-y-6">
                   {/* Jersey Image */}
-                  {selectedJersey.image_url ? (
+                  {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) || selectedJersey.image_url ? (
                     <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                      <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                      <img src={(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? selectedJersey.image_urls[0] : selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
                     </div>
                   ) : (
                     <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
