@@ -14,6 +14,7 @@ import { AlertCircle, Shirt } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import { FavoriteTeamBadge } from "@/components/FavoriteTeamBadge";
 
 type ProfileData = Tables<"profiles">;
 type JerseyData = Tables<"user_jerseys">;
@@ -205,6 +206,7 @@ const SellerProfile = () => {
               {profile.bio && (
                 <p className="mt-3 max-w-2xl text-muted-foreground">{profile.bio}</p>
               )}
+              <FavoriteTeamBadge team={profile.favorite_team} className="mt-2" />
 
               {/* Stats */}
               <div className="mt-6 grid gap-4 sm:grid-cols-4">
