@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Combobox } from "@/components/ui/combobox";
+import { COMMON_TEAMS } from "@/data/teams-leagues";
 import { toast } from "sonner";
 import { ArrowRight, Shirt, Users, TrendingUp, Plus } from "lucide-react";
 import { retryAsync } from "@/utils/retry";
@@ -117,6 +119,22 @@ const Onboarding = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSaveFavoriteTeam = async () => {
+    if (formData.favoriteTeam.trim()) {
+      try {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ favorite_team: formData.favoriteTeam.trim() })
+          .eq("id", user!.id);
+        if (error) throw error;
+      } catch (error) {
+        console.error("Failed to save favorite team:", error);
+        // Continue onboarding even if this fails — it's optional.
+      }
+    }
+    setStep("add-jersey");
   };
 
   const handleSkipStep = () => {
@@ -344,21 +362,21 @@ const Onboarding = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                setStep("add-jersey");
+                handleSaveFavoriteTeam();
               }}
               className="space-y-4 rounded-sm border border-border bg-card p-6"
             >
               <div className="space-y-2">
-                <Label htmlFor="favoriteTeam">Lieblingsverein oder Liga</Label>
-                <Input
-                  id="favoriteTeam"
-                  type="text"
-                  placeholder="z.B. Bayern München, Champions League"
+                <Label htmlFor="favoriteTeam">Dein Lieblingsverein</Label>
+                <Combobox
+                  options={COMMON_TEAMS}
                   value={formData.favoriteTeam}
-                  onChange={(e) =>
-                    setFormData((f) => ({ ...f, favoriteTeam: e.target.value }))
+                  onChange={(value) =>
+                    setFormData((f) => ({ ...f, favoriteTeam: value }))
                   }
+                  placeholder="z.B. Borussia Dortmund"
                   maxLength={100}
+                  strict
                 />
                 <p className="text-xs text-muted-foreground">
                   Du kannst dies später jederzeit in deinem Profil ändern

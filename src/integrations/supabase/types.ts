@@ -347,6 +347,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           display_name: string | null
+          favorite_team: string | null
           id: string
           onboarding_completed: boolean
           updated_at: string
@@ -357,6 +358,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
+          favorite_team?: string | null
           id: string
           onboarding_completed?: boolean
           updated_at?: string
@@ -367,6 +369,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
+          favorite_team?: string | null
           id?: string
           onboarding_completed?: boolean
           updated_at?: string

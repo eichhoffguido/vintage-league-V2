@@ -67,6 +67,20 @@ const Collection = () => {
     enabled: !!user,
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["my-profile-favorite-team", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("favorite_team")
+        .eq("id", user!.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const addJersey = useMutation({
     mutationFn: async () => {
       const isForSale = form.listingType === "sell" || form.listingType === "both";
@@ -270,6 +284,9 @@ const Collection = () => {
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
+            if (open && !form.team && profile?.favorite_team) {
+              setForm(f => ({ ...f, team: profile.favorite_team! }));
+            }
             if (!open) {
               setImageUrls([]);
             }
