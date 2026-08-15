@@ -81,6 +81,30 @@ export const COMMON_TEAMS = [
   "Polen",
 ];
 
+// Flag emoji for each national team in COMMON_TEAMS. Used instead of a crest
+// lookup for favorite-team badges — clubs get a crest image, national teams
+// get their flag.
+export const NATIONAL_TEAM_FLAGS: Record<string, string> = {
+  "Deutschland": "🇩🇪",
+  "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  "Frankreich": "🇫🇷",
+  "Italien": "🇮🇹",
+  "Spanien": "🇪🇸",
+  "Niederlande": "🇳🇱",
+  "Portugal": "🇵🇹",
+  "Brasilien": "🇧🇷",
+  "Argentinien": "🇦🇷",
+  "Belgien": "🇧🇪",
+  "Kroatien": "🇭🇷",
+  "Österreich": "🇦🇹",
+  "Schweiz": "🇨🇭",
+  "Türkei": "🇹🇷",
+  "Uruguay": "🇺🇾",
+  "Schweden": "🇸🇪",
+  "Dänemark": "🇩🇰",
+  "Polen": "🇵🇱",
+};
+
 // Common football leagues
 export const COMMON_LEAGUES = [
   // International

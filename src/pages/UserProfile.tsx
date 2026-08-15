@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 import { COMMON_TEAMS } from "@/data/teams-leagues";
+import { FavoriteTeamBadge } from "@/components/FavoriteTeamBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -247,6 +248,7 @@ const UserProfile = () => {
                 {profileForm.bio && (
                   <p className="mt-2 max-w-md text-muted-foreground">{profileForm.bio}</p>
                 )}
+                <FavoriteTeamBadge team={profileForm.favorite_team} className="mt-2" />
                 <p className="mt-3 text-sm text-muted-foreground">{user?.email}</p>
 
                 {/* Profile Completion Indicator */}
