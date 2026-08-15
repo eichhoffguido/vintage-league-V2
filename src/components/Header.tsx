@@ -107,7 +107,7 @@ const Header = () => {
                 </Button>
               </form>
             ) : (
-              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate icon-rotate" onClick={() => setSearchOpen(true)} aria-label="Suche öffnen">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate icon-rotate" onClick={() => setSearchOpen(true)} aria-label="Desktop-Suche öffnen">
                 <Search className="h-5 w-5" />
               </Button>
             )}
