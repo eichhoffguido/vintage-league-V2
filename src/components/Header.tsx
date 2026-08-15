@@ -1,7 +1,7 @@
 import { Search, User, ShoppingBag, Menu, X, ShieldCheck, ArrowLeftRight, LogOut, Heart, Gavel } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
@@ -17,6 +17,8 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileHeaderSearch, setMobileHeaderSearch] = useState("");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,6 +34,27 @@ const Header = () => {
     navigate(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
     closeHeaderSearch();
   };
+
+  const closeMobileSearch = () => {
+    setMobileSearchOpen(false);
+    setMobileHeaderSearch("");
+  };
+
+  const submitMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = mobileHeaderSearch.trim();
+    navigate(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
+    closeMobileSearch();
+  };
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobileSearch();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [mobileSearchOpen]);
 
   const shopFilters = location.pathname === "/shop" ? parseFiltersFromParams(new URLSearchParams(location.search)) : null;
   const isJustDroppedChipActive = shopFilters !== null && isJustDroppedActive(shopFilters);
@@ -118,12 +141,57 @@ const Header = () => {
             )}
           </div>
 
-          {/* Mobile toggle */}
-          <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {/* Mobile actions */}
+          <div className="flex items-center gap-1 lg:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-11 w-11 text-muted-foreground hover:text-primary"
+              onClick={() => {
+                if (menuOpen) setMenuOpen(false);
+                setMobileSearchOpen((open) => !open);
+              }}
+              aria-label={mobileSearchOpen ? "Suche schließen" : "Suche öffnen"}
+            >
+              {mobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-11 w-11"
+              onClick={() => {
+                if (mobileSearchOpen) closeMobileSearch();
+                setMenuOpen(!menuOpen);
+              }}
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Search */}
+      {mobileSearchOpen && (
+        <div className="lg:hidden">
+          <div className="fixed inset-0 z-20" onClick={closeMobileSearch} aria-hidden="true" />
+          <div className="relative z-30 border-t border-border bg-background px-4 py-3">
+            <form onSubmit={submitMobileSearch} className="flex items-center gap-2">
+              <input
+                autoFocus
+                type="text"
+                value={mobileHeaderSearch}
+                onChange={(e) => setMobileHeaderSearch(e.target.value)}
+                placeholder="Team, Trikot, Spieler…"
+                aria-label="Trikots durchsuchen"
+                className="h-11 flex-1 rounded-sm border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              />
+              <Button type="submit" variant="ghost" size="icon" className="h-11 w-11 shrink-0 text-muted-foreground hover:text-primary" aria-label="Suchen">
+                <Search className="h-5 w-5" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Category bar - desktop */}
       <div className="hidden border-b border-border bg-secondary lg:block">
