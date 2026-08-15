@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Combobox } from "@/components/ui/combobox";
+import { COMMON_TEAMS } from "@/data/teams-leagues";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +38,7 @@ const UserProfile = () => {
     display_name: "",
     bio: "",
     avatar_url: "",
+    favorite_team: "",
   });
 
   useEffect(() => {
@@ -80,6 +83,7 @@ const UserProfile = () => {
         .update({
           display_name: profileForm.display_name.trim() || null,
           bio: profileForm.bio.trim() || null,
+          favorite_team: profileForm.favorite_team.trim() || null,
         })
         .eq("id", user!.id);
       if (error) throw error;
@@ -158,6 +162,7 @@ const UserProfile = () => {
         display_name: profile.display_name || "",
         bio: profile.bio || "",
         avatar_url: profile.avatar_url || "",
+        favorite_team: profile.favorite_team || "",
       });
     }
   }, [profile]);
@@ -298,6 +303,17 @@ const UserProfile = () => {
                   placeholder="Erzähle etwas über deine Sammlung..."
                   maxLength={500}
                   rows={4}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Lieblingsverein</Label>
+                <Combobox
+                  options={COMMON_TEAMS}
+                  value={profileForm.favorite_team}
+                  onChange={(value) => setProfileForm(f => ({ ...f, favorite_team: value }))}
+                  placeholder="z.B. Borussia Dortmund"
+                  maxLength={100}
+                  strict
                 />
               </div>
               <div className="flex gap-3">

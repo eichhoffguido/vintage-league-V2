@@ -40,6 +40,8 @@ interface ComboboxProps {
   placeholder?: string
   maxLength?: number
   disabled?: boolean
+  /** When true, onChange only fires for a picked option — free text is never committed. */
+  strict?: boolean
 }
 
 export function Combobox({
@@ -49,6 +51,7 @@ export function Combobox({
   placeholder = "Auswählen...",
   maxLength,
   disabled = false,
+  strict = false,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [inputValue, setInputValue] = React.useState(value)
@@ -73,12 +76,22 @@ export function Combobox({
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue)
-    onChange(newValue)
+    if (!strict) {
+      onChange(newValue)
+    }
+  }
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && strict && inputValue !== value) {
+      // Closed without picking a valid option — discard the typed text.
+      setInputValue(value)
+    }
+    setOpen(nextOpen)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      setOpen(false)
+      handleOpenChange(false)
     } else if (e.key === "Enter" && filteredOptions.length > 0) {
       handleSelect(filteredOptions[0])
       e.preventDefault()
@@ -86,7 +99,7 @@ export function Combobox({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
