@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen, Search } from "lucide-react";
+import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -80,8 +81,44 @@ const heroSlides = [
   },
 ];
 
+const FAQ_ITEMS = [
+  {
+    question: "Was ist Vintage League?",
+    answer: "Ein Marktplatz von Sammlern für Sammler: authentische Vintage-Fußballtrikots kaufen, verkaufen, tauschen — mit Community und Preistransparenz.",
+  },
+  {
+    question: "Wie funktioniert das Kaufen?",
+    answer: "Trikot finden, \"Sofort kaufen\" oder ein Gebot abgeben. Der Verkäufer nimmt an — bezahlt wird sicher über unseren Zahlungspartner.",
+  },
+  {
+    question: "Wie funktioniert das Tauschen?",
+    answer: "Trikots mit \"Tauschbar\"-Badge kannst du gegen ein Trikot aus deiner Sammlung anfragen. Der Besitzer entscheidet.",
+  },
+  {
+    question: "Was bedeutet die Prüfung?",
+    answer: "Eingestellte Trikots werden von uns geprüft; verifizierte Stücke tragen ein Badge. So bleibt der Marktplatz vertrauenswürdig.",
+  },
+  {
+    question: "Wie wird der Marktwert ermittelt?",
+    answer: "Aus über 22.000 Referenzpreisen vergleichbarer Trikots. Die Skala dient der Einordnung — den Verkaufspreis bestimmst du selbst.",
+  },
+  {
+    question: "Was kostet die Nutzung?",
+    answer: "Registrieren, sammeln und stöbern ist kostenlos. Beim Verkauf fällt eine Transaktionsgebühr über den Zahlungsanbieter an.",
+  },
+  {
+    question: "Wie verkaufe ich ein Trikot?",
+    answer: "In deiner Sammlung anlegen, Fotos hochladen, \"Zum Verkauf\" aktivieren, Preis setzen — fertig.",
+  },
+  {
+    question: "Wie sicher sind meine Daten?",
+    answer: "Hosting in der EU (Frankfurt), DSGVO-konform. Details in der Datenschutzerklärung.",
+  },
+];
+
 const Index = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState("all");
@@ -111,6 +148,16 @@ const Index = () => {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (location.hash !== "#faq") return;
+    // Delay one tick so layout (hero slides, featured jerseys) has settled —
+    // scrolling immediately on mount lands at the wrong offset.
+    const timer = setTimeout(() => {
+      document.getElementById("faq")?.scrollIntoView({ behavior: "auto" });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [location.hash]);
 
   const handleQuickBuy = async (jerseyId: string) => {
     if (!user) {
@@ -451,6 +498,33 @@ const Index = () => {
                 className="h-full w-auto rounded-lg object-cover shadow-lg"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="scroll-mt-20 py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-2xl">
+            <div className="mb-2 flex items-center justify-center gap-2">
+              <HelpCircle className="h-5 w-5 text-primary" />
+              <span className="font-display text-xs tracking-[0.2em] text-primary">FAQ</span>
+            </div>
+            <h2 className="text-center font-display text-3xl font-bold md:text-5xl">
+              Häufig gestellte <span className="text-gradient">Fragen</span>
+            </h2>
+            <Accordion type="single" collapsible className="mt-10">
+              {FAQ_ITEMS.map((item) => (
+                <AccordionItem key={item.question} value={item.question}>
+                  <AccordionTrigger className="text-left font-display text-base">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         </div>
       </section>

@@ -92,6 +92,7 @@ const Footer = () => {
             <nav className="mt-4 flex flex-col gap-2.5">
               <Link to="/collection" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Meine Sammlung</Link>
               <Link to="/profile" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Mein Profil</Link>
+              <Link to="/#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">FAQ</Link>
               <Link to="/imprint" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Impressum</Link>
               <Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Datenschutz</Link>
             </nav>
