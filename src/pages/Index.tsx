@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen } from "lucide-react";
+import { ArrowRight, TrendingUp, Award, ShieldCheck, ArrowLeftRight, MessageSquare, Wrench, BookOpen, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -86,6 +87,13 @@ const Index = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeSlide, setActiveSlide] = useState(0);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [heroSearch, setHeroSearch] = useState("");
+
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = heroSearch.trim();
+    navigate(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
+  };
 
   const { data: jerseys = [], isLoading } = useQuery({
     queryKey: ["featured-jerseys"],
@@ -166,7 +174,21 @@ const Index = () => {
             <p key={`desc-${activeSlide}`} className="mt-4 font-serif text-lg italic text-muted-foreground md:text-xl animate-fade-in">
               {heroSlides[activeSlide].description}
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <form onSubmit={handleHeroSearch} className="mt-8 flex max-w-md gap-2">
+              <Input
+                type="text"
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                placeholder="Trikot, Verein, Spieler…"
+                aria-label="Trikots durchsuchen"
+                className="h-12 border-primary/30 bg-background/80 backdrop-blur-sm text-base"
+              />
+              <Button type="submit" variant="hero" size="lg" className="shrink-0 px-4" aria-label="Suchen">
+                <Search className="h-5 w-5" />
+              </Button>
+            </form>
+
+            <div className="mt-4 flex flex-wrap gap-4">
               <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => navigate("/trade")}>
                 Kollektion entdecken
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -371,7 +393,7 @@ const Index = () => {
             />
           </div>
           <div className="mt-8 flex justify-center gap-4">
-            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => window.location.href = "/trade"}>
+            <Button variant="hero" size="lg" className="uppercase tracking-wider" onClick={() => navigate("/shop?tradeable=true")}>
               <ArrowLeftRight className="mr-2 h-5 w-5" />
               Tauschbörse entdecken
             </Button>
