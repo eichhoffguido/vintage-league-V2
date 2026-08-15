@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy, Clock, User } from "lucide-react";
+import { LikeButton } from "@/components/LikeButton";
+import { useLikes } from "@/hooks/useLikes";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -89,6 +91,9 @@ const Community = () => {
       return data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 }));
     },
   });
+
+  const postIds = useMemo(() => postsRaw.map((p) => p.id), [postsRaw]);
+  const { likeCount, isLikedByMe, toggleLike } = useLikes(postIds);
 
   // Filter and sort posts client-side
   const posts = postsRaw
@@ -312,6 +317,16 @@ const Community = () => {
                         <MessageSquare className="h-3 w-3" />
                         {post.comment_count} {post.comment_count === 1 ? "Antwort" : "Antworten"}
                       </span>
+                      <LikeButton
+                        liked={isLikedByMe(post.id)}
+                        count={likeCount(post.id)}
+                        pending={toggleLike.isPending && toggleLike.variables === post.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!user) { navigate("/auth"); return; }
+                          toggleLike.mutate(post.id);
+                        }}
+                      />
                     </div>
                   </div>
                 </button>
