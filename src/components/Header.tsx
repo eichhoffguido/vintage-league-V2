@@ -15,9 +15,23 @@ const chipClassName = (active: boolean, base: string) =>
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [headerSearch, setHeaderSearch] = useState("");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const closeHeaderSearch = () => {
+    setSearchOpen(false);
+    setHeaderSearch("");
+  };
+
+  const submitHeaderSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = headerSearch.trim();
+    navigate(query ? `/shop?q=${encodeURIComponent(query)}` : "/shop");
+    closeHeaderSearch();
+  };
 
   const shopFilters = location.pathname === "/shop" ? parseFiltersFromParams(new URLSearchParams(location.search)) : null;
   const isJustDroppedChipActive = shopFilters !== null && isJustDroppedActive(shopFilters);
@@ -51,9 +65,29 @@ const Header = () => {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate icon-rotate">
-              <Search className="h-5 w-5" />
-            </Button>
+            {searchOpen ? (
+              <form onSubmit={submitHeaderSearch} className="flex items-center gap-1">
+                <input
+                  autoFocus
+                  type="text"
+                  value={headerSearch}
+                  onChange={(e) => setHeaderSearch(e.target.value)}
+                  placeholder="Team, Trikot, Spieler…"
+                  aria-label="Trikots durchsuchen"
+                  className="w-40 rounded-sm border border-border bg-background px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                />
+                <Button type="submit" variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" aria-label="Suchen">
+                  <Search className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" className="text-muted-foreground hover:text-primary" onClick={closeHeaderSearch} aria-label="Suche schließen">
+                  <X className="h-4 w-4" />
+                </Button>
+              </form>
+            ) : (
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate icon-rotate" onClick={() => setSearchOpen(true)} aria-label="Suche öffnen">
+                <Search className="h-5 w-5" />
+              </Button>
+            )}
             {user ? (
               <>
                 <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary btn-animate" onClick={() => navigate("/watchlist")}>
