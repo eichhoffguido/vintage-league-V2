@@ -20,6 +20,13 @@ interface PriceIntelligenceData {
   smart_buy_discount_pct?: number;
 }
 
+// Thin-data outlier guard (VINA-PRICE-SANITY): with too few comparables, or
+// a max far above the median, get_price_intelligence()'s fuzzy-tier expansion
+// can produce an unreliable band (e.g. a single outlier sale ballooning the
+// estimate). Display-layer only — the SQL function itself is untouched.
+const MIN_COMPARABLES = 5;
+const OUTLIER_MAX_TO_MID_RATIO = 3;
+
 const PriceIntelligence = ({
   team,
   year,
@@ -62,6 +69,17 @@ const PriceIntelligence = ({
           return;
         }
 
+        console.debug("[PriceIntelligence] raw values", {
+          team,
+          year,
+          condition,
+          size,
+          comparable_count: item.comparable_count,
+          fair_value_min_cents: item.fair_value_min_cents,
+          fair_value_mid_cents: item.fair_value_mid_cents,
+          fair_value_max_cents: item.fair_value_max_cents,
+        });
+
         let processedData = { ...item };
         if (
           listingPriceCents !== undefined &&
@@ -97,12 +115,16 @@ const PriceIntelligence = ({
     return null;
   }
 
-  // Empty state: < 3 comparables
-  if (data.comparable_count < 3) {
+  // Thin-data guard: below MIN_COMPARABLES the band is too noisy to show.
+  if (data.comparable_count < MIN_COMPARABLES) {
+    if (compact) return null;
     return (
       <div className="rounded border border-slate-200 bg-slate-50 p-3">
         <div className="text-sm text-slate-700">
-          Noch keine Vergleichsdaten verfügbar
+          Noch zu wenige Vergleichsdaten
+        </div>
+        <div className="mt-1 text-xs text-slate-500">
+          Basierend auf {data.comparable_count} {data.comparable_count === 1 ? "Vergleich" : "Vergleichen"}
         </div>
       </div>
     );
@@ -110,6 +132,23 @@ const PriceIntelligence = ({
 
   if (!data.fair_value_mid_cents || !data.fair_value_min_cents || !data.fair_value_max_cents) {
     return null;
+  }
+
+  // Outlier guard: a max far above the median signals an unreliable band
+  // (e.g. one extreme reference sale skewing the fuzzy-tier expansion).
+  const isOutlier = data.fair_value_max_cents > OUTLIER_MAX_TO_MID_RATIO * data.fair_value_mid_cents;
+  if (isOutlier) {
+    if (compact) return null;
+    return (
+      <div className="rounded border border-slate-200 bg-slate-50 p-3">
+        <div className="text-sm text-slate-700">
+          Geringe Datenlage — Preisspanne unzuverlässig
+        </div>
+        <div className="mt-1 text-xs text-slate-500">
+          Basierend auf {data.comparable_count} Vergleichen
+        </div>
+      </div>
+    );
   }
 
   const getPriceStatus = (): "smart_buy" | "fair" | "overpriced" => {
