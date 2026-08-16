@@ -11,6 +11,8 @@ import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useLikes } from "@/hooks/useLikes";
+import { LikeButton } from "@/components/LikeButton";
 import type { Tables } from "@/integrations/supabase/types";
 
 type PostWithRelations = Tables<"forum_posts"> & {
@@ -33,6 +35,7 @@ const CommunityPost = () => {
   const [commentImages, setCommentImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { likeCount, isLikedByMe, toggleLike } = useLikes(post ? [post.id] : []);
 
   useEffect(() => {
     if (id) { fetchPost(); fetchComments(); }
@@ -160,15 +163,27 @@ const CommunityPost = () => {
               )}
             </div>
             <h1 className="font-display text-2xl font-bold md:text-3xl">{post.title}</h1>
-            <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                {post.profiles?.display_name || "Anonym"}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {formatDate(post.created_at)}
-              </span>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {post.profiles?.display_name || "Anonym"}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {formatDate(post.created_at)}
+                </span>
+              </div>
+              <LikeButton
+                size="md"
+                liked={isLikedByMe(post.id)}
+                count={likeCount(post.id)}
+                pending={toggleLike.isPending}
+                onClick={() => {
+                  if (!user) { navigate("/auth"); return; }
+                  toggleLike.mutate(post.id);
+                }}
+              />
             </div>
             <div className="vintage-divider my-6" />
             <div className="prose prose-sm max-w-none text-foreground">
