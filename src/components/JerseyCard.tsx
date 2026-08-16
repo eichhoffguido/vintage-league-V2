@@ -7,7 +7,8 @@ import { getImageUrl } from "@/utils/imageUrl";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import PriceIntelligence from "@/components/PriceIntelligence";
-import { calculatePriceIntelligence, getVintageBonus } from "@/utils/priceIntelligence";
+import { usePriceIntelligence } from "@/hooks/usePriceIntelligence";
+import { getPriceVerdict, type PriceVerdict } from "@/utils/priceIntelligence";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 
 interface JerseyCardProps {
@@ -58,7 +59,6 @@ const JerseyCard = ({
   verification_status,
   condition,
   size,
-  estimatedValue: estimatedValueProp,
   onClick,
   sale_price_cents,
   available_for_trade = false,
@@ -75,29 +75,38 @@ const JerseyCard = ({
   const isVerified = verification_status ? verification_status === "verified" : verified;
   const priceCents = price_cents ?? 0;
 
-  // Calculate price intelligence
-  const priceIntelligence = calculatePriceIntelligence({
-    priceCents,
-    estimatedValue: estimatedValueProp,
-    condition,
-    year,
+  // Real market-value data (get_price_intelligence RPC), gated by the shared
+  // reliability guard (VINA-PRICE-SANITY) — no Marktwert line, spectrum bar,
+  // or price badge unless there's enough non-outlier comparable data. Below
+  // that threshold the card just shows the sale price, honestly, with
+  // nothing invented on top of it.
+  const { data: rpcData, reliability } = usePriceIntelligence({
+    team,
+    year: parseInt(year) || 0,
+    condition: String(condition),
+    size,
   });
+  const priceDataReliable = reliability.reliable;
 
   const vintageBonus = getVintageBonus(year);
   const price = priceCents / 100;
-  const fairValue = priceIntelligence.fairValue;
-  const spectrumMin = priceIntelligence.spectrum.min;
-  const spectrumMax = priceIntelligence.spectrum.max;
+  const spectrumMin = priceDataReliable ? rpcData!.fair_value_min_cents / 100 : 0;
+  const spectrumMax = priceDataReliable ? rpcData!.fair_value_max_cents / 100 : 0;
+  const fairValue = priceDataReliable ? rpcData!.fair_value_mid_cents / 100 : 0;
   const range = spectrumMax - spectrumMin;
 
   // Positions as percentages on the bar
-  const pricePos = priceIntelligence.position.percentile;
+  const pricePos = priceDataReliable && range > 0
+    ? Math.max(2, Math.min(98, ((price - spectrumMin) / range) * 100))
+    : 50;
 
   // Fair zone (±10% of fair value)
-  const fairZoneLeft = range > 0 ? Math.max(0, ((fairValue * 0.9 - spectrumMin) / range) * 100) : 40;
-  const fairZoneRight = range > 0 ? Math.min(100, ((fairValue * 1.1 - spectrumMin) / range) * 100) : 60;
+  const fairZoneLeft = priceDataReliable && range > 0 ? Math.max(0, ((fairValue * 0.9 - spectrumMin) / range) * 100) : 40;
+  const fairZoneRight = priceDataReliable && range > 0 ? Math.min(100, ((fairValue * 1.1 - spectrumMin) / range) * 100) : 60;
 
-  const verdict = priceIntelligence.verdict;
+  const verdict: PriceVerdict | null = priceDataReliable
+    ? getPriceVerdict(price, spectrumMin, spectrumMax, fairValue)
+    : null;
 
   return (
     <div className="group card-hover cursor-pointer rounded-sm border border-border bg-card vintage-border animate-fade-in" onClick={onClick}>
@@ -148,7 +157,7 @@ const JerseyCard = ({
               Tausch möglich
             </Badge>
           )}
-          {!sale_price_cents && listing_type !== "trade_only" && (
+          {!sale_price_cents && listing_type !== "trade_only" && verdict && (
             <Badge
               className={`rounded-sm font-display text-[10px] uppercase tracking-wider animate-slide-down ${verdict.bg} text-white`}
               style={{ animationDelay: "100ms" }}
@@ -215,7 +224,7 @@ const JerseyCard = ({
               </>
             )}
           </div>
-          {!sale_price_cents && listing_type !== "trade_only" && (
+          {!sale_price_cents && listing_type !== "trade_only" && verdict && (
             <Badge
               variant="outline"
               className={`text-xs font-bold ${verdict.color} border-current`}
@@ -225,58 +234,61 @@ const JerseyCard = ({
           )}
         </div>
 
-        {/* Price Spectrum */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
-                  <span>Bewertung: {condition}/5 · {conditionLabels[condition]}</span>
-                  <span>Marktwert: {Number.isFinite(fairValue) ? `€${Math.round(fairValue * 0.9)}–€${Math.round(fairValue * 1.1)}` : '–'}</span>
-                </div>
+        {/* Price Spectrum — only with enough reliable comparable data (VINA-PRICE-SANITY).
+            Without it the card just shows the sale price, honestly, with nothing invented. */}
+        {priceDataReliable && verdict && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="mt-3 rounded-lg border border-border bg-secondary/50 p-3">
+                  <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-2">
+                    <span>Bewertung: {condition}/5 · {conditionLabels[condition]}</span>
+                    <span>Marktwert: €{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
+                  </div>
 
-                {/* The spectrum bar */}
-                <div className="relative h-3 w-full rounded-full bg-gradient-to-r from-primary/80 via-green-500/60 via-50% to-red-500/80 overflow-hidden">
-                  {/* Fair zone highlight */}
-                  <div
-                    className="absolute top-0 h-full bg-green-500/30 border-x border-green-500/50"
-                    style={{ left: `${fairZoneLeft}%`, width: `${fairZoneRight - fairZoneLeft}%` }}
-                  />
-                </div>
-
-                {/* Price indicator (triangle below bar) */}
-                <div className="relative h-4 mt-0.5">
-                  <div
-                    className="absolute -translate-x-1/2 flex flex-col items-center"
-                    style={{ left: `${pricePos}%` }}
-                  >
-                    <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`}
-                      style={{ borderBottomColor: 'currentColor' }}
+                  {/* The spectrum bar */}
+                  <div className="relative h-3 w-full rounded-full bg-gradient-to-r from-primary/80 via-green-500/60 via-50% to-red-500/80 overflow-hidden">
+                    {/* Fair zone highlight */}
+                    <div
+                      className="absolute top-0 h-full bg-green-500/30 border-x border-green-500/50"
+                      style={{ left: `${fairZoneLeft}%`, width: `${fairZoneRight - fairZoneLeft}%` }}
                     />
-                    <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>{Number.isFinite(price) ? `€${price}` : '–'}</span>
+                  </div>
+
+                  {/* Price indicator (triangle below bar) */}
+                  <div className="relative h-4 mt-0.5">
+                    <div
+                      className="absolute -translate-x-1/2 flex flex-col items-center"
+                      style={{ left: `${pricePos}%` }}
+                    >
+                      <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${verdict.bg.replace('bg-', 'border-b-')}`}
+                        style={{ borderBottomColor: 'currentColor' }}
+                      />
+                      <span className={`text-[9px] font-bold ${verdict.color} whitespace-nowrap`}>€{price}</span>
+                    </div>
+                  </div>
+
+                  {/* Scale labels */}
+                  <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
+                    <span>€{spectrumMin}</span>
+                    <span className="text-green-500 font-medium">€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}</span>
+                    <span>€{spectrumMax}</span>
                   </div>
                 </div>
-
-                {/* Scale labels */}
-                <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
-                  <span>{Number.isFinite(spectrumMin) ? `€${spectrumMin}` : '–'}</span>
-                  <span className="text-green-500 font-medium">{Number.isFinite(fairValue) ? `€${Math.round(fairValue * 0.9)}–€${Math.round(fairValue * 1.1)}` : '–'}</span>
-                  <span>{Number.isFinite(spectrumMax) ? `€${spectrumMax}` : '–'}</span>
-                </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-[220px]">
-              <p className="text-xs">
-                Bewertung {condition}/5 ({conditionLabels[condition]}).
-                Alter: {(() => {
-                  const yearNum = parseInt(year, 10);
-                  return Number.isNaN(yearNum) ? '—' : new Date().getFullYear() - yearNum;
-                })()} Jahre.
-                Der grüne Bereich markiert die faire Preisspanne (€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}).
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[220px]">
+                <p className="text-xs">
+                  Bewertung {condition}/5 ({conditionLabels[condition]}).
+                  Alter: {(() => {
+                    const yearNum = parseInt(year, 10);
+                    return Number.isNaN(yearNum) ? '—' : new Date().getFullYear() - yearNum;
+                  })()} Jahre.
+                  Der grüne Bereich markiert die faire Preisspanne (€{Math.round(fairValue * 0.9)}–€{Math.round(fairValue * 1.1)}).
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
 
         {/* Bid/Ask row */}
         {(lowestAsk !== undefined || highestBid !== undefined) && (
