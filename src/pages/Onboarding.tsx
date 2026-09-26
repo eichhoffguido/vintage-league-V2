@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -187,22 +188,30 @@ const Onboarding = () => {
     navigate("/collection");
   };
 
+  const STEP_LABELS = ["Willkommen", "Profil", "Verein", "Erstes Trikot"];
+
+  // Eckige, segmentierte Fortschrittsleiste (Skill cc-design)
   const ProgressIndicator = () => (
-    <div className="mb-8 text-center">
-      <p className="text-sm text-muted-foreground">
-        Schritt {currentStepNumber} von {totalSteps}
+    <div className="mb-8">
+      <p className="cap text-[11px] text-muted-foreground">
+        Schritt <span className="num text-sm text-nero">{currentStepNumber}</span> von {totalSteps}
       </p>
-      <div className="mt-3 flex gap-2 justify-center">
-        {Array.from({ length: totalSteps }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-2 w-8 rounded-full ${
-              i < currentStepNumber ? "bg-primary" : "bg-secondary"
-            }`}
-          />
+      <div className="mt-3 grid grid-cols-4 gap-1.5" aria-hidden>
+        {STEP_LABELS.map((label, i) => (
+          <div key={label}>
+            <div className={`h-1.5 ${i < currentStepNumber ? "bg-nero" : "bg-sabbia"}`} />
+            <div className={`cap mt-1.5 hidden text-[10px] sm:block ${i + 1 === currentStepNumber ? "text-nero" : "text-muted-foreground"}`}>
+              {label}
+            </div>
+          </div>
         ))}
       </div>
     </div>
+  );
+
+  // Grünes Kopfband für den persönlichen Bereich (Skill cc-design §5.1)
+  const OnboardingBand = () => (
+    <PageHeader tone="verde" eyebrow="Benvenuto · Willkommen" title="Dein Start bei" hollowWord="Calcio Classics." />
   );
 
   // Welcome Step
@@ -210,14 +219,15 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto flex items-center justify-center px-4 py-20">
+        <OnboardingBand />
+        <div className="container mx-auto flex items-center justify-center px-4 py-12 md:py-16">
           <div className="w-full max-w-2xl">
             <ProgressIndicator />
 
             <div className="mb-12 text-center">
-              <h1 className="font-display text-5xl font-bold">
+              <h2 className="display text-[36px] md:text-[52px]">
                 Willkommen bei {BRAND_NAME}!
-              </h1>
+              </h2>
               <p className="mt-4 text-lg text-muted-foreground">
                 Die Community-erste Plattform für den Handel mit Vintage-Fußballtrikots
               </p>
@@ -225,9 +235,9 @@ const Onboarding = () => {
 
             <div className="grid gap-6 sm:grid-cols-3">
               {/* Feature 1 */}
-              <div className="rounded-sm border border-border bg-card p-6 text-center">
+              <div className="border-2 border-nero bg-card p-6 text-center">
                 <div className="flex justify-center mb-4">
-                  <Shirt className="h-12 w-12 text-primary" />
+                  <Shirt className="h-12 w-12 text-verde" />
                 </div>
                 <h3 className="font-display text-lg font-bold">Deine Sammlung</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -236,9 +246,9 @@ const Onboarding = () => {
               </div>
 
               {/* Feature 2 */}
-              <div className="rounded-sm border border-border bg-card p-6 text-center">
+              <div className="border-2 border-nero bg-card p-6 text-center">
                 <div className="flex justify-center mb-4">
-                  <Users className="h-12 w-12 text-primary" />
+                  <Users className="h-12 w-12 text-verde" />
                 </div>
                 <h3 className="font-display text-lg font-bold">Community</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -247,9 +257,9 @@ const Onboarding = () => {
               </div>
 
               {/* Feature 3 */}
-              <div className="rounded-sm border border-border bg-card p-6 text-center">
+              <div className="border-2 border-nero bg-card p-6 text-center">
                 <div className="flex justify-center mb-4">
-                  <TrendingUp className="h-12 w-12 text-primary" />
+                  <TrendingUp className="h-12 w-12 text-verde" />
                 </div>
                 <h3 className="font-display text-lg font-bold">Marktplatz</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -287,14 +297,15 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto flex items-center justify-center px-4 py-20">
+        <OnboardingBand />
+        <div className="container mx-auto flex items-center justify-center px-4 py-12 md:py-16">
           <div className="w-full max-w-md">
             <ProgressIndicator />
 
             <div className="mb-8 text-center">
-              <h1 className="font-display text-4xl font-bold">
+              <h2 className="display text-[36px] md:text-[52px]">
                 Erstelle dein Profil
-              </h1>
+              </h2>
               <p className="mt-2 text-muted-foreground">
                 Lass die Community wissen, wer du bist
               </p>
@@ -305,7 +316,7 @@ const Onboarding = () => {
                 e.preventDefault();
                 handleUpdateProfile();
               }}
-              className="space-y-4 rounded-sm border border-border bg-card p-6"
+              className="space-y-4 border-2 border-nero bg-card p-6"
             >
               <div className="space-y-2">
                 <Label htmlFor="displayName">Anzeigename</Label>
@@ -347,14 +358,15 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto flex items-center justify-center px-4 py-20">
+        <OnboardingBand />
+        <div className="container mx-auto flex items-center justify-center px-4 py-12 md:py-16">
           <div className="w-full max-w-md">
             <ProgressIndicator />
 
             <div className="mb-8 text-center">
-              <h1 className="font-display text-4xl font-bold">
+              <h2 className="display text-[36px] md:text-[52px]">
                 Dein Lieblingsverein
-              </h1>
+              </h2>
               <p className="mt-2 text-muted-foreground">
                 Welcher Verein oder Liga ist dein Favorit? (optional)
               </p>
@@ -365,7 +377,7 @@ const Onboarding = () => {
                 e.preventDefault();
                 handleSaveFavoriteTeam();
               }}
-              className="space-y-4 rounded-sm border border-border bg-card p-6"
+              className="space-y-4 border-2 border-nero bg-card p-6"
             >
               <div className="space-y-2">
                 <Label htmlFor="favoriteTeam">Dein Lieblingsverein</Label>
@@ -414,15 +426,16 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto flex items-center justify-center px-4 py-20">
+        <OnboardingBand />
+        <div className="container mx-auto flex items-center justify-center px-4 py-12 md:py-16">
           <div className="w-full max-w-md text-center">
             <ProgressIndicator />
 
             <div className="mb-12">
-              <Shirt className="mx-auto mb-4 h-16 w-16 text-primary" />
-              <h1 className="font-display text-4xl font-bold">
+              <Shirt className="mx-auto mb-4 h-16 w-16 text-verde" />
+              <h2 className="display text-[36px] md:text-[52px]">
                 Deine Sammlung
-              </h1>
+              </h2>
               <p className="mt-4 text-muted-foreground">
                 Möchtest du gleich dein erstes Trikot hinzufügen?
               </p>
