@@ -17,15 +17,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import PageHeader from "@/components/layout/PageHeader";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Plus, ArrowLeftRight, Upload, X, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
+import { Plus, ArrowLeftRight, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
 import { useEffect } from "react";
-import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+
+// Rahmenfarbe rotiert rein dekorativ, stabil pro Trikot (Skill cc-design §2, wie Figurina)
+const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
+const frameColorFor = (id: string) =>
+  FRAME_COLORS[[...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % FRAME_COLORS.length];
+
+const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
+const LABEL = "cap text-[11px] leading-none text-nero";
+const DIALOG = "max-h-[90vh] overflow-y-auto shadow-none";
+const DIALOG_TITLE = "font-display text-2xl font-semibold normal-case tracking-[-0.02em]";
+const STATUS_BOX = "cap flex h-11 w-full items-center justify-center gap-2 border";
 
 const Collection = () => {
   const { user, loading: authLoading } = useAuth();
@@ -116,7 +127,7 @@ const Collection = () => {
       setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const updateJersey = useMutation({
@@ -157,7 +168,7 @@ const Collection = () => {
       setEditImageUrls([]);
       toast.success("Trikot aktualisiert");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const deleteJersey = useMutation({
@@ -206,7 +217,7 @@ const Collection = () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       toast.success(available ? "Trikot ist jetzt zum Tausch verfügbar!" : "Tauschangebot zurückgezogen.");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const updateSalePrice = useMutation({
@@ -247,7 +258,7 @@ const Collection = () => {
       setSalePrice("");
       toast.success("Trikot zum Verkauf angeboten!");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const withdrawSale = useMutation({
@@ -266,46 +277,52 @@ const Collection = () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       toast.success("Verkaufsangebot zurückgezogen.");
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
+
 
   if (authLoading) return null;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="font-display text-4xl font-bold sm:text-5xl md:text-7xl">Meine Sammlung</h1>
-            <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots in deiner Sammlung</p>
-          </div>
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (open && !form.team && profile?.favorite_team) {
-              setForm(f => ({ ...f, team: profile.favorite_team! }));
-            }
-            if (!open) {
-              setImageUrls([]);
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button variant="hero" className="w-full uppercase tracking-wider sm:w-auto">
-                <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-              <DialogHeader>
-                <DialogTitle className="font-display text-2xl">Neues Trikot</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={(e) => { e.preventDefault(); addJersey.mutate(); }} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+
+      {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
+      <PageHeader
+        tone="verde"
+        eyebrow="La mia collezione · Sammlung"
+        title="Meine"
+        hollowWord="Sammlung."
+        subline="Dein persönliches Album. Lege fest, welche Trikots du tauschst und welche du verkaufst."
+      >
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (open && !form.team && profile?.favorite_team) {
+            setForm(f => ({ ...f, team: profile.favorite_team! }));
+          }
+          if (!open) {
+            setImageUrls([]);
+          }
+        }}>
+          <DialogTrigger asChild>
+            <Button variant="light" size="lg" className="w-full sm:w-auto">
+              <Plus /> Trikot hinzufügen
+            </Button>
+          </DialogTrigger>
+          <DialogContent className={cn(DIALOG, "sm:max-w-lg")}>
+            <DialogHeader className="text-left">
+              <div className="cap text-rosso">Nuova maglia · Sammlung</div>
+              <DialogTitle className={DIALOG_TITLE}>Neues Trikot</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={(e) => { e.preventDefault(); addJersey.mutate(); }} className="space-y-5">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Name *</Label>
+                    <Label className={LABEL}>Name *</Label>
                     <Input placeholder="Heimtrikot 2024/25" value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} required maxLength={200} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Team *</Label>
+                    <Label className={LABEL}>Team *</Label>
                     <Combobox
                       options={COMMON_TEAMS}
                       value={form.team}
@@ -315,9 +332,9 @@ const Collection = () => {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Liga</Label>
+                    <Label className={LABEL}>Liga</Label>
                     <Combobox
                       options={COMMON_LEAGUES}
                       value={form.league}
@@ -327,13 +344,13 @@ const Collection = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Saison</Label>
+                    <Label className={LABEL}>Saison</Label>
                     <Input placeholder="z.B. 1997/98" value={form.year} onChange={(e) => setForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Zustand</Label>
+                    <Label className={LABEL}>Zustand</Label>
                     <Select value={form.condition} onValueChange={(v) => setForm(f => ({ ...f, condition: v }))}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -342,7 +359,7 @@ const Collection = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Größe</Label>
+                    <Label className={LABEL}>Größe</Label>
                     <Select value={form.size} onValueChange={(v) => setForm(f => ({ ...f, size: v }))}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
@@ -362,15 +379,18 @@ const Collection = () => {
                     />
                   </div>
                 )}
+              </div>
+
+              <div className="space-y-4 border-t border-nero pt-5">
                 <div className="space-y-2">
-                  <Label>Bilder</Label>
+                  <Label className={LABEL}>Bilder</Label>
                   <MultiImageUpload
                     images={imageUrls}
                     onImagesChange={setImageUrls}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Beschreibung</Label>
+                  <Label className={LABEL}>Beschreibung</Label>
                   <RichTextEditor
                     content={form.description}
                     onChange={(html) => setForm(f => ({ ...f, description: html }))}
@@ -378,8 +398,11 @@ const Collection = () => {
                     placeholder="Erzähle die Geschichte dieses Trikots..."
                   />
                 </div>
-                <div className="space-y-3">
-                  <Label>Listingtyp</Label>
+              </div>
+
+              <div className="space-y-4 border-t border-nero pt-5">
+                <div className="space-y-2">
+                  <Label className={LABEL}>Listingtyp</Label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { value: "trade" as const, label: "Zum Tauschen" },
@@ -389,9 +412,10 @@ const Collection = () => {
                       <Button
                         key={option.value}
                         type="button"
-                        variant={form.listingType === option.value ? "default" : "outline"}
+                        variant={form.listingType === option.value ? "dark" : "outline"}
+                        aria-pressed={form.listingType === option.value}
                         onClick={() => setForm(f => ({ ...f, listingType: option.value }))}
-                        className="text-xs"
+                        className="h-11 whitespace-normal px-1 text-[10px] leading-tight sm:px-2"
                       >
                         {option.label}
                       </Button>
@@ -400,504 +424,551 @@ const Collection = () => {
                 </div>
                 {(form.listingType === "sell" || form.listingType === "both") && (
                   <div className="space-y-2">
-                    <Label>Verkaufspreis (€) *</Label>
+                    <Label className={LABEL}>Verkaufspreis (€) *</Label>
                     <Input type="number" placeholder="80" value={form.sale_price} onChange={(e) => setForm(f => ({ ...f, sale_price: e.target.value }))} min={0} max={100000} step={0.01} required />
                   </div>
                 )}
-                <Button type="submit" variant="hero" className="w-full uppercase tracking-wider" disabled={addJersey.isPending}>
-                  {addJersey.isPending ? "Wird verarbeitet..." : "Trikot speichern"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <JerseyCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : isError ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive/30" />
-            <p className="font-display text-xl text-muted-foreground">Fehler beim Laden deiner Sammlung</p>
-            <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Bitte versuche es später erneut"}</p>
-            <Button
-              variant="hero"
-              className="mt-4 uppercase tracking-wider"
-              onClick={() => refetch()}
-            >
-              Erneut versuchen
-            </Button>
-          </div>
-        ) : jerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-            <p className="font-display text-xl text-muted-foreground">Noch keine Trikots in deiner Sammlung</p>
-            <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte deine Kollektion.</p>
-            <Button
-              variant="hero"
-              className="mt-4 uppercase tracking-wider"
-              onClick={() => setDialogOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" /> Trikot hinzufügen
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {jerseys.map((jersey) => (
-              <div
-                key={jersey.id}
-                className="overflow-hidden rounded-sm border border-border bg-card cursor-pointer transition-shadow hover:shadow-md"
-                onClick={() => {
-                  setSelectedJersey(jersey);
-                  setEditForm(jersey);
-                  setEditImageUrls(jersey.image_urls || []);
-                  setIsEditing(false);
-                  setDetailSheetOpen(true);
-                }}
-              >
-                {getPrimaryImage(jersey) ? (
-                  <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
-                  </div>
-                ) : (
-                  <div className="flex aspect-square items-center justify-center bg-secondary">
-                    <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
-                  </div>
-                )}
-                 <div className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
-                      <p className="text-sm text-muted-foreground">{jersey.name}</p>
-                    </div>
-                    <div className="flex flex-col gap-1 items-end">
-                      <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                      {!!jersey.sale_price_cents && <Badge variant="default" className="text-[10px]">Verkauf</Badge>}
-                      {jersey.available_for_trade && <Badge variant="outline" className="text-[10px]">Tausch</Badge>}
-                    </div>
-                  </div>
-                  {jersey.description && (
-                    <p className="mt-2 text-xs text-muted-foreground line-clamp-2">
-                      {jersey.description.replace(/<[^>]*>/g, "")}
-                    </p>
-                  )}
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.sale_price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    {jersey.verification_status === "verified" && (
-                      <Badge variant="default" className="bg-green-600 text-[10px]">
-                        <ShieldCheck className="mr-1 h-3 w-3" /> Verifiziert
-                      </Badge>
-                    )}
-                    {jersey.verification_status === "pending" && (
-                      <Badge variant="secondary" className="text-[10px]">
-                        <Clock className="mr-1 h-3 w-3" /> Wartet auf Prüfung
-                      </Badge>
-                    )}
-                    {jersey.verification_status === "rejected" && (
-                      <Badge variant="destructive" className="text-[10px]">
-                        <XCircle className="mr-1 h-3 w-3" /> Nicht verifiziert
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Switch
-                        checked={jersey.available_for_trade}
-                        onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {jersey.available_for_trade ? (
-                          <span className="flex items-center gap-1 text-primary">
-                            <ArrowLeftRight className="h-3 w-3" /> Im Tausch
-                          </span>
-                        ) : "Zum Tausch anbieten"}
-                      </span>
-                    </div>
-                    <div
-                      className="flex items-center gap-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Switch
-                        checked={!!jersey.sale_price_cents}
-                        onCheckedChange={(v) => {
-                          if (v) {
-                            setSelectedJersey(jersey);
-                            const prefillCents = jersey.sale_price_cents ?? jersey.last_sale_price_cents;
-                            setSalePrice(prefillCents ? (prefillCents / 100).toString() : "");
-                            setSaleModalOpen(true);
-                          } else {
-                            withdrawSale.mutate({
-                              id: jersey.id,
-                              previousSalePriceCents: jersey.sale_price_cents,
-                              availableForTrade: jersey.available_for_trade,
-                            });
-                          }
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground">
-                        {jersey.sale_price_cents ? (
-                          <span className="text-primary">Zum Verkauf</span>
-                        ) : "Zum Verkauf anbieten"}
-                      </span>
-                    </div>
-                    {!!jersey.sale_price_cents && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedJersey(jersey);
-                          setSalePrice((jersey.sale_price_cents / 100).toString());
-                          setSaleModalOpen(true);
-                        }}
-                      >
-                        Preis ändern
-                      </Button>
-                    )}
-                  </div>
-                </div>
               </div>
-            ))}
-          </div>
-        )}
 
-        {/* Jersey Detail Dialog */}
-        <Dialog open={detailSheetOpen} onOpenChange={(open) => {
-          setDetailSheetOpen(open);
-          if (!open) {
-            setIsEditing(false);
-            setEditForm(null);
-            setEditImageUrls([]);
-          }
-        }}>
-          <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
-            {selectedJersey && editForm && (
-              <>
-                <DialogHeader>
-                  <DialogTitle className="font-display text-2xl">{isEditing ? "Trikot bearbeiten" : selectedJersey.team}</DialogTitle>
-                </DialogHeader>
-                <div className="mt-6 grid sm:grid-cols-[1fr_1fr] gap-6">
-                  {/* Left Column: Images and Info (View Mode) / Images (Edit Mode) */}
-                  <div className="space-y-6">
-                    {!isEditing && (
-                      <>
-                        {/* Jersey Images */}
-                        {getPrimaryImage(selectedJersey) ? (
-                          <div className="space-y-2">
-                            {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
-                              <div className="grid grid-cols-2 gap-2">
-                                {selectedJersey.image_urls.map((url: string, index: number) => (
-                                  <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                                    <img src={url} alt={`${selectedJersey.name} ${index + 1}`} className="h-full w-full object-cover" />
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                                <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
-                              </div>
-                            )}
-                          </div>
+              <Button type="submit" size="lg" className="w-full" disabled={addJersey.isPending}>
+                {addJersey.isPending ? "Wird verarbeitet..." : "Trikot speichern"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </PageHeader>
+
+      {/* Sammlungs-Raster */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 md:px-10">
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2.5 border-2 border-nero bg-card p-2 md:p-3">
+                  <Skeleton className="h-3 w-2/3 bg-sabbia" />
+                  <Skeleton className="aspect-[4/5] w-full bg-sabbia" />
+                  <Skeleton className="h-4 w-3/4 bg-sabbia" />
+                  <Skeleton className="h-3 w-1/2 bg-sabbia" />
+                  <Skeleton className="mt-2 h-11 w-full bg-sabbia" />
+                </div>
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+              <AlertCircle className="mx-auto mb-4 h-10 w-10 text-rosso" />
+              <p className="font-display text-lg font-semibold">Fehler beim Laden deiner Sammlung</p>
+              <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Bitte versuche es später erneut"}</p>
+              <Button className="mt-5" onClick={() => refetch()}>
+                Erneut versuchen
+              </Button>
+            </div>
+          ) : jerseys.length === 0 ? (
+            <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+              <Shirt className="mx-auto mb-4 h-10 w-10" />
+              <p className="font-display text-lg font-semibold">Noch keine Trikots in deiner Sammlung</p>
+              <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte deine Kollektion.</p>
+              <Button className="mt-5" onClick={() => setDialogOpen(true)}>
+                <Plus /> Trikot hinzufügen
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="cap mb-5 border-b border-nero pb-3 text-[11px] text-muted-foreground">
+                <span className="num mr-1 text-base text-nero">{jerseys.length}</span> Trikots in deiner Sammlung
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                {jerseys.map((jersey) => {
+                  const image = getPrimaryImage(jersey);
+                  return (
+                    <article
+                      key={jersey.id}
+                      className="group flex h-full cursor-pointer flex-col gap-2.5 border-2 border-nero bg-card p-2 md:p-3"
+                      onClick={() => {
+                        setSelectedJersey(jersey);
+                        setEditForm(jersey);
+                        setEditImageUrls(jersey.image_urls || []);
+                        setIsEditing(false);
+                        setDetailSheetOpen(true);
+                      }}
+                    >
+                      {/* 1 · Kopfzeile */}
+                      <div className="cap truncate text-[10px] md:text-[11px]">
+                        {[jersey.league, jersey.year].filter(Boolean).join(" · ") || "—"}
+                      </div>
+
+                      {/* 2 · Bild mit farbigem Rahmen */}
+                      <div className={cn("grain grain-photo relative aspect-[4/5] overflow-hidden border-[4px] bg-sabbia md:border-[6px]", frameColorFor(jersey.id))}>
+                        {image ? (
+                          <img
+                            src={image}
+                            alt={jersey.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
                         ) : (
-                          <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
-                            <span className="font-display text-6xl text-muted-foreground/30">{selectedJersey.team.charAt(0)}</span>
+                          <div className="flex h-full items-center justify-center">
+                            <span className="display text-6xl text-nero/25">{jersey.team.charAt(0)}</span>
                           </div>
                         )}
-
-                        {/* Jersey Info */}
-                        <div className="space-y-4">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Name</p>
-                            <p className="font-semibold">{selectedJersey.name}</p>
+                        {jersey.size && (
+                          <div className="absolute bottom-1.5 left-1.5 z-[2]">
+                            <span className={cn(TAG, "border-nero bg-card text-nero")}>{jersey.size}</span>
                           </div>
+                        )}
+                      </div>
+
+                      {/* 3 · Titel */}
+                      <div>
+                        <h3 className="font-display text-[15px] font-semibold normal-case leading-tight tracking-[-0.02em] md:text-[17px]">{jersey.team}</h3>
+                        {jersey.name && <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground md:text-sm">{jersey.name}</p>}
+                      </div>
+
+                      {/* 4 · Meta */}
+                      <div className="cap text-[10px] leading-relaxed text-muted-foreground">
+                        <div className="truncate">Zustand {jersey.condition}/5 · {conditionLabels[jersey.condition]}</div>
+                      </div>
+                      {jersey.description && (
+                        <p className="line-clamp-2 text-xs text-muted-foreground">
+                          {jersey.description.replace(/<[^>]*>/g, "")}
+                        </p>
+                      )}
+
+                      {/* 5 · Status-Tags */}
+                      <div className="flex flex-wrap gap-1">
+                        {!!jersey.sale_price_cents && <span className={cn(TAG, "border-nero text-nero")}>Verkauf</span>}
+                        {jersey.available_for_trade && <span className={cn(TAG, "border-rosso text-rosso")}>Tausch</span>}
+                        {jersey.verification_status === "verified" && (
+                          <span className={cn(TAG, "gap-1 border-verde text-verde")}>
+                            <ShieldCheck className="h-3 w-3" /> Verifiziert
+                          </span>
+                        )}
+                        {jersey.verification_status === "pending" && (
+                          <span className={cn(TAG, "gap-1 border-muted-foreground text-muted-foreground")}>
+                            <Clock className="h-3 w-3" /> Wartet auf Prüfung
+                          </span>
+                        )}
+                        {jersey.verification_status === "rejected" && (
+                          <span className={cn(TAG, "gap-1 border-rosso bg-rosso text-avorio")}>
+                            <XCircle className="h-3 w-3" /> Nicht verifiziert
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 6 · Preis + Steuerung, unten angepinnt */}
+                      <div className="mt-auto border-t border-nero pt-2">
+                        {!!jersey.sale_price_cents && (
+                          <div className="mb-1">
+                            <div className="cap text-[10px] text-muted-foreground">Verkaufspreis</div>
+                            <span className="num text-[20px] leading-none md:text-[24px]">{formatEuros(jersey.sale_price_cents)}</span>
+                          </div>
+                        )}
+                        <div
+                          className="flex min-h-11 items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Switch
+                            checked={jersey.available_for_trade}
+                            onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
+                            aria-label="Zum Tausch anbieten"
+                          />
+                          <span className="cap text-[10px] leading-tight text-muted-foreground">
+                            {jersey.available_for_trade ? (
+                              <span className="flex items-center gap-1 text-rosso">
+                                <ArrowLeftRight className="h-3 w-3" /> Im Tausch
+                              </span>
+                            ) : "Zum Tausch anbieten"}
+                          </span>
+                        </div>
+                        <div
+                          className="flex min-h-11 items-center gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Switch
+                            checked={!!jersey.sale_price_cents}
+                            onCheckedChange={(v) => {
+                              if (v) {
+                                setSelectedJersey(jersey);
+                                const prefillCents = jersey.sale_price_cents ?? jersey.last_sale_price_cents;
+                                setSalePrice(prefillCents ? (prefillCents / 100).toString() : "");
+                                setSaleModalOpen(true);
+                              } else {
+                                withdrawSale.mutate({
+                                  id: jersey.id,
+                                  previousSalePriceCents: jersey.sale_price_cents,
+                                  availableForTrade: jersey.available_for_trade,
+                                });
+                              }
+                            }}
+                            aria-label="Zum Verkauf anbieten"
+                          />
+                          <span className="cap text-[10px] leading-tight text-muted-foreground">
+                            {jersey.sale_price_cents ? (
+                              <span className="text-verde">Zum Verkauf</span>
+                            ) : "Zum Verkauf anbieten"}
+                          </span>
+                        </div>
+                        {!!jersey.sale_price_cents && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-1 h-11 w-full px-2 text-[10px] md:text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedJersey(jersey);
+                              setSalePrice((jersey.sale_price_cents / 100).toString());
+                              setSaleModalOpen(true);
+                            }}
+                          >
+                            Preis ändern
+                          </Button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Jersey Detail Dialog */}
+      <Dialog open={detailSheetOpen} onOpenChange={(open) => {
+        setDetailSheetOpen(open);
+        if (!open) {
+          setIsEditing(false);
+          setEditForm(null);
+          setEditImageUrls([]);
+        }
+      }}>
+        <DialogContent className={cn(DIALOG, "sm:max-w-[900px]")}>
+          {selectedJersey && editForm && (
+            <>
+              <DialogHeader className="pr-8 text-left">
+                <div className="cap text-rosso">
+                  {isEditing ? "Modifica · Bearbeiten" : [selectedJersey.league, selectedJersey.year].filter(Boolean).join(" · ") || "La mia collezione"}
+                </div>
+                <DialogTitle className={DIALOG_TITLE}>{isEditing ? "Trikot bearbeiten" : selectedJersey.team}</DialogTitle>
+              </DialogHeader>
+              <div className="mt-2 grid gap-6 sm:grid-cols-[1fr_1fr]">
+                {/* Left Column: Images and Info (View Mode) / Images (Edit Mode) */}
+                <div className="space-y-6">
+                  {!isEditing && (
+                    <>
+                      {/* Jersey Images */}
+                      {getPrimaryImage(selectedJersey) ? (
+                        <div className="space-y-2">
+                          {(selectedJersey.image_urls && selectedJersey.image_urls.length > 0) ? (
+                            <div className="grid grid-cols-2 gap-2">
+                              {selectedJersey.image_urls.map((url: string, index: number) => (
+                                <div
+                                  key={index}
+                                  className={cn(
+                                    "grain grain-photo relative aspect-[4/5] overflow-hidden bg-sabbia",
+                                    index === 0 ? cn("border-[4px] md:border-[6px]", frameColorFor(selectedJersey.id)) : "border-2 border-nero",
+                                  )}
+                                >
+                                  <img src={url} alt={`${selectedJersey.name} ${index + 1}`} className="h-full w-full object-cover" />
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className={cn("grain grain-photo relative aspect-[4/5] overflow-hidden border-[4px] bg-sabbia md:border-[6px]", frameColorFor(selectedJersey.id))}>
+                              <img src={selectedJersey.image_url} alt={selectedJersey.name} className="h-full w-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className={cn("flex aspect-[4/5] items-center justify-center border-[4px] bg-sabbia md:border-[6px]", frameColorFor(selectedJersey.id))}>
+                          <span className="display text-7xl text-nero/25">{selectedJersey.team.charAt(0)}</span>
+                        </div>
+                      )}
+
+                      {/* Jersey Info */}
+                      <div className="space-y-4 border-t border-nero pt-4">
+                        <div>
+                          <p className="cap text-[10px] text-muted-foreground">Name</p>
+                          <p className="font-semibold">{selectedJersey.name}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-xs text-muted-foreground">Liga</p>
+                            <p className="cap text-[10px] text-muted-foreground">Liga</p>
                             <p className="font-semibold">{selectedJersey.league || "—"}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Saison</p>
+                            <p className="cap text-[10px] text-muted-foreground">Saison</p>
                             <p className="font-semibold">{selectedJersey.year || "—"}</p>
                           </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <p className="text-xs text-muted-foreground">Größe</p>
-                              <p className="font-semibold">{selectedJersey.size}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Zustand</p>
-                              <p className="font-semibold">{selectedJersey.condition}/5</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground">Schätzpreis</p>
-                              <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
-                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 border-t border-nero/25 pt-4">
+                          <div>
+                            <p className="cap text-[10px] text-muted-foreground">Größe</p>
+                            <p className="num text-xl leading-tight">{selectedJersey.size}</p>
                           </div>
-                          {selectedJersey.sale_price_cents && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Verkaufspreis</p>
-                              <p className="font-semibold text-lg text-primary">{formatEuros(selectedJersey.sale_price_cents)}</p>
-                            </div>
-                          )}
-                          {selectedJersey.description && selectedJersey.description.trim() && (
-                            <div>
-                              <p className="text-xs text-muted-foreground">Beschreibung</p>
-                              <div
-                                className="text-sm text-foreground prose prose-sm max-w-none dark:prose-invert"
-                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedJersey.description) }}
-                              />
-                            </div>
-                          )}
+                          <div>
+                            <p className="cap text-[10px] text-muted-foreground">Zustand</p>
+                            <p className="num text-xl leading-tight">{selectedJersey.condition}/5</p>
+                          </div>
+                          <div>
+                            <p className="cap text-[10px] text-muted-foreground">Schätzpreis</p>
+                            <p className="num text-xl leading-tight">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
+                          </div>
                         </div>
-                      </>
-                    )}
-
-                    {isEditing && (
-                      <>
-                        <div className="space-y-2">
-                          <Label>Bilder</Label>
-                          <MultiImageUpload
-                            images={editImageUrls}
-                            onImagesChange={setEditImageUrls}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Right Column: Form Fields (Edit Mode) / Action Buttons (View Mode) */}
-                  <div className="space-y-4">
-                    {isEditing && (
-                      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
-                        <div className="space-y-2">
-                          <Label>Name *</Label>
-                          <Input placeholder="Heimtrikot 2024/25" value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} required maxLength={200} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Team *</Label>
-                          <Combobox
-                            options={COMMON_TEAMS}
-                            value={editForm.team}
-                            onChange={(value) => setEditForm(f => ({ ...f, team: value }))}
-                            placeholder="FC Bayern München"
-                            maxLength={200}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Liga</Label>
-                          <Combobox
-                            options={COMMON_LEAGUES}
-                            value={editForm.league}
-                            onChange={(value) => setEditForm(f => ({ ...f, league: value }))}
-                            placeholder="Bundesliga"
-                            maxLength={100}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Saison</Label>
-                          <Input placeholder="z.B. 1997/98" value={editForm.year} onChange={(e) => setEditForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
-                        </div>
-                        {editForm.team && editForm.year && (
-                          <div className="mt-3">
-                            <PriceIntelligence
-                              team={editForm.team}
-                              year={parseInt(editForm.year) || 0}
-                              condition={editForm.condition || 3}
-                              size={editForm.size}
-                              compact={false}
+                        {selectedJersey.sale_price_cents && (
+                          <div className="border-t border-nero/25 pt-4">
+                            <p className="cap text-[10px] text-muted-foreground">Verkaufspreis</p>
+                            <p className="num text-[28px] leading-tight">{formatEuros(selectedJersey.sale_price_cents)}</p>
+                          </div>
+                        )}
+                        {selectedJersey.description && selectedJersey.description.trim() && (
+                          <div className="border-t border-nero/25 pt-4">
+                            <p className="cap text-[10px] text-muted-foreground">Beschreibung</p>
+                            <div
+                              className="prose prose-sm mt-1 max-w-none text-sm text-foreground"
+                              dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedJersey.description) }}
                             />
                           </div>
                         )}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Zustand</Label>
-                            <Select value={editForm.condition.toString()} onValueChange={(v) => setEditForm(f => ({ ...f, condition: v }))}>
-                              <SelectTrigger><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                {[5,4,3,2,1].map(c => <SelectItem key={c} value={String(c)}>{c}/5 · {conditionLabels[c]}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Größe</Label>
-                            <Select value={editForm.size} onValueChange={(v) => setEditForm(f => ({ ...f, size: v }))}>
-                              <SelectTrigger><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                {["XS","S","M","L","XL","XXL"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Verkaufspreis (€)</Label>
-                          <Input type="number" placeholder="100" value={editForm.sale_price_cents ? (editForm.sale_price_cents / 100).toString() : ""} onChange={(e) => setEditForm(f => ({ ...f, sale_price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))} min={0} max={100000} step={0.01} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Beschreibung</Label>
-                          <RichTextEditor
-                            content={editForm.description || ""}
-                            onChange={(html) => setEditForm(f => ({ ...f, description: html }))}
-                            maxLength={500}
-                            placeholder="Erzähle die Geschichte dieses Trikots..."
+                      </div>
+                    </>
+                  )}
+
+                  {isEditing && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Bilder</Label>
+                        <MultiImageUpload
+                          images={editImageUrls}
+                          onImagesChange={setEditImageUrls}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Right Column: Form Fields (Edit Mode) / Action Buttons (View Mode) */}
+                <div className="space-y-4">
+                  {isEditing && (
+                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); }}>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Name *</Label>
+                        <Input placeholder="Heimtrikot 2024/25" value={editForm.name} onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))} required maxLength={200} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Team *</Label>
+                        <Combobox
+                          options={COMMON_TEAMS}
+                          value={editForm.team}
+                          onChange={(value) => setEditForm(f => ({ ...f, team: value }))}
+                          placeholder="FC Bayern München"
+                          maxLength={200}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Liga</Label>
+                        <Combobox
+                          options={COMMON_LEAGUES}
+                          value={editForm.league}
+                          onChange={(value) => setEditForm(f => ({ ...f, league: value }))}
+                          placeholder="Bundesliga"
+                          maxLength={100}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Saison</Label>
+                        <Input placeholder="z.B. 1997/98" value={editForm.year} onChange={(e) => setEditForm(f => ({ ...f, year: e.target.value }))} maxLength={10} />
+                      </div>
+                      {editForm.team && editForm.year && (
+                        <div className="mt-3">
+                          <PriceIntelligence
+                            team={editForm.team}
+                            year={parseInt(editForm.year) || 0}
+                            condition={editForm.condition || 3}
+                            size={editForm.size}
+                            compact={false}
                           />
                         </div>
-                      </form>
-                    )}
+                      )}
+                      <div className="grid grid-cols-2 gap-4 border-t border-nero pt-4">
+                        <div className="space-y-2">
+                          <Label className={LABEL}>Zustand</Label>
+                          <Select value={editForm.condition.toString()} onValueChange={(v) => setEditForm(f => ({ ...f, condition: v }))}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {[5,4,3,2,1].map(c => <SelectItem key={c} value={String(c)}>{c}/5 · {conditionLabels[c]}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className={LABEL}>Größe</Label>
+                          <Select value={editForm.size} onValueChange={(v) => setEditForm(f => ({ ...f, size: v }))}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {["XS","S","M","L","XL","XXL"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className={LABEL}>Verkaufspreis (€)</Label>
+                        <Input type="number" placeholder="100" value={editForm.sale_price_cents ? (editForm.sale_price_cents / 100).toString() : ""} onChange={(e) => setEditForm(f => ({ ...f, sale_price_cents: e.target.value ? Math.round(parseFloat(e.target.value) * 100) : null }))} min={0} max={100000} step={0.01} />
+                      </div>
+                      <div className="space-y-2 border-t border-nero pt-4">
+                        <Label className={LABEL}>Beschreibung</Label>
+                        <RichTextEditor
+                          content={editForm.description || ""}
+                          onChange={(html) => setEditForm(f => ({ ...f, description: html }))}
+                          maxLength={500}
+                          placeholder="Erzähle die Geschichte dieses Trikots..."
+                        />
+                      </div>
+                    </form>
+                  )}
 
-                    {/* Action Buttons */}
-                    <div className="space-y-3 border-t border-border pt-6">
-                      {!isEditing && (
-                        <>
-                          {selectedJersey.available_for_trade ? (
-                            <Badge variant="default" className="w-full justify-center py-2">
-                              <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
-                            </Badge>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              className="w-full"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleTrade.mutate({ id: selectedJersey.id, available: true });
-                              }}
-                              disabled={toggleTrade.isPending}
-                            >
-                              {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
-                            </Button>
-                          )}
-                          {selectedJersey.sale_price_cents ? (
-                            <Badge variant="default" className="w-full justify-center py-2">
-                              Zum Verkauf ({formatEuros(selectedJersey.sale_price_cents)})
-                            </Badge>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              className="w-full"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSalePrice(selectedJersey.sale_price_cents ? (selectedJersey.sale_price_cents / 100).toString() : "");
-                                setSaleModalOpen(true);
-                              }}
-                            >
-                              Zum Verkauf anbieten
-                            </Button>
-                          )}
+                  {/* Action Buttons */}
+                  <div className={cn("space-y-3", isEditing && "border-t border-nero pt-6")}>
+                    {!isEditing && (
+                      <>
+                        {selectedJersey.available_for_trade ? (
+                          <div className={cn(STATUS_BOX, "border-rosso text-rosso")}>
+                            <ArrowLeftRight className="h-4 w-4" /> Im Tausch
+                          </div>
+                        ) : (
                           <Button
                             variant="outline"
-                            className="w-full"
-                            onClick={() => setIsEditing(true)}
-                          >
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            variant="destructive"
                             className="w-full"
                             onClick={(e) => {
                               e.stopPropagation();
-                              deleteJersey.mutate(selectedJersey.id);
-                              setDetailSheetOpen(false);
+                              toggleTrade.mutate({ id: selectedJersey.id, available: true });
                             }}
-                            disabled={deleteJersey.isPending}
+                            disabled={toggleTrade.isPending}
                           >
-                            {deleteJersey.isPending ? "Wird gelöscht..." : "Löschen"}
+                            {toggleTrade.isPending ? "Wird verarbeitet..." : "Zum Tausch anbieten"}
                           </Button>
-                        </>
-                      )}
-                      {isEditing && (
-                        <>
-                          <Button
-                            variant="hero"
-                            className="w-full uppercase tracking-wider"
-                            onClick={() => updateJersey.mutate(editForm)}
-                            disabled={updateJersey.isPending}
-                          >
-                            {updateJersey.isPending ? "Wird gespeichert..." : "Speichern"}
-                          </Button>
+                        )}
+                        {selectedJersey.sale_price_cents ? (
+                          <div className={cn(STATUS_BOX, "border-verde text-verde")}>
+                            Zum Verkauf ({formatEuros(selectedJersey.sale_price_cents)})
+                          </div>
+                        ) : (
                           <Button
                             variant="outline"
                             className="w-full"
-                            onClick={() => {
-                              setIsEditing(false);
-                              setEditForm(selectedJersey);
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSalePrice(selectedJersey.sale_price_cents ? (selectedJersey.sale_price_cents / 100).toString() : "");
+                              setSaleModalOpen(true);
                             }}
-                            disabled={updateJersey.isPending}
                           >
-                            Abbrechen
+                            Zum Verkauf anbieten
                           </Button>
-                        </>
-                      )}
-                    </div>
+                        )}
+                        <Button
+                          variant="dark"
+                          className="w-full"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteJersey.mutate(selectedJersey.id);
+                            setDetailSheetOpen(false);
+                          }}
+                          disabled={deleteJersey.isPending}
+                        >
+                          {deleteJersey.isPending ? "Wird gelöscht..." : "Löschen"}
+                        </Button>
+                      </>
+                    )}
+                    {isEditing && (
+                      <>
+                        <Button
+                          size="lg"
+                          className="w-full"
+                          onClick={() => updateJersey.mutate(editForm)}
+                          disabled={updateJersey.isPending}
+                        >
+                          {updateJersey.isPending ? "Wird gespeichert..." : "Speichern"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            setIsEditing(false);
+                            setEditForm(selectedJersey);
+                          }}
+                          disabled={updateJersey.isPending}
+                        >
+                          Abbrechen
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Sale Price Modal */}
-        <Dialog open={saleModalOpen} onOpenChange={setSaleModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="font-display text-2xl">Verkaufspreis festlegen</DialogTitle>
-            </DialogHeader>
-            {selectedJersey && (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Legen Sie einen Verkaufspreis für {selectedJersey.team} fest
-                </p>
-                <div className="space-y-2">
-                  <Label htmlFor="sale-price">Preis (€)</Label>
-                  <Input
-                    id="sale-price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                    value={salePrice}
-                    onChange={(e) => setSalePrice(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => {
-                      setSaleModalOpen(false);
-                      setSalePrice("");
-                    }}
-                  >
-                    Abbrechen
-                  </Button>
-                  <Button
-                    variant="hero"
-                    className="flex-1"
-                    onClick={() => {
-                      if (selectedJersey && salePrice) {
-                        updateSalePrice.mutate({ id: selectedJersey.id, price: salePrice });
-                      } else {
-                        toast.error("Bitte geben Sie einen Preis ein");
-                      }
-                    }}
-                    disabled={updateSalePrice.isPending || !salePrice}
-                  >
-                    {updateSalePrice.isPending ? "Wird gespeichert..." : "Speichern"}
-                  </Button>
-                </div>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Sale Price Modal */}
+      <Dialog open={saleModalOpen} onOpenChange={setSaleModalOpen}>
+        <DialogContent className={DIALOG}>
+          <DialogHeader className="text-left">
+            <div className="cap text-rosso">In vendita · Verkauf</div>
+            <DialogTitle className={DIALOG_TITLE}>Verkaufspreis festlegen</DialogTitle>
+          </DialogHeader>
+          {selectedJersey && (
+            <div className="space-y-5">
+              <p className="text-sm text-muted-foreground">
+                Legen Sie einen Verkaufspreis für {selectedJersey.team} fest
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="sale-price" className={LABEL}>Preis (€)</Label>
+                <Input
+                  id="sale-price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-3 border-t border-nero pt-5">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setSaleModalOpen(false);
+                    setSalePrice("");
+                  }}
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={() => {
+                    if (selectedJersey && salePrice) {
+                      updateSalePrice.mutate({ id: selectedJersey.id, price: salePrice });
+                    } else {
+                      toast.error("Bitte geben Sie einen Preis ein");
+                    }
+                  }}
+                  disabled={updateSalePrice.isPending || !salePrice}
+                >
+                  {updateSalePrice.isPending ? "Wird gespeichert..." : "Speichern"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
