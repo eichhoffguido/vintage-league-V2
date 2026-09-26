@@ -1,106 +1,95 @@
-import { useState } from "react";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { Monogram } from "@/components/brand/Logo";
+import { categoryToShopUrl } from "@/data/categoryFilters";
+import { BRAND_TAGLINE, INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/config/brand";
+
+type FooterLink = { label: string; to?: string; href?: string };
+
+// Kategorie-Links nutzen dieselbe Quelle wie die Header-Chips → filtern im Marktplatz wirklich.
+const COLUMNS: { title: string; links: FooterLink[] }[] = [
+  {
+    title: "Marktplatz",
+    links: [
+      { label: "Alle Trikots", to: "/shop" },
+      { label: "Just Dropped", to: "/shop?sort=newest" },
+      { label: "Klassiker", to: categoryToShopUrl("klassiker") },
+      { label: "Raritäten", to: categoryToShopUrl("rarities") },
+      { label: "Bundesliga", to: categoryToShopUrl("bundesliga") },
+      { label: "Nationalteams", to: categoryToShopUrl("nationalteam") },
+    ],
+  },
+  {
+    title: "Sammler",
+    links: [
+      { label: "Tauschbörse", to: "/shop?tradeable=true" },
+      { label: "Meine Tausch-Anfragen", to: "/trades" },
+      { label: "Meine Sammlung", to: "/collection" },
+      { label: "Mein Profil", to: "/profile" },
+      { label: "Community", to: "/community" },
+    ],
+  },
+  {
+    title: "Service",
+    links: [
+      { label: "FAQ", to: "/#faq" },
+      { label: "Impressum", to: "/imprint" },
+      { label: "Datenschutz", to: "/privacy" },
+      { label: `Instagram ${INSTAGRAM_HANDLE}`, href: INSTAGRAM_URL },
+    ],
+  },
+];
+
+const LINK_CLASS = "cap text-xs leading-[2.3] text-avorio hover:underline underline-offset-4";
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
-  const [subscriptionStatus, setSubscriptionStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setSubscriptionStatus("error");
-      setTimeout(() => setSubscriptionStatus("idle"), 3000);
-      return;
-    }
-
-    setSubscriptionStatus("loading");
-
-    // Simulate subscription (in a real app, this would call an API)
-    setTimeout(() => {
-      setSubscriptionStatus("success");
-      setEmail("");
-      setTimeout(() => setSubscriptionStatus("idle"), 3000);
-    }, 800);
-  };
+  const hollowFill = { "--fill": "hsl(var(--verde))" } as CSSProperties;
 
   return (
-    <footer className="grain border-t border-border bg-card">
-      {/* Newsletter / CTA strip */}
-      <div className="border-b border-border">
-        <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-8 md:flex-row md:justify-between">
-          <div>
-            <h4 className="font-display text-sm tracking-wider text-primary">SAMMLER-NEWSLETTER</h4>
-            <p className="mt-1 text-xs text-muted-foreground">Erhalte exklusive Angebote und seltene Fundstücke direkt in dein Postfach.</p>
-          </div>
-          <form onSubmit={handleNewsletterSubmit} className="flex w-full max-w-sm gap-2">
-            <input
-              type="email"
-              placeholder="deine@email.de"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-              disabled={subscriptionStatus === "loading"}
-            />
-            <button
-              type="submit"
-              disabled={subscriptionStatus === "loading"}
-              className={`rounded-sm px-4 py-2 font-display text-xs font-semibold uppercase tracking-wider transition-colors ${
-                subscriptionStatus === "success"
-                  ? "bg-green-600 text-white hover:bg-green-700"
-                  : subscriptionStatus === "error"
-                    ? "bg-red-600 text-white hover:bg-red-700"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-              } disabled:opacity-50`}
-            >
-              {subscriptionStatus === "loading" ? "..." : subscriptionStatus === "success" ? "✓" : subscriptionStatus === "error" ? "!" : "Anmelden"}
-            </button>
-          </form>
-        </div>
-      </div>
+    <footer>
+      <div className="tricolore" aria-hidden />
+      <div className="relative overflow-hidden bg-verde px-4 pb-8 pt-12 text-avorio md:px-10 md:pb-9 md:pt-[72px]">
+        {/* Gelber Kreis — Klammer zum Hero (Skill cc-design §5) */}
+        <div aria-hidden className="pointer-events-none absolute -right-[90px] -top-[90px] h-[190px] w-[190px] rounded-full bg-giallo md:-right-[140px] md:-top-[200px] md:h-[380px] md:w-[380px]" />
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-4">
-          <div>
-            <img src="/vintageleague-icon.svg" alt="Vintage League Signet" className="h-12 w-12 object-contain" loading="lazy" />
-            <p className="mt-4 font-serif text-sm italic leading-relaxed text-muted-foreground">
-              Dein Marktplatz für authentische Fußballtrikots — von aktuellen Raritäten bis zu legendären Klassikern.
-            </p>
+        <div className="container relative mx-auto grid grid-cols-2 gap-x-4 gap-y-8 px-0 md:grid-cols-4 md:gap-10">
+          <div className="col-span-2 md:col-span-1">
+            <Monogram tone="verde" className="h-11 md:h-[58px]" />
+            <p className="mt-4 max-w-[260px] text-[15px] leading-snug text-avorio/80 md:text-base">{BRAND_TAGLINE}</p>
           </div>
-          <div>
-            <h4 className="font-display text-xs font-semibold tracking-[0.2em] text-primary">MARKTPLATZ</h4>
-            <nav className="mt-4 flex flex-col gap-2.5">
-              <Link to="/shop" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Alle Trikots</Link>
-              <Link to="/shop?cat=retro" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Retro & Vintage</Link>
-              <Link to="/trades" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Trades</Link>
-              <Link to="/community" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Community</Link>
+          {COLUMNS.map((column) => (
+            <nav key={column.title} aria-label={column.title}>
+              <div className="cap text-xs text-avorio/55">{column.title}</div>
+              <ul className="mt-1">
+                {column.links.map((link) => (
+                  <li key={link.label}>
+                    {link.href ? (
+                      <a href={link.href} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.to ?? "/"} className={LINK_CLASS}>
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </nav>
-          </div>
-          <div>
-            <h4 className="font-display text-xs font-semibold tracking-[0.2em] text-primary">SAMMLUNGEN</h4>
-            <nav className="mt-4 flex flex-col gap-2.5">
-              <Link to="/shop?cat=bundesliga" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Bundesliga Klassiker</Link>
-              <Link to="/shop?cat=premier-league" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Premier League Legenden</Link>
-              <Link to="/shop?cat=nationalteam" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Nationalteams</Link>
-              <Link to="/shop?cat=rarities" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Raritäten</Link>
-            </nav>
-          </div>
-          <div>
-            <h4 className="font-display text-xs font-semibold tracking-[0.2em] text-primary">VERTRAUEN</h4>
-            <nav className="mt-4 flex flex-col gap-2.5">
-              <Link to="/collection" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Meine Sammlung</Link>
-              <Link to="/profile" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Mein Profil</Link>
-              <Link to="/#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">FAQ</Link>
-              <Link to="/imprint" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Impressum</Link>
-              <Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Datenschutz</Link>
-            </nav>
-          </div>
+          ))}
         </div>
-        <div className="vintage-divider mt-10" />
-        <div className="pt-6 text-center text-xs text-muted-foreground">
-          © 2026 Vintage League — Authentische Fußballtrikots für Sammler weltweit.
+
+        {/* Wortmarke — ganzes Wort hohl, nie einzelne Buchstaben */}
+        <div className="container relative mx-auto px-0">
+          <div className="display mt-10 whitespace-nowrap text-[50px] leading-[0.82] tracking-[-0.065em] md:mt-20 md:text-[clamp(96px,10.7vw,154px)] md:leading-[0.8]" aria-label="Calcio Classics">
+            <span className="block md:inline">Calcio</span>{" "}
+            <span className="hollow block md:inline" style={hollowFill}>Classics</span>
+          </div>
+          <div className="cap mt-6 flex flex-col gap-2 border-t border-avorio/45 pt-4 text-[10px] text-avorio/75 md:mt-7 md:flex-row md:justify-between md:text-[11px]">
+            <span>© {new Date().getFullYear()} · Calcio Classics</span>
+            <span>Gehostet in der EU (Frankfurt) · DSGVO</span>
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">{INSTAGRAM_HANDLE}</a>
+          </div>
         </div>
       </div>
     </footer>

@@ -11,7 +11,6 @@ import Footer from "@/components/Footer";
 import JerseyCard from "@/components/JerseyCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import TrustBanner from "@/components/TrustBanner";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +18,7 @@ import { getPrimaryImage } from "@/utils/jerseyImage";
 import heroImage from "@/assets/hero-jersey.jpg";
 import heroCollectibles from "@/assets/hero-collectibles.jpg";
 import heroRarity from "@/assets/hero-rarity.jpg";
+import { BRAND_NAME } from "@/config/brand";
 
 const fetchFeaturedJerseys = async () => {
   const { data, error } = await supabase
@@ -83,7 +83,7 @@ const heroSlides = [
 
 const FAQ_ITEMS = [
   {
-    question: "Was ist Vintage League?",
+    question: `Was ist ${BRAND_NAME}?`,
     answer: "Ein Marktplatz von Sammlern für Sammler: authentische Vintage-Fußballtrikots kaufen, verkaufen, tauschen — mit Community und Preistransparenz.",
   },
   {
@@ -180,7 +180,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
 
       {/* Hero */}
       <section className="grain relative overflow-hidden min-h-[70vh] flex items-center">

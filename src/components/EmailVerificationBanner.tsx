@@ -52,9 +52,9 @@ const EmailVerificationBanner = () => {
   if (!shouldShow) return null;
 
   return (
-    <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-3">
+    <div className="border-b border-nero border-l-[6px] border-l-giallo bg-card px-4 py-3 text-nero">
       <div className="container mx-auto flex items-center gap-3">
-        <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+        <AlertTriangle className="h-5 w-5 shrink-0 text-nero" />
         <p className="text-sm flex-1">
           Bitte bestätige deine E-Mail-Adresse. Wir haben dir eine E-Mail an{" "}
           <span className="font-semibold">{session?.user?.email}</span> geschickt.
@@ -63,14 +63,14 @@ const EmailVerificationBanner = () => {
           <button
             onClick={handleResendEmail}
             disabled={sending}
-            className="text-sm font-medium text-amber-800 hover:text-amber-950 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="cap flex items-center gap-1.5 text-xs text-nero underline-offset-4 hover:underline disabled:opacity-40"
           >
             <Mail className="h-4 w-4" />
             {sending ? "Senden..." : "E-Mail erneut senden"}
           </button>
           <button
             onClick={() => setDismissed(true)}
-            className="text-amber-600 hover:text-amber-800 transition-colors"
+            className="text-nero hover:text-primary"
             aria-label="Banner schließen"
           >
             <X className="h-4 w-4" />

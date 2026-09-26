@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
+import TrustBanner from "@/components/TrustBanner";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getPrimaryImage } from "@/utils/jerseyImage";
-import heroImage from "@/assets/hero-jersey.jpg";
 import { FilterSidebar } from "@/components/filters/FilterSidebar";
 import { FilterDrawer } from "@/components/filters/FilterDrawer";
 import { ActiveFilterChips } from "@/components/filters/ActiveFilterChips";
@@ -76,25 +77,14 @@ const Shop = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Banner */}
-      <section className="grain relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url(${heroImage})` }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/80" />
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-2xl">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-px w-6 bg-primary/50" />
-              <span className="font-display text-xs tracking-[0.2em] text-primary">MARKTPLATZ</span>
-            </div>
-            <h1 className="font-display text-4xl font-bold md:text-6xl">
-              Trikot <span className="text-gradient">Marktplatz</span>
-            </h1>
-            <p className="mt-4 font-serif text-lg italic text-muted-foreground">
-              Entdecke authentische Trikots von Sammlern für Sammler — jedes Stück verifiziert und mit Geschichte.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Seitenkopf: schwarzes Band (Hell/Dunkel-Rhythmus, Skill cc-design §5.1) */}
+      <PageHeader
+        tone="nero"
+        eyebrow="Il mercato · Marktplatz"
+        title="Der"
+        hollowWord="Marktplatz."
+        subline="Authentische Trikots von Sammlern für Sammler — jedes Stück geprüft und fair eingeordnet."
+      />
 
       {/* Main Content */}
       <section className="py-8 md:py-12">
@@ -246,6 +236,8 @@ const Shop = () => {
         filters={filters}
         onChange={setFilters}
       />
+
+      <TrustBanner />
 
       <Footer />
     </div>

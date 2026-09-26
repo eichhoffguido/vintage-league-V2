@@ -12,6 +12,7 @@ import { COMMON_TEAMS } from "@/data/teams-leagues";
 import { toast } from "sonner";
 import { ArrowRight, Shirt, Users, TrendingUp, Plus } from "lucide-react";
 import { retryAsync } from "@/utils/retry";
+import { BRAND_NAME } from "@/config/brand";
 
 type Step = "welcome" | "profile" | "favorite" | "add-jersey";
 
@@ -215,7 +216,7 @@ const Onboarding = () => {
 
             <div className="mb-12 text-center">
               <h1 className="font-display text-5xl font-bold">
-                Willkommen bei VintageLeague!
+                Willkommen bei {BRAND_NAME}!
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
                 Die Community-erste Plattform für den Handel mit Vintage-Fußballtrikots

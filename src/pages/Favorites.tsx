@@ -3,7 +3,6 @@ import { ArrowLeft, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
 import JerseyCard from "@/components/JerseyCard";
@@ -25,7 +24,6 @@ const Favorites = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <EmailVerificationBanner />
         <div className="container mx-auto px-4 py-12">
           <div className="text-center">
             <p className="text-muted-foreground">Wird geladen...</p>
@@ -43,7 +41,6 @@ const Favorites = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <Button
           variant="outline"

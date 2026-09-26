@@ -7,7 +7,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import PriceIntelligence from "@/components/PriceIntelligence";
 import MultiImageUpload from "@/components/MultiImageUpload";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -275,7 +274,6 @@ const Collection = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

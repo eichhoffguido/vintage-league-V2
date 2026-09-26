@@ -1,63 +1,41 @@
-import { ShieldCheck, Truck, Award, Lock } from "lucide-react";
+// Authentizitätsgarantie als schwarzer Streifen (Skill cc-design §5 „Nero stripes“).
+// Texte bleiben inhaltlich wie bisher; ab CC-C2 kommen sie aus dem CMS.
+const TICKER = ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in Frankfurt"];
 
-const features = [
-  {
-    icon: ShieldCheck,
-    title: "Echtheitszertifikat",
-    description: "Jedes Stück wird von Experten geprüft und zertifiziert",
-  },
-  {
-    icon: Award,
-    title: "Sammlerstücke",
-    description: "Kuratierte Auswahl seltener und historischer Trikots",
-  },
-  {
-    icon: Truck,
-    title: "Versicherter Versand",
-    description: "Sorgfältig verpackt und weltweit versichert",
-  },
-  {
-    icon: Lock,
-    title: "Käuferschutz",
-    description: "Geld-zurück-Garantie bei Nicht-Authentizität",
-  },
+const FEATURES = [
+  { title: "Echtheitszertifikat", description: "Jedes Stück wird von Experten geprüft und zertifiziert." },
+  { title: "Sammlerstücke", description: "Kuratierte Auswahl seltener und historischer Trikots." },
+  { title: "Versicherter Versand", description: "Sorgfältig verpackt und weltweit versichert." },
+  { title: "Käuferschutz", description: "Geld-zurück-Garantie bei Nicht-Authentizität." },
 ];
 
 const TrustBanner = () => {
   return (
-    <section className="grain border-y border-border bg-secondary/30 py-10">
-      <div className="container mx-auto px-4">
-        {/* Authenticity headline */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-3 flex items-center gap-2">
-            <div className="h-px w-8 bg-primary/40" />
-            <span className="font-display text-xs tracking-[0.25em] text-primary">
-              AUTHENTIZITÄTSGARANTIE
-            </span>
-            <div className="h-px w-8 bg-primary/40" />
-          </div>
-          <p className="font-serif text-lg italic text-muted-foreground">
-            Jedes Trikot erzählt eine Geschichte – wir garantieren, dass sie echt ist.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="flex flex-col items-center text-center stagger-item hover:scale-105 transition-transform duration-300"
-              style={{ animationDelay: `${index * 75}ms` }}
-            >
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-sm border border-primary/20 bg-primary/5 transition-all duration-300 group hover:bg-primary/10">
-                <feature.icon className="h-6 w-6 text-primary transition-transform duration-300 hover:rotate-12" />
-              </div>
-              <h3 className="font-display text-sm font-semibold tracking-wider">
-                {feature.title}
-              </h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{feature.description}</p>
+    <section className="nero-stripe" aria-label="Authentizitätsgarantie">
+      <div className="cap flex items-center justify-between gap-6 overflow-hidden border-b border-avorio/35 px-4 py-3.5 text-xs md:px-10">
+        <span>
+          <span className="text-rosso">Perché Calcio Classics</span> · Authentizitätsgarantie
+        </span>
+        {TICKER.map((item) => (
+          <span key={item} className="hidden items-center gap-6 whitespace-nowrap lg:flex">
+            <span aria-hidden>◆</span>
+            {item}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4">
+        {FEATURES.map((feature, index) => (
+          <div
+            key={feature.title}
+            className={`px-4 pb-10 pt-8 md:px-10 md:pb-14 md:pt-11 ${index > 0 ? "md:border-l md:border-avorio/35" : ""} ${index % 2 === 1 ? "border-l border-avorio/35 md:border-l" : ""}`}
+          >
+            <div className="display hollow text-[44px] leading-[0.8] md:text-[88px]" aria-hidden>
+              {String(index + 1).padStart(2, "0")}
             </div>
-          ))}
-        </div>
+            <h3 className="mt-4 text-sm md:mt-6 md:whitespace-nowrap md:text-[22px]">{feature.title}</h3>
+            <p className="mt-2 max-w-[270px] text-[13px] leading-snug text-avorio/80 md:text-base">{feature.description}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
