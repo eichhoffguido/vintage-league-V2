@@ -1,6 +1,6 @@
 // Authentizitätsgarantie als schwarzer Streifen (Skill cc-design §5 „Nero stripes“).
 // Texte bleiben inhaltlich wie bisher; ab CC-C2 kommen sie aus dem CMS.
-const TICKER = ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in Frankfurt"];
+const TICKER = ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in der EU"];
 
 const FEATURES = [
   { title: "Echtheitszertifikat", description: "Jedes Stück wird von Experten geprüft und zertifiziert." },

@@ -112,7 +112,7 @@ const FAQ_ITEMS = [
   },
   {
     question: "Wie sicher sind meine Daten?",
-    answer: "Hosting in der EU (Frankfurt), DSGVO-konform. Details in der Datenschutzerklärung.",
+    answer: "Hosting in der EU, DSGVO-konform. Details in der Datenschutzerklärung.",
   },
 ];
 

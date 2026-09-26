@@ -87,7 +87,7 @@ const Footer = () => {
           </div>
           <div className="cap mt-6 flex flex-col gap-2 border-t border-avorio/45 pt-4 text-[10px] text-avorio/75 md:mt-7 md:flex-row md:justify-between md:text-[11px]">
             <span>© {new Date().getFullYear()} · Calcio Classics</span>
-            <span>Gehostet in der EU (Frankfurt) · DSGVO</span>
+            <span>Gehostet in der EU · DSGVO</span>
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:underline">{INSTAGRAM_HANDLE}</a>
           </div>
         </div>
