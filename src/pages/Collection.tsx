@@ -925,7 +925,7 @@ const Collection = () => {
           {selectedJersey && (
             <div className="space-y-5">
               <p className="text-sm text-muted-foreground">
-                Legen Sie einen Verkaufspreis für {selectedJersey.team} fest
+                Leg einen Verkaufspreis für {selectedJersey.team} fest
               </p>
               <div className="space-y-2">
                 <Label htmlFor="sale-price" className={LABEL}>Preis (€)</Label>
@@ -956,7 +956,7 @@ const Collection = () => {
                     if (selectedJersey && salePrice) {
                       updateSalePrice.mutate({ id: selectedJersey.id, price: salePrice });
                     } else {
-                      toast.error("Bitte geben Sie einen Preis ein");
+                      toast.error("Bitte gib einen Preis ein.");
                     }
                   }}
                   disabled={updateSalePrice.isPending || !salePrice}
