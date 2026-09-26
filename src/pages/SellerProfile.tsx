@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mail, MapPin, Star, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
+import SectionHeader from "@/components/layout/SectionHeader";
+import JerseyCard from "@/components/JerseyCard";
 import { supabase } from "@/integrations/supabase/client";
-import { formatEuros } from "@/utils/currency";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, Shirt } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
-import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
 import { FavoriteTeamBadge } from "@/components/FavoriteTeamBadge";
 
@@ -30,13 +30,13 @@ const StarRating = ({ rating }: { rating: number | null }) => {
             key={star}
             className={`h-4 w-4 ${
               star <= Math.round(rating)
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-muted-foreground/30"
+                ? "fill-giallo text-giallo"
+                : "text-nero/20"
             }`}
           />
         ))}
       </div>
-      <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+      <span className="num text-sm">{rating.toFixed(1)}</span>
     </div>
   );
 };
@@ -118,31 +118,33 @@ const SellerProfile = () => {
     }
   };
 
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-12">
-          <div className="mb-8">
-            <Skeleton className="h-10 w-40 mb-4" />
-          </div>
-          <div className="rounded-sm border border-border bg-card p-8 mb-12">
-            <div className="flex gap-6">
-              <Skeleton className="h-20 w-20 rounded-sm" />
+        <section className="nero-stripe">
+          <div className="container mx-auto px-4 py-12 md:px-10 md:py-20">
+            <Skeleton className="h-3 w-40 bg-avorio/20" />
+            <Skeleton className="mt-4 h-12 w-2/3 bg-avorio/20 md:h-20" />
+            <div className="mt-8 flex gap-5">
+              <Skeleton className="h-20 w-20 shrink-0 rounded-full bg-avorio/20 md:h-24 md:w-24" />
               <div className="flex-1 space-y-3">
-                <Skeleton className="h-8 w-1/2" />
-                <Skeleton className="h-4 w-2/3" />
-                <div className="grid gap-4 sm:grid-cols-4 mt-6">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
+                <Skeleton className="h-4 w-2/3 bg-avorio/20" />
+                <Skeleton className="h-4 w-1/2 bg-avorio/20" />
               </div>
             </div>
+            <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full bg-avorio/20" />
+              ))}
+            </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        </section>
+        <div className="container mx-auto px-4 py-10 md:px-10 md:py-16">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-square rounded-sm" />
+              <Skeleton key={i} className="aspect-[4/5]" />
             ))}
           </div>
         </div>
@@ -155,13 +157,13 @@ const SellerProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-12">
-          <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+        <div className="container mx-auto px-4 py-10 md:px-10 md:py-16">
+          <Button variant="ghost" className="-ml-3 mb-6" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" /> Zurück
           </Button>
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive/30" />
-            <p className="font-display text-xl text-muted-foreground">Profil nicht gefunden</p>
+          <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-rosso" />
+            <p className="font-display text-lg font-semibold">Profil nicht gefunden</p>
             <p className="mt-2 text-sm text-muted-foreground">{error || "Das angeforderte Profil existiert nicht."}</p>
           </div>
         </div>
@@ -181,133 +183,121 @@ const SellerProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
+
+      <div className="container mx-auto px-4 py-2 md:px-10 md:py-3">
+        <Button variant="ghost" className="-ml-3" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4" /> Zurück
         </Button>
+      </div>
 
-        {/* Profile Section */}
-        <div className="mb-12 rounded-sm border border-border bg-card p-8">
-          <div className="flex items-start gap-6">
-            <Avatar className="h-20 w-20 rounded-sm">
-              {profile.avatar_url && <AvatarImage src={profile.avatar_url} />}
-              <AvatarFallback className="rounded-sm bg-secondary text-lg font-bold">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h1 className="font-display text-4xl font-bold">
-                {profile.display_name || "Sammler"}
-              </h1>
-              {profile.bio && (
-                <p className="mt-3 max-w-2xl text-muted-foreground">{profile.bio}</p>
-              )}
-              <FavoriteTeamBadge team={profile.favorite_team} className="mt-2" />
-
-              {/* Stats */}
-              <div className="mt-6 grid gap-4 sm:grid-cols-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Bewertung</p>
-                  <div className="mt-2">
-                    {averageRating !== null ? (
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= Math.round(averageRating)
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-muted-foreground/30"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm font-medium">{averageRating.toFixed(1)}</span>
-                        <span className="text-xs text-muted-foreground">({ratings.length})</span>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Keine Bewertungen</p>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Abgeschlossene Tausche</p>
-                  <p className="font-display text-2xl font-bold">{completedSalesCount}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Trikots</p>
-                  <p className="font-display text-2xl font-bold">{jerseys.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Beigetreten</p>
-                  <p className="font-display text-2xl font-bold">
-                    {new Date(profile.created_at).toLocaleDateString("de-DE", {
-                      year: "numeric",
-                      month: "short",
-                    })}
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* Öffentliches Profil → schwarzes Kopfband (Skill cc-design §5.1) */}
+      <PageHeader
+        tone="nero"
+        eyebrow="Il venditore · Verkäufer"
+        title={profile.display_name || "Sammler"}
+        className="[&_h1]:break-words"
+      >
+        <div className="flex items-start gap-4 md:gap-6">
+          <Avatar className="h-20 w-20 shrink-0 rounded-full border border-avorio/60 md:h-24 md:w-24">
+            {profile.avatar_url && <AvatarImage src={profile.avatar_url} />}
+            <AvatarFallback className="rounded-full bg-sabbia font-display text-xl font-bold text-nero">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            {profile.bio && (
+              <p className="max-w-2xl text-avorio/85">{profile.bio}</p>
+            )}
+            <FavoriteTeamBadge team={profile.favorite_team} className={profile.bio ? "mt-3" : undefined} />
           </div>
         </div>
 
+        {/* Stats */}
+        <dl className="mt-8 grid grid-cols-2 border-t border-avorio/35 md:grid-cols-4">
+          <div className="border-b border-avorio/35 py-4 pr-3 md:border-b-0 md:py-5">
+            <dt className="cap text-[11px] text-avorio/70">Bewertung</dt>
+            <dd className="mt-2">
+              {averageRating !== null ? (
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= Math.round(averageRating)
+                            ? "fill-giallo text-giallo"
+                            : "text-avorio/25"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="num text-2xl leading-none">{averageRating.toFixed(1)}</span>
+                  <span className="num text-sm text-avorio/70">({ratings.length})</span>
+                </div>
+              ) : (
+                <p className="text-sm text-avorio/70">Keine Bewertungen</p>
+              )}
+            </dd>
+          </div>
+          <div className="border-b border-l border-avorio/35 py-4 pl-4 md:border-b-0 md:py-5">
+            <dt className="cap text-[11px] text-avorio/70">Abgeschlossene Tausche</dt>
+            <dd className="num mt-2 text-[30px] leading-none md:text-[38px]">{completedSalesCount}</dd>
+          </div>
+          <div className="py-4 pr-3 md:border-l md:border-avorio/35 md:py-5 md:pl-4">
+            <dt className="cap text-[11px] text-avorio/70">Trikots</dt>
+            <dd className="num mt-2 text-[30px] leading-none md:text-[38px]">{jerseys.length}</dd>
+          </div>
+          <div className="border-l border-avorio/35 py-4 pl-4 md:py-5">
+            <dt className="cap text-[11px] text-avorio/70">Beigetreten</dt>
+            <dd className="num mt-2 text-[30px] leading-none md:text-[38px]">
+              {new Date(profile.created_at).toLocaleDateString("de-DE", {
+                year: "numeric",
+                month: "short",
+              })}
+            </dd>
+          </div>
+        </dl>
+      </PageHeader>
+
+      <div className="container mx-auto px-4 py-10 md:px-10 md:py-16">
         {/* Jerseys Section */}
-        <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold">Trikots</h2>
-          <p className="mt-1 text-muted-foreground">{jerseys.length} verfügbar</p>
-        </div>
+        <SectionHeader
+          className="mb-6 border-b border-nero pb-5 md:mb-8"
+          size="md"
+          eyebrow="Le maglie · Trikots"
+          title="Verfügbare"
+          hollowWord="Trikots."
+          subline={`${jerseys.length} verfügbar`}
+        />
 
         {jerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-            <p className="font-display text-xl text-muted-foreground">
+          <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+            <Shirt className="mx-auto mb-4 h-10 w-10" />
+            <p className="font-display text-lg font-semibold">
               Noch keine Trikots eingestellt
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-4">
             {jerseys.map((jersey) => (
-              <div
+              <JerseyCard
                 key={jersey.id}
-                className="overflow-hidden rounded-sm border border-border bg-card cursor-pointer transition-shadow hover:shadow-md"
+                id={jersey.id}
+                name={jersey.name}
+                team={jersey.team}
+                league={jersey.league}
+                year={jersey.year}
+                price_cents={jersey.price_cents ?? 0}
+                imageUrl={getPrimaryImage(jersey) ?? undefined}
+                verification_status={jersey.verification_status as "pending" | "verified" | "rejected" | undefined}
+                condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                size={jersey.size}
+                user_id={jersey.user_id}
+                sale_price_cents={jersey.sale_price_cents ?? undefined}
+                available_for_trade={jersey.available_for_trade ?? false}
+                listing_type={jersey.listing_type ?? undefined}
                 onClick={() => navigate(`/jersey/${jersey.id}`)}
-              >
-                {getPrimaryImage(jersey) ? (
-                  <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
-                  </div>
-                ) : (
-                  <div className="flex aspect-square items-center justify-center bg-secondary">
-                    <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-lg font-semibold">{jersey.team}</h3>
-                      <p className="text-sm text-muted-foreground">{jersey.name}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground mb-2">
-                    <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.sale_price_cents ? (
-                      <span className="font-semibold text-foreground">{formatEuros(jersey.sale_price_cents)}</span>
-                    ) : jersey.price_cents ? (
-                      <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>
-                    ) : null}
-                  </div>
-                  {jersey.verification_status === "verified" && (
-                    <div className="flex items-center gap-1">
-                      <Badge variant="default" className="bg-primary text-[10px]">
-                        <ShieldCheck className="mr-1 h-3 w-3" /> Verifiziert
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </div>
+              />
             ))}
           </div>
         )}
@@ -315,36 +305,40 @@ const SellerProfile = () => {
         {/* Ratings Section */}
         {ratings.length > 0 && (
           <>
-            <div className="mb-8 mt-12">
-              <h2 className="font-display text-2xl font-bold">Bewertungen</h2>
-              <p className="mt-1 text-muted-foreground">Letzte {ratings.length} Bewertungen</p>
-            </div>
-            <div className="space-y-4">
+            <SectionHeader
+              className="mb-6 mt-14 md:mb-8 md:mt-20"
+              size="md"
+              eyebrow="Le recensioni · Bewertungen"
+              title="Letzte"
+              hollowWord="Bewertungen."
+              subline={`Letzte ${ratings.length} Bewertungen`}
+            />
+            <ul className="border-t border-nero">
               {ratings.map((rating) => (
-                <div key={rating.id} className="rounded-sm border border-border bg-card p-4">
-                  <div className="flex items-start justify-between mb-2">
+                <li key={rating.id} className="border-b border-nero py-4">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
                           className={`h-4 w-4 ${
                             star <= rating.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-muted-foreground/30"
+                              ? "fill-giallo text-giallo"
+                              : "text-nero/20"
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="num text-sm text-muted-foreground">
                       {new Date(rating.created_at).toLocaleDateString("de-DE")}
                     </span>
                   </div>
                   {rating.comment && (
-                    <p className="text-sm text-muted-foreground">{rating.comment}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{rating.comment}</p>
                   )}
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </>
         )}
       </div>
