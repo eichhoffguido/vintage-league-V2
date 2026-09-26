@@ -1,1 +1,6 @@
 project_id = "napzgxpxkoiujjqwtzvz"
+
+# CC-S2: Stripe calls the webhook without a Supabase JWT. The function verifies the
+# Stripe signature itself, so the gateway JWT check must be off for this function.
+[functions.stripe-webhook]
+verify_jwt = false
