@@ -16,7 +16,8 @@ export default {
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
         body: ["var(--font-body)", "sans-serif"],
-        serif: ["var(--font-serif)", "serif"],
+        serif: ["var(--font-serif)", "sans-serif"],
+        num: ["var(--font-num)", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,6 +53,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        avorio: "hsl(var(--avorio))",
+        carta: "hsl(var(--carta))",
+        sabbia: "hsl(var(--sabbia))",
+        nero: "hsl(var(--nero))",
+        verde: "hsl(var(--verde))",
+        giallo: "hsl(var(--giallo))",
+        rosso: "hsl(var(--rosso))",
+        azzurro: "hsl(var(--azzurro))",
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        danger: "hsl(var(--danger))",
+        info: "hsl(var(--info))",
         gold: {
           DEFAULT: "hsl(var(--gold))",
           muted: "hsl(var(--gold-muted))",
@@ -68,10 +81,25 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      // Calcio Classics: eckig. Alle Stufen folgen --radius (0); nur rounded-full bleibt rund (Avatare, Kreise).
       borderRadius: {
+        DEFAULT: "var(--radius)",
+        sm: "var(--radius)",
+        md: "var(--radius)",
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xl: "var(--radius)",
+        "2xl": "var(--radius)",
+        "3xl": "var(--radius)",
+      },
+      // Keine Schatten im System — Tiefe entsteht über Linien.
+      boxShadow: {
+        sm: "none",
+        DEFAULT: "none",
+        md: "none",
+        lg: "none",
+        xl: "none",
+        "2xl": "none",
+        inner: "none",
       },
       keyframes: {
         "accordion-down": {
@@ -91,8 +119,8 @@ export default {
           to: { opacity: "1", transform: "translateX(0)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(45 90% 55% / 0.1)" },
-          "50%": { boxShadow: "0 0 30px hsl(45 90% 55% / 0.25)" },
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.85" },
         },
         "bounce-in": {
           "0%": { opacity: "0", transform: "scale(0.95)" },
