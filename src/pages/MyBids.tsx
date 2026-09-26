@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -44,12 +45,15 @@ interface BidRow {
   lowestAsk?: number | null;
 }
 
+// Eckige Status-Tags (Skill cc-design §6): aktiv = verde Kontur, angenommen = verde gefüllt,
+// storniert = neutral, abgelaufen = rosso Kontur.
 const statusConfig: Record<BidStatus, { label: string; className: string }> = {
-  active: { label: "Aktiv", className: "bg-green-500/15 text-green-700 border-green-500/20" },
-  matched: { label: "Angenommen", className: "bg-blue-500/15 text-blue-700 border-blue-500/20" },
-  cancelled: { label: "Storniert", className: "bg-red-500/15 text-red-700 border-red-500/20" },
-  expired: { label: "Abgelaufen", className: "bg-secondary text-muted-foreground border-border" },
+  active: { label: "Aktiv", className: "border-verde bg-transparent text-verde" },
+  matched: { label: "Angenommen", className: "border-verde bg-verde text-avorio" },
+  cancelled: { label: "Storniert", className: "border-nero bg-transparent text-muted-foreground" },
+  expired: { label: "Abgelaufen", className: "border-rosso bg-transparent text-rosso" },
 };
+
 
 const MyBids = () => {
   const { user, loading: authLoading } = useAuth();
@@ -137,107 +141,119 @@ const MyBids = () => {
     }
   };
 
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        <h1 className="font-display text-4xl font-bold mb-8">Meine Gebote</h1>
 
+      {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
+      <PageHeader tone="verde" eyebrow="Le mie offerte · Gebote" title="Meine" hollowWord="Gebote." />
+
+      <div className="container mx-auto px-4 py-8 md:px-10 md:py-12">
         {loading ? (
-          <div className="space-y-4">
+          <div className="border-t border-nero">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-sm" />
+              <div key={i} className="border-b border-nero py-4">
+                <Skeleton className="h-16 w-full" />
+              </div>
             ))}
           </div>
         ) : bids.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-16 text-center">
-            <p className="font-display text-xl text-muted-foreground">Du hast noch keine Gebote abgegeben.</p>
-            <Button variant="outline" className="mt-6" onClick={() => navigate("/shop")}>
-              Zum Marktplatz
+          <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+            <p className="font-display text-lg font-semibold">Du hast noch keine Gebote abgegeben.</p>
+            <Button variant="outline" className="mt-5" onClick={() => navigate("/shop")}>
+              Zum Marktplatz →
             </Button>
           </div>
         ) : (
-          <div className="rounded-sm border border-border overflow-hidden">
+          <>
             {/* Header row */}
-            <div className="hidden md:grid grid-cols-[auto_1fr_1fr_1fr_1fr_auto] gap-4 bg-secondary/50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
-              <div className="w-12" />
+            <div className="cap hidden grid-cols-[48px_minmax(0,2fr)_1fr_1fr_1fr_auto] gap-4 border-y border-nero py-3 text-[11px] text-muted-foreground md:grid">
+              <div />
               <div>Trikot</div>
               <div>Mein Gebot</div>
               <div>Niedrigstes Ask</div>
               <div>Läuft ab</div>
-              <div>Aktion</div>
+              <div className="min-w-[132px]">Aktion</div>
             </div>
 
-            {bids.map((bid, idx) => {
-              const cfg = statusConfig[bid.status] || statusConfig.expired;
-              const imageUrl = getImageUrl(bid.jersey ? getPrimaryImage(bid.jersey) : null);
-              const expiresDate = new Date(bid.expires_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
+            <ul className="border-t border-nero md:border-t-0">
+              {bids.map((bid) => {
+                const cfg = statusConfig[bid.status] || statusConfig.expired;
+                const imageUrl = getImageUrl(bid.jersey ? getPrimaryImage(bid.jersey) : null);
+                const expiresDate = new Date(bid.expires_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "2-digit" });
 
-              return (
-                <div
-                  key={bid.id}
-                  className={`grid grid-cols-1 md:grid-cols-[auto_1fr_1fr_1fr_1fr_auto] gap-4 items-center px-4 py-4 ${idx !== 0 ? "border-t border-border" : ""}`}
-                >
-                  {/* Thumbnail */}
-                  <div className="hidden md:block w-12">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={bid.jersey?.name ?? ""} className="h-12 w-12 rounded-sm object-cover bg-secondary" />
-                    ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-secondary text-muted-foreground font-display font-bold">
-                        {(bid.jersey?.team ?? "?").charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Jersey info */}
-                  <div className="min-w-0">
-                    <Link to={`/jersey/${bid.jersey_id}`} className="font-semibold hover:text-primary truncate block">
-                      {bid.jersey?.name ?? "Trikot"}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{bid.jersey?.league} · {bid.jersey?.year}</p>
-                    <Badge className={`mt-1 text-xs border ${cfg.className}`} variant="outline">{cfg.label}</Badge>
-                  </div>
-
-                  {/* My bid */}
-                  <div>
-                    <p className="font-semibold text-primary">{formatEuros(bid.price_cents)}</p>
-                  </div>
-
-                  {/* Lowest ask */}
-                  <div>
-                    {bid.status === "active" ? (
-                      bid.lowestAsk !== undefined && bid.lowestAsk !== null ? (
-                        <p className="text-sm">{formatEuros(bid.lowestAsk)}</p>
+                return (
+                  <li
+                    key={bid.id}
+                    className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-x-3 gap-y-2 border-b border-nero py-4 md:grid-cols-[48px_minmax(0,2fr)_1fr_1fr_1fr_auto] md:gap-4"
+                  >
+                    {/* Thumbnail */}
+                    <div className="h-12 w-12 self-start md:self-center">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={bid.jersey?.name ?? ""} className="h-12 w-12 border border-nero bg-sabbia object-cover" />
                       ) : (
-                        <p className="text-sm text-muted-foreground italic">—</p>
-                      )
-                    ) : (
-                      <p className="text-sm text-muted-foreground">—</p>
-                    )}
-                  </div>
+                        <div className="flex h-12 w-12 items-center justify-center border border-nero bg-sabbia font-display text-lg font-bold text-nero/40">
+                          {(bid.jersey?.team ?? "?").charAt(0)}
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Expires */}
-                  <div>
-                    <p className="text-sm text-muted-foreground">{expiresDate}</p>
-                  </div>
-
-                  {/* Action */}
-                  <div>
-                    {bid.status === "active" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-destructive border-destructive/30 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={() => setCancelTargetId(bid.id)}
+                    {/* Jersey info */}
+                    <div className="min-w-0">
+                      <Link
+                        to={`/jersey/${bid.jersey_id}`}
+                        className="block truncate font-display text-[17px] font-semibold tracking-[-0.02em] underline-offset-4 hover:underline"
                       >
-                        Zurückziehen
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                        {bid.jersey?.name ?? "Trikot"}
+                      </Link>
+                      <p className="cap mt-0.5 text-[10px] text-muted-foreground">{bid.jersey?.league} · {bid.jersey?.year}</p>
+                      <Badge variant="tag" className={`mt-2 ${cfg.className}`}>{cfg.label}</Badge>
+                    </div>
+
+                    {/* My bid */}
+                    <div className="col-span-2 flex items-baseline justify-between gap-4 md:col-span-1 md:block">
+                      <span className="cap text-[10px] text-muted-foreground md:hidden">Mein Gebot</span>
+                      <p className="num text-2xl leading-none">{formatEuros(bid.price_cents)}</p>
+                    </div>
+
+                    {/* Lowest ask */}
+                    <div className="col-span-2 flex items-baseline justify-between gap-4 md:col-span-1 md:block">
+                      <span className="cap text-[10px] text-muted-foreground md:hidden">Niedrigstes Ask</span>
+                      {bid.status === "active" ? (
+                        bid.lowestAsk !== undefined && bid.lowestAsk !== null ? (
+                          <p className="num text-lg leading-none">{formatEuros(bid.lowestAsk)}</p>
+                        ) : (
+                          <p className="num text-lg leading-none text-muted-foreground">—</p>
+                        )
+                      ) : (
+                        <p className="num text-lg leading-none text-muted-foreground">—</p>
+                      )}
+                    </div>
+
+                    {/* Expires */}
+                    <div className="col-span-2 flex items-baseline justify-between gap-4 md:col-span-1 md:block">
+                      <span className="cap text-[10px] text-muted-foreground md:hidden">Läuft ab</span>
+                      <p className="num text-lg leading-none text-muted-foreground">{expiresDate}</p>
+                    </div>
+
+                    {/* Action */}
+                    <div className="col-span-2 md:col-span-1 md:min-w-[132px]">
+                      {bid.status === "active" && (
+                        <Button
+                          variant="outline"
+                          className="mt-1 w-full border-rosso text-rosso hover:bg-rosso hover:text-avorio md:mt-0 md:w-auto"
+                          onClick={() => setCancelTargetId(bid.id)}
+                        >
+                          Zurückziehen
+                        </Button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </div>
       <Footer />
@@ -253,7 +269,7 @@ const MyBids = () => {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={cancelling}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="border-rosso bg-rosso text-avorio hover:bg-rosso/90"
               onClick={handleCancelConfirm}
               disabled={cancelling}
             >

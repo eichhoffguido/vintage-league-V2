@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
+import SectionHeader from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,16 +17,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Combobox } from "@/components/ui/combobox";
 import { COMMON_TEAMS } from "@/data/teams-leagues";
 import { FavoriteTeamBadge } from "@/components/FavoriteTeamBadge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeftRight, Upload, X, Shirt, AlertCircle, Edit2, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeftRight, Upload, Shirt, AlertCircle, Edit2, CheckCircle2 } from "lucide-react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+
+// Figurina-Optik für die eigene Sammlung (Skill cc-design §6). Rahmenfarbe rein dekorativ, stabil pro Trikot.
+const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
+const frameColorFor = (id: string) =>
+  FRAME_COLORS[[...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % FRAME_COLORS.length];
+const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
 
 const UserProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -178,6 +185,7 @@ const UserProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
+        <PageHeader tone="verde" eyebrow="Il mio profilo · Profil" title="Mein" hollowWord="Profil." />
         <ProfilePageSkeleton />
         <Footer />
       </div>
@@ -198,95 +206,132 @@ const UserProfile = () => {
   const completionPercentage = (completedFields / profileFields.length) * 100;
   const incompleteFields = profileFields.filter(f => !f.filled);
 
+  const stats = [
+    { label: "Trikots in Sammlung", value: String(jerseys.length) },
+    { label: "Gesamtwert", value: formatEuros(totalValue) },
+    { label: "Zum Tausch verfügbar", value: String(jerseys.filter(j => j.available_for_trade).length) },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        {/* Profile Section */}
-        <div className="mb-12 rounded-sm border border-border bg-card p-8">
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div className="flex items-start gap-6">
-              <div className="relative">
-                <Avatar className="h-20 w-20 rounded-sm">
-                  {profileForm.avatar_url && <AvatarImage src={profileForm.avatar_url} />}
-                  <AvatarFallback className="rounded-sm bg-secondary text-lg font-bold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                {editMode && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => avatarInputRef.current?.click()}
-                      disabled={uploadAvatar.isPending}
-                      className="absolute inset-0 flex items-center justify-center rounded-sm bg-background/70 text-foreground opacity-0 transition-opacity hover:opacity-100 disabled:opacity-100"
-                      aria-label="Profilbild ändern"
-                    >
-                      {uploadAvatar.isPending ? (
-                        <span className="text-[10px]">Lädt…</span>
-                      ) : (
-                        <Upload className="h-5 w-5" />
-                      )}
-                    </button>
-                    <input
-                      ref={avatarInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      className="hidden"
-                      onChange={handleAvatarFileChange}
-                    />
-                  </>
-                )}
-              </div>
-              <div className="flex-1">
-                <h1 className="font-display text-3xl font-bold">
-                  {profileForm.display_name || user?.email?.split("@")[0] || "Benutzer"}
-                </h1>
-                {profileForm.bio && (
-                  <p className="mt-2 max-w-md text-muted-foreground">{profileForm.bio}</p>
-                )}
-                <FavoriteTeamBadge team={profileForm.favorite_team} className="mt-2" />
-                <p className="mt-3 text-sm text-muted-foreground">{user?.email}</p>
 
-                {/* Profile Completion Indicator */}
-                <div className="mt-6 w-full max-w-md">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {completionPercentage === 100 ? "Dein Profil ist vollständig! 🎉" : "Profil zu " + Math.round(completionPercentage) + "% fertig"}
-                    </span>
-                    {completionPercentage === 100 && (
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+      {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
+      <PageHeader tone="verde" eyebrow="Il mio profilo · Profil" title="Mein" hollowWord="Profil.">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+          <div className="flex min-w-0 items-start gap-4 md:gap-6">
+            <div className="relative shrink-0">
+              <Avatar className="h-20 w-20 rounded-full border border-nero md:h-24 md:w-24">
+                {profileForm.avatar_url && <AvatarImage src={profileForm.avatar_url} />}
+                <AvatarFallback className="rounded-full bg-sabbia font-display text-xl font-bold text-nero">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              {editMode && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadAvatar.isPending}
+                    className="absolute inset-0 flex items-center justify-center rounded-full bg-nero/60 text-avorio opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100 disabled:opacity-100"
+                    aria-label="Profilbild ändern"
+                  >
+                    {uploadAvatar.isPending ? (
+                      <span className="cap text-[10px]">Lädt…</span>
+                    ) : (
+                      <Upload className="h-5 w-5" />
                     )}
-                  </div>
-                  <Progress value={completionPercentage} className="h-2" />
-                  {incompleteFields.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {incompleteFields.map(field => (
-                        <p key={field.name} className="text-xs text-muted-foreground">
-                          {field.nudge}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarFileChange}
+                  />
+                </>
+              )}
             </div>
-            {!editMode ? (
-              <Button
-                variant="outline"
-                onClick={() => setEditMode(true)}
-                className="border-primary/30"
-              >
-                <Edit2 className="mr-2 h-4 w-4" /> Profil bearbeiten
-              </Button>
-            ) : null}
+            <div className="min-w-0 flex-1">
+              <h2 className="break-words font-display text-2xl font-semibold tracking-[-0.02em] md:text-3xl">
+                {profileForm.display_name || user?.email?.split("@")[0] || "Benutzer"}
+              </h2>
+              {profileForm.bio && (
+                <p className="mt-2 max-w-md text-avorio/85">{profileForm.bio}</p>
+              )}
+              <FavoriteTeamBadge team={profileForm.favorite_team} className="mt-3" />
+              <p className="cap mt-3 break-all text-[11px] text-avorio/75">{user?.email}</p>
+            </div>
+          </div>
+          {!editMode ? (
+            <Button variant="light" onClick={() => setEditMode(true)}>
+              <Edit2 className="h-4 w-4" /> Profil bearbeiten
+            </Button>
+          ) : null}
+        </div>
+      </PageHeader>
+
+      <div className="container mx-auto px-4 py-10 md:px-10 md:py-16">
+        {/* Profilstatus + Kennzahlen */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
+          {/* Profile Completion Indicator */}
+          <div className="border-2 border-nero bg-card p-5 md:p-6">
+            <div className="cap text-[11px] text-rosso">Il profilo · Profilstatus</div>
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <span className="font-display text-lg font-semibold tracking-[-0.02em]">
+                {completionPercentage === 100 ? "Dein Profil ist vollständig! 🎉" : "Profil zu " + Math.round(completionPercentage) + "% fertig"}
+              </span>
+              {completionPercentage === 100 && (
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-verde" />
+              )}
+            </div>
+            <Progress value={completionPercentage} className="mt-4 h-2.5 rounded-none border border-nero bg-carta" />
+            {incompleteFields.length > 0 && (
+              <ul className="mt-4 border-t border-nero">
+                {incompleteFields.map(field => (
+                  <li key={field.name} className="border-b border-nero py-2.5 text-sm text-muted-foreground">
+                    {field.nudge}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {/* Edit Mode */}
-          {editMode && (
-            <div className="mt-8 space-y-4 border-t border-border pt-8">
+          {/* Statistics */}
+          <dl className="grid grid-cols-1 self-start border-t border-nero sm:grid-cols-3 sm:border-b">
+            {stats.map((stat, i) => (
+              <div
+                key={stat.label}
+                className={`flex items-baseline justify-between gap-4 border-b border-nero py-4 sm:flex-col sm:items-start sm:justify-start sm:gap-2 sm:border-b-0 sm:py-6 ${i > 0 ? "sm:border-l sm:pl-5" : ""}`}
+              >
+                <dt className="cap text-[11px] text-muted-foreground">{stat.label}</dt>
+                <dd className="num text-[30px] leading-none md:text-[38px]">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        {/* Edit Mode */}
+        {editMode && (
+          <div className="mt-8 border-2 border-nero bg-card p-5 md:p-8">
+            <div className="cap text-[11px] text-rosso">Modifica · Bearbeiten</div>
+            <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.02em]">Profil bearbeiten</h2>
+            <div className="mt-6 space-y-5">
               <div className="space-y-2">
-                <Label>Anzeigename</Label>
+                <Label className="cap text-[11px]">Profilbild</Label>
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadAvatar.isPending}
+                  >
+                    <Upload className="h-4 w-4" /> {uploadAvatar.isPending ? "Lädt…" : "Profilbild ändern"}
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="cap text-[11px]">Anzeigename</Label>
                 <Input
                   value={profileForm.display_name}
                   onChange={(e) => setProfileForm(f => ({ ...f, display_name: e.target.value }))}
@@ -295,7 +340,7 @@ const UserProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Bio</Label>
+                <Label className="cap text-[11px]">Bio</Label>
                 <Textarea
                   value={profileForm.bio}
                   onChange={(e) => setProfileForm(f => ({ ...f, bio: e.target.value }))}
@@ -305,7 +350,7 @@ const UserProfile = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Lieblingsverein</Label>
+                <Label className="cap text-[11px]">Lieblingsverein</Label>
                 <Combobox
                   options={COMMON_TEAMS}
                   value={profileForm.favorite_team}
@@ -315,12 +360,10 @@ const UserProfile = () => {
                   strict
                 />
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3 pt-2">
                 <Button
-                  variant="hero"
                   onClick={() => updateProfile.mutate()}
                   disabled={updateProfile.isPending}
-                  className="uppercase tracking-wider"
                 >
                   {updateProfile.isPending ? "Wird gespeichert..." : "Speichern"}
                 </Button>
@@ -333,116 +376,118 @@ const UserProfile = () => {
                 </Button>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Statistics */}
-        <div className="mb-12 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-sm border border-border bg-card p-6 text-center">
-            <p className="text-sm text-muted-foreground">Trikots in Sammlung</p>
-            <p className="font-display text-4xl font-bold">{jerseys.length}</p>
           </div>
-          <div className="rounded-sm border border-border bg-card p-6 text-center">
-            <p className="text-sm text-muted-foreground">Gesamtwert</p>
-            <p className="font-display text-4xl font-bold">{formatEuros(totalValue)}</p>
-          </div>
-          <div className="rounded-sm border border-border bg-card p-6 text-center">
-            <p className="text-sm text-muted-foreground">Zum Tausch verfügbar</p>
-            <p className="font-display text-4xl font-bold">
-              {jerseys.filter(j => j.available_for_trade).length}
-            </p>
-          </div>
-        </div>
+        )}
 
         {/* Collection Section */}
-        <div className="mb-8">
-          <h2 className="font-display text-2xl font-bold">Meine Sammlung</h2>
-          <p className="mt-1 text-muted-foreground">{jerseys.length} Trikots</p>
-        </div>
+        <SectionHeader
+          className="mb-6 mt-14 border-b border-nero pb-5 md:mb-8 md:mt-20"
+          size="md"
+          eyebrow="La mia collezione · Sammlung"
+          title="Meine"
+          hollowWord="Sammlung."
+          subline={`${jerseys.length} Trikots`}
+        />
 
         {jerseysLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <JerseyCardSkeleton key={i} />
             ))}
           </div>
         ) : jerseysError ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive/30" />
-            <p className="font-display text-xl text-muted-foreground">Fehler beim Laden deiner Sammlung</p>
+          <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-rosso" />
+            <p className="font-display text-lg font-semibold">Fehler beim Laden deiner Sammlung</p>
             <p className="mt-2 text-sm text-muted-foreground">{error instanceof Error ? error.message : "Bitte versuche es später erneut"}</p>
-            <Button
-              variant="hero"
-              className="mt-4 uppercase tracking-wider"
-              onClick={() => refetch()}
-            >
+            <Button className="mt-5" onClick={() => refetch()}>
               Erneut versuchen
             </Button>
           </div>
         ) : jerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <Shirt className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-            <p className="font-display text-xl text-muted-foreground">Noch keine Trikots in deiner Sammlung</p>
+          <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+            <Shirt className="mx-auto mb-4 h-10 w-10" />
+            <p className="font-display text-lg font-semibold">Noch keine Trikots in deiner Sammlung</p>
             <p className="mt-2 text-sm text-muted-foreground">Gehe zu deiner Sammlung und füge dein erstes Trikot hinzu.</p>
-            <Button
-              variant="hero"
-              className="mt-4 uppercase tracking-wider"
-              onClick={() => navigate("/collection")}
-            >
-              <Plus className="mr-2 h-4 w-4" /> Zur Sammlung
+            <Button className="mt-5" onClick={() => navigate("/collection")}>
+              <Plus className="h-4 w-4" /> Zur Sammlung
             </Button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {jerseys.map((jersey) => (
               <div
                 key={jersey.id}
-                className="overflow-hidden rounded-sm border border-border bg-card cursor-pointer transition-shadow hover:shadow-md"
+                className="group flex cursor-pointer flex-col gap-2.5 border-2 border-nero bg-card p-2 md:gap-3 md:p-3"
                 onClick={() => {
                   setSelectedJersey(jersey);
                   setDetailSheetOpen(true);
                 }}
               >
-                {getPrimaryImage(jersey) ? (
-                  <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" loading="lazy" />
-                  </div>
-                ) : (
-                  <div className="flex aspect-square items-center justify-center bg-secondary">
-                    <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
+                {/* Kopfzeile */}
+                <div className="cap truncate text-[10px] md:text-[11px]">
+                  {jersey.league} · {jersey.year}
+                </div>
+
+                {/* Bild mit farbigem Rahmen */}
+                <div className={`grain grain-photo relative aspect-[4/5] overflow-hidden border-[4px] bg-sabbia md:border-[6px] ${frameColorFor(jersey.id)}`}>
+                  {getPrimaryImage(jersey) ? (
+                    <img
+                      src={getPrimaryImage(jersey)!}
+                      alt={jersey.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <span className="display text-6xl text-nero/25">{jersey.team.charAt(0)}</span>
+                    </div>
+                  )}
+                  {jersey.size && (
+                    <div className="absolute bottom-1.5 left-1.5 z-[2]">
+                      <span className={`${TAG} border-nero bg-card text-nero`}>{jersey.size}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Titel */}
+                <div>
+                  <h3 className="font-display text-[15px] font-semibold leading-tight tracking-[-0.02em] md:text-[17px]">{jersey.team}</h3>
+                  <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground md:text-sm">{jersey.name}</p>
+                </div>
+
+                {/* Meta */}
+                <div className="cap truncate text-[10px] text-muted-foreground">
+                  {jersey.condition}/5 · {conditionLabels[jersey.condition]}
+                </div>
+
+                {jersey.available_for_trade && (
+                  <div className="flex flex-wrap gap-1">
+                    <span className={`${TAG} gap-1 border-rosso text-rosso`}>
+                      <ArrowLeftRight className="h-3 w-3" /> Tauschbar
+                    </span>
                   </div>
                 )}
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                      <h3 className="font-display text-lg font-semibold">{jersey.team}</h3>
-                      <p className="text-sm text-muted-foreground">{jersey.name}</p>
-                    </div>
-                    <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                    {jersey.price_cents && <span className="font-semibold text-foreground">{formatEuros(jersey.price_cents)}</span>}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                    {jersey.available_for_trade && (
-                      <span className="text-xs flex items-center gap-1 text-primary">
-                        <ArrowLeftRight className="h-3 w-3" /> Tauschbar
-                      </span>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive ml-auto"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteJersey.mutate(jersey.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+
+                {/* Preiszeile */}
+                <div className="mt-auto flex items-center justify-between gap-2 border-t border-nero pt-2">
+                  {jersey.price_cents ? (
+                    <span className="num text-xl leading-none md:text-2xl">{formatEuros(jersey.price_cents)}</span>
+                  ) : (
+                    <span />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="-mr-1 h-11 w-11 shrink-0 text-muted-foreground hover:bg-transparent hover:text-rosso"
+                    aria-label="Trikot entfernen"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteJersey.mutate(jersey.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
@@ -451,63 +496,54 @@ const UserProfile = () => {
 
         {/* Jersey Detail Sheet */}
         <Sheet open={detailSheetOpen} onOpenChange={setDetailSheetOpen}>
-          <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
+          <SheetContent side="right" className="w-full overflow-y-auto border-l-2 border-nero bg-card sm:max-w-md">
             {selectedJersey && (
               <>
                 <SheetHeader>
-                  <SheetTitle className="font-display text-2xl">{selectedJersey.team}</SheetTitle>
+                  <div className="cap text-[11px] text-rosso">La maglia · Trikot</div>
+                  <SheetTitle className="font-display text-2xl font-semibold tracking-[-0.02em]">{selectedJersey.team}</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 space-y-6">
                   {/* Jersey Image */}
                   {getPrimaryImage(selectedJersey) ? (
-                    <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
+                    <div className={`grain grain-photo relative aspect-[4/5] overflow-hidden border-[6px] bg-sabbia ${frameColorFor(selectedJersey.id)}`}>
                       <img src={getPrimaryImage(selectedJersey)!} alt={selectedJersey.name} className="h-full w-full object-cover" />
                     </div>
                   ) : (
-                    <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
-                      <span className="font-display text-6xl text-muted-foreground/30">{selectedJersey.team.charAt(0)}</span>
+                    <div className={`flex aspect-[4/5] items-center justify-center border-[6px] bg-sabbia ${frameColorFor(selectedJersey.id)}`}>
+                      <span className="display text-7xl text-nero/25">{selectedJersey.team.charAt(0)}</span>
                     </div>
                   )}
 
                   {/* Jersey Info */}
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Name</p>
-                      <p className="font-semibold">{selectedJersey.name}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Liga</p>
-                      <p className="font-semibold">{selectedJersey.league || "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Saison</p>
-                      <p className="font-semibold">{selectedJersey.year || "—"}</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Größe</p>
-                        <p className="font-semibold">{selectedJersey.size}</p>
+                  <dl className="border-t border-nero">
+                    {[
+                      { label: "Name", value: selectedJersey.name },
+                      { label: "Liga", value: selectedJersey.league || "—" },
+                      { label: "Saison", value: selectedJersey.year || "—" },
+                      { label: "Größe", value: selectedJersey.size },
+                      { label: "Zustand", value: `${selectedJersey.condition}/5` },
+                    ].map((row) => (
+                      <div key={row.label} className="flex items-center justify-between gap-4 border-b border-nero py-3">
+                        <dt className="cap text-[11px] text-muted-foreground">{row.label}</dt>
+                        <dd className="text-right">{row.value}</dd>
                       </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Zustand</p>
-                        <p className="font-semibold">{selectedJersey.condition}/5</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">Preis</p>
-                        <p className="font-semibold">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</p>
-                      </div>
+                    ))}
+                    <div className="flex items-center justify-between gap-4 border-b border-nero py-3">
+                      <dt className="cap text-[11px] text-muted-foreground">Preis</dt>
+                      <dd className="num text-2xl leading-none">{selectedJersey.price_cents ? formatEuros(selectedJersey.price_cents) : "—"}</dd>
                     </div>
-                  </div>
+                  </dl>
 
                   {/* Action Buttons */}
-                  <div className="space-y-3 border-t border-border pt-6">
+                  <div className="space-y-3">
                     {selectedJersey.available_for_trade ? (
-                      <Badge variant="default" className="w-full justify-center py-2">
-                        <ArrowLeftRight className="mr-2 h-4 w-4" /> Im Tausch
+                      <Badge variant="tag-rosso" className="w-full justify-center py-3.5 text-[11px]">
+                        <ArrowLeftRight className="mr-1 h-4 w-4" /> Im Tausch
                       </Badge>
                     ) : (
-                      <Button variant="hero" className="w-full uppercase tracking-wider" onClick={() => navigate("/collection")}>
-                        Sammlung bearbeiten
+                      <Button className="w-full" onClick={() => navigate("/collection")}>
+                        Sammlung bearbeiten →
                       </Button>
                     )}
                   </div>
