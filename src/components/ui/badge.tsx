@@ -3,15 +3,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+// Calcio Classics: Badges sind eckige Etiketten in Versalien (Skill cc-design §6 „Tags“).
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center gap-1 rounded-none border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em] transition-colors focus:outline-none focus:ring-2 focus:ring-ring",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80 hover:scale-105",
-        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:scale-105",
-        destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80 hover:scale-105",
-        outline: "text-foreground hover:scale-105",
+        default: "border-primary bg-primary text-primary-foreground",
+        secondary: "border-nero bg-carta text-nero",
+        destructive: "border-destructive bg-destructive text-destructive-foreground",
+        outline: "border-nero bg-transparent text-foreground",
+        tag: "border-current bg-transparent",
+        "tag-rosso": "border-rosso bg-transparent text-rosso",
+        "tag-verde": "border-verde bg-transparent text-verde",
+        solid: "border-nero bg-nero text-avorio",
       },
     },
     defaultVariants: {

@@ -1,14 +1,19 @@
-# VintageLeague — Agent Rules
+# Calcio Classics (formerly VintageLeague) — Agent Rules
 
 ## Project
-React + TypeScript + Vite + Supabase marketplace for vintage football jerseys.
+React + TypeScript + Vite + Supabase marketplace for vintage football jerseys, rebranding to **Calcio Classics**.
 Repo: https://github.com/eichhoffguido/vintage-league-V2
-Live: https://vintage-league-v2.vercel.app
+Live: https://vintage-league-v2.vercel.app (moves to https://calcioclassics.de — see plan task CC-D1)
 
-## Working Directory
-ALWAYS: /home/opencode/projects/vintage-league-V2
-NEVER clone again. NEVER work in /app.
-First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin main
+## Working mode (since 26.09.2026)
+Guido works directly with Claude Code on his Mac (local clone). Claude Code implements a task only after
+Guido's explicit go, opens a PR, and Guido tests the Vercel preview and merges. Paperclip agents are paused.
+
+## Design — MANDATORY for any UI work
+Load the skill **cc-design** (`.claude/skills/cc-design/SKILL.md`) before touching any page, component,
+style, copy or image. Tokens live in `src/index.css` (:root) — no Tailwind palette colours (green-500 …),
+no hex/rgb literals in components, square corners, no shadows. Fonts are self-hosted via @fontsource
+(never the Google Fonts CDN — GDPR).
 
 ## Git Rules — NON-NEGOTIABLE
 1. NEVER push to main — always use feature branches
@@ -47,12 +52,12 @@ First command: cd /home/opencode/projects/vintage-league-V2 && git pull origin m
 3. DONE means "my work is finished" — not "approved for production"
 
 ## Workflow for every task
-1. cd /home/opencode/projects/vintage-league-V2 && git pull origin main
-2. git checkout -b feature/TASKID-description
+1. git fetch origin && git checkout -b feature/TASKID-description origin/main
+2. (branch created in step 1)
 3. Do the work
 4. npm run build — must be green
 5. git add <files> && git commit -m "feat(TASKID): description"
-6. git push https://eichhoffguido:$GITHUB_TOKEN@github.com/eichhoffguido/vintage-league-V2.git feature/TASKID-description
+6. git push -u origin feature/TASKID-description
 7. gh pr create --base main --head feature/TASKID-description --title "feat(TASKID): description" --body "Summary"
 8. Mark issue as DONE
 9. STOP — wait for CTO or Guido

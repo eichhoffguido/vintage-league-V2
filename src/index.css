@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,63 +13,72 @@
 
 @layer base {
   :root {
-    --background: 222 28% 6%;
-    --foreground: 40 20% 92%;
+    /* Calcio Classics — Marke (Hex im Kommentar). Quelle: Skill cc-design */
+    --avorio: 42 42% 91%;      /* #F1EBDD */
+    --carta: 42 52% 94%;       /* #F7F2E6 */
+    --sabbia: 42 36% 86%;      /* #E6DDC9 */
+    --nero: 0 0% 7%;           /* #111111 */
+    --verde: 148 55% 27%;      /* #1F6B43 */
+    --giallo: 40 77% 53%;      /* #E3A72B */
+    --rosso: 3 75% 47%;        /* #D0281E */
+    --azzurro: 205 43% 41%;    /* #3B6F95 */
 
-    --card: 222 24% 9%;
-    --card-foreground: 40 20% 92%;
+    --background: var(--avorio);
+    --foreground: var(--nero);
 
-    --popover: 222 24% 9%;
-    --popover-foreground: 40 20% 92%;
+    --card: var(--carta);
+    --card-foreground: var(--nero);
 
-    --primary: 142 72% 40%;
-    --primary-foreground: 222 28% 6%;
+    --popover: var(--carta);
+    --popover-foreground: var(--nero);
 
-    --secondary: 222 20% 14%;
-    --secondary-foreground: 40 15% 80%;
+    --primary: var(--verde);
+    --primary-foreground: var(--avorio);
 
-    --muted: 222 18% 12%;
-    --muted-foreground: 222 12% 58%;
+    --secondary: var(--sabbia);
+    --secondary-foreground: var(--nero);
 
-    --accent: 153 70% 45%;
-    --accent-foreground: 222 28% 6%;
+    --muted: var(--sabbia);
+    --muted-foreground: 30 5% 34%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
+    --accent: var(--giallo);
+    --accent-foreground: var(--nero);
 
-    --border: 222 18% 16%;
-    --input: 222 18% 16%;
-    --ring: 142 72% 40%;
+    --destructive: var(--rosso);
+    --destructive-foreground: var(--avorio);
 
-    --radius: 0.375rem;
+    --border: var(--nero);
+    --input: var(--nero);
+    --ring: var(--verde);
 
-    --sidebar-background: 222 24% 9%;
-    --sidebar-foreground: 40 15% 80%;
-    --sidebar-primary: 142 72% 40%;
-    --sidebar-primary-foreground: 222 28% 6%;
-    --sidebar-accent: 222 20% 14%;
-    --sidebar-accent-foreground: 40 15% 80%;
-    --sidebar-border: 222 18% 16%;
-    --sidebar-ring: 142 72% 40%;
+    --radius: 0rem;
 
-    /* Custom vintage tokens */
-    --gold: 142 72% 40%;
-    --gold-muted: 142 45% 28%;
-    --warm-white: 40 20% 92%;
-    --vintage-red: 0 60% 45%;
-    --vintage-navy: 222 28% 6%;
+    --success: var(--verde);
+    --warning: var(--giallo);
+    --danger: var(--rosso);
+    --info: var(--azzurro);
 
-    --gradient-hero: linear-gradient(135deg, hsl(142 72% 40% / 0.08), hsl(222 28% 6%) 50%, hsl(0 60% 45% / 0.05));
-    --gradient-card: linear-gradient(180deg, hsl(222 24% 11%), hsl(222 24% 9%));
-    --gradient-primary: linear-gradient(135deg, hsl(142 72% 40%), hsl(142 55% 30%));
-    --gradient-vintage: linear-gradient(135deg, hsl(142 72% 40% / 0.15), hsl(0 60% 45% / 0.1));
-    --shadow-glow: 0 0 30px hsl(142 72% 40% / 0.15);
-    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.4);
-    --shadow-vintage: 0 2px 10px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(142 72% 40% / 0.05);
+    --sidebar-background: var(--carta);
+    --sidebar-foreground: var(--nero);
+    --sidebar-primary: var(--verde);
+    --sidebar-primary-foreground: var(--avorio);
+    --sidebar-accent: var(--sabbia);
+    --sidebar-accent-foreground: var(--nero);
+    --sidebar-border: var(--nero);
+    --sidebar-ring: var(--verde);
 
-    --font-display: 'Oswald', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-serif: 'Playfair Display', serif;
+    /* Legacy-Aliase (werden in CC-R8 entfernt) */
+    --gold: var(--giallo);
+    --gold-muted: var(--sabbia);
+    --warm-white: var(--avorio);
+    --vintage-red: var(--rosso);
+    --vintage-navy: var(--nero);
+
+    --font-display: 'Jost', 'Century Gothic', 'Futura', sans-serif;
+    --font-body: 'Archivo Narrow', 'Arial Narrow', Arial, sans-serif;
+    --font-num: 'Barlow Condensed', 'DIN Condensed', 'Arial Narrow', sans-serif;
+    /* serif-Taglines laufen bis zum Seiten-Redesign auf der Textschrift */
+    --font-serif: var(--font-body);
   }
 }
 
@@ -83,40 +90,99 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: -0.035em;
   }
 }
 
 @layer utilities {
+  /* --- Calcio Classics (Skill cc-design) --- */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+  }
+
+  .cap {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .num {
+    font-family: var(--font-num);
+    font-weight: 600;
+  }
+
+  /* Hohlschrift: Kontur doppelt breit + Füllung in Hintergrundfarbe darüber.
+     Verdeckt überlappende Glyphen-Konturen (Jost: A, B, R, K, 4). --fill = Farbe hinter dem Wort. */
+  .hollow {
+    color: var(--fill, hsl(var(--nero)));
+    -webkit-text-stroke: 4px hsl(var(--avorio));
+    paint-order: stroke fill;
+    letter-spacing: -0.01em;
+  }
+
+  .hollow-dark {
+    color: var(--fill, hsl(var(--avorio)));
+    -webkit-text-stroke: 4px hsl(var(--nero));
+    paint-order: stroke fill;
+    letter-spacing: -0.01em;
+  }
+
+  @media (max-width: 767px) {
+    .hollow, .hollow-dark { -webkit-text-stroke-width: 2.4px; }
+  }
+
+  .tricolore {
+    height: 6px;
+    background: linear-gradient(90deg,
+      hsl(var(--verde)) 0 33.333%,
+      hsl(var(--avorio)) 33.333% 66.666%,
+      hsl(var(--rosso)) 66.666% 100%);
+    box-shadow: inset 0 1px 0 hsl(var(--nero)), inset 0 -1px 0 hsl(var(--nero));
+  }
+
+  .shirt-mask {
+    clip-path: polygon(30% 0, 41.7% 0, 50% 10%, 58.3% 0, 70% 0, 100% 12.9%, 93.3% 32.9%, 78.3% 28.6%, 78.3% 100%, 21.7% 100%, 21.7% 28.6%, 6.7% 32.9%, 0 12.9%);
+  }
+
+  .nero-stripe {
+    background-color: hsl(var(--nero));
+    color: hsl(var(--avorio));
+  }
+
+  /* --- Legacy-Klassen, neutralisiert (Aufräumen in CC-R8) --- */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
+    color: inherit;
   }
 
   .font-serif {
-    font-family: var(--font-serif);
+    font-family: var(--font-body);
+    font-style: normal !important;
     text-transform: none;
     letter-spacing: 0;
   }
 
   .card-hover {
-    @apply transition-all duration-300;
-  }
-
-  .card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-glow);
+    @apply transition-colors duration-200;
   }
 
   .glow {
-    box-shadow: var(--shadow-glow);
+    box-shadow: none;
   }
 
+  /* Filmkorn: dezent auf Flächen, kräftig auf Fotos (.grain-photo / .grain-dark) */
   .grain {
     position: relative;
   }
@@ -125,20 +191,29 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 1;
+    opacity: 0.18;
+  }
+
+  .grain-photo::after {
+    opacity: 0.42;
+  }
+
+  .grain-dark::after {
+    mix-blend-mode: overlay;
     opacity: 0.5;
   }
 
   .vintage-border {
-    border: 1px solid hsl(var(--gold) / 0.2);
-    box-shadow: inset 0 1px 0 hsl(var(--gold) / 0.05);
+    border: 1px solid hsl(var(--nero));
   }
 
   .vintage-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--gold) / 0.3), transparent);
+    background: hsl(var(--nero));
   }
 
   /* Button micro-animations */
@@ -147,7 +222,7 @@
   }
 
   .btn-animate:hover {
-    @apply -translate-y-0.5;
+    transform: none;
   }
 
   .btn-animate:active {
@@ -181,7 +256,7 @@
   }
 
   .icon-rotate:hover {
-    @apply rotate-12;
+    transform: none;
   }
 
   .icon-scale {
@@ -198,7 +273,7 @@
   }
 
   .input-focus:focus {
-    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-primary ring-offset-0;
   }
 
   /* Badge entrance animation */
@@ -245,9 +320,9 @@
     @apply animate-shimmer;
     background: linear-gradient(
       90deg,
-      hsl(222 24% 11%) 0%,
-      hsl(222 24% 15%) 50%,
-      hsl(222 24% 11%) 100%
+      hsl(var(--sabbia)) 0%,
+      hsl(var(--carta)) 50%,
+      hsl(var(--sabbia)) 100%
     );
     background-size: 1000px 100%;
   }

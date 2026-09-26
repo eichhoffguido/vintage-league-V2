@@ -1,0 +1,50 @@
+/*
+ * Calcio Classics — Design-Tokens (Quelle: Startseite Runde 4, 26.09.2026)
+ * Für vintage-league-V2: ersetzt den :root-Block in src/index.css.
+ * shadcn/ui liest HSL-Tripel ohne hsl() — daher dieses Format.
+ * Hex-Werte stehen jeweils im Kommentar.
+ */
+:root {
+  /* Marke */
+  --avorio: 42 42% 91%;      /* #F1EBDD  Seitengrund */
+  --carta: 42 52% 94%;       /* #F7F2E6  Karten, Eingabefelder */
+  --sabbia: 42 36% 86%;      /* #E6DDC9  ruhige Flächen, Skeletons */
+  --nero: 0 0% 7%;           /* #111111  Text, Linien, Streifen */
+  --verde: 148 55% 27%;      /* #1F6B43  Primärfarbe, Hero, Footer */
+  --giallo: 40 77% 53%;      /* #E3A72B  Kreis-Geometrie, Warnung */
+  --rosso: 3 75% 47%;        /* #D0281E  Signal: Eyebrows, Tausch, Fehler */
+  --azzurro: 205 43% 41%;    /* #3B6F95  Info, Rahmen-Akzent */
+
+  /* shadcn-Semantik */
+  --background: var(--avorio);
+  --foreground: var(--nero);
+  --card: var(--carta);
+  --card-foreground: var(--nero);
+  --popover: var(--carta);
+  --popover-foreground: var(--nero);
+  --primary: var(--verde);
+  --primary-foreground: var(--avorio);
+  --secondary: var(--sabbia);
+  --secondary-foreground: var(--nero);
+  --muted: var(--sabbia);
+  --muted-foreground: 30 5% 34%;   /* #5C5852  Nebentext, >= 4.5:1 auf Avorio */
+  --accent: var(--giallo);
+  --accent-foreground: var(--nero);
+  --destructive: var(--rosso);
+  --destructive-foreground: var(--avorio);
+  --border: var(--nero);
+  --input: var(--nero);
+  --ring: var(--verde);
+  --radius: 0rem;
+
+  /* Status (Preiseinschätzung, Prüfung, Gebote) */
+  --success: var(--verde);
+  --warning: var(--giallo);
+  --danger: var(--rosso);
+  --info: var(--azzurro);
+
+  /* Schriften (selbst gehostet über @fontsource, NICHT Google-CDN) */
+  --font-display: "Jost", "Century Gothic", "Futura", sans-serif;
+  --font-body: "Archivo Narrow", "Arial Narrow", Arial, sans-serif;
+  --font-num: "Barlow Condensed", "DIN Condensed", "Arial Narrow", sans-serif;
+}

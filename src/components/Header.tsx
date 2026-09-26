@@ -69,7 +69,8 @@ const Header = () => {
       <div className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-3">
-            <img src="/images/vintageleague-logo.svg" alt="Vintage League Logo" className="h-10 object-contain" />
+            {/* brightness-0: altes Logo (weiße Wortmarke) auf hellem Grund lesbar — wird in CC-R2 ersetzt */}
+            <img src="/images/vintageleague-logo.svg" alt="Vintage League Logo" className="h-10 object-contain brightness-0" />
           </Link>
 
           {/* Desktop Nav */}
