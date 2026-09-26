@@ -19,6 +19,7 @@ import { getPrimaryImage } from "@/utils/jerseyImage";
 import { FilterSidebar } from "@/components/filters/FilterSidebar";
 import { FilterDrawer } from "@/components/filters/FilterDrawer";
 import { ActiveFilterChips } from "@/components/filters/ActiveFilterChips";
+import { startCheckout } from "@/lib/checkout";
 
 const fetchJerseys = async () => {
   const { data, error } = await supabase
@@ -62,13 +63,9 @@ const Shop = () => {
     }
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { jersey_id: jerseyId, buyer_id: user.id },
-      });
-      if (error) throw error;
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      await startCheckout({ jersey_id: jerseyId });
+    } catch (err) {
+      toast({ title: "Kauf nicht möglich", description: err instanceof Error ? err.message : "Checkout konnte nicht gestartet werden.", variant: "destructive" });
       setCheckoutLoading(false);
     }
   };

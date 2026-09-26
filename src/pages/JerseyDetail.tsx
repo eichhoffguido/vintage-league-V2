@@ -20,6 +20,7 @@ import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import { startCheckout } from "@/lib/checkout";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
   profiles?: Tables<"profiles"> | null;
@@ -183,13 +184,9 @@ const JerseyDetail = () => {
     }
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { jersey_id: jersey?.id, buyer_id: user.id },
-      });
-      if (error) throw error;
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      await startCheckout({ jersey_id: jersey!.id });
+    } catch (err) {
+      toast({ title: "Kauf nicht möglich", description: err instanceof Error ? err.message : "Checkout konnte nicht gestartet werden.", variant: "destructive" });
     } finally {
       setCheckoutLoading(false);
     }

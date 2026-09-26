@@ -11,6 +11,7 @@ import { formatEuros } from "@/utils/currency";
 import { getImageUrl } from "@/utils/imageUrl";
 import { getPrimaryImage } from "@/utils/jerseyImage";
 import type { Tables } from "@/integrations/supabase/types";
+import { startCheckout } from "@/lib/checkout";
 
 interface PlaceBidModalProps {
   open: boolean;
@@ -78,13 +79,9 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
     if (!matchId) return;
     setLoading(true);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("create-checkout-session", {
-        body: { match_id: matchId, buyer_id: user!.id },
-      });
-      if (fnError) throw fnError;
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      await startCheckout({ match_id: matchId });
+    } catch (err) {
+      toast({ title: "Kauf nicht möglich", description: err instanceof Error ? err.message : "Checkout konnte nicht gestartet werden.", variant: "destructive" });
       setLoading(false);
     }
   };
