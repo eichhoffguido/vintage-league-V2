@@ -33,6 +33,8 @@ interface JerseyCardProps {
   listing_type?: string;
   user_id?: string;
   onQuickBuy?: () => void;
+  /** "card" = Figurina (Raster), "row" = kompakte Zeile (Listenansicht) */
+  layout?: "card" | "row";
 }
 
 // Rahmenfarbe rotiert rein dekorativ, stabil pro Trikot (Skill cc-design §2)
@@ -82,6 +84,7 @@ const JerseyCard = ({
   listing_type,
   user_id,
   onQuickBuy,
+  layout = "card",
 }: JerseyCardProps) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { user } = useAuth();
@@ -123,11 +126,8 @@ const JerseyCard = ({
   const age = Number.isNaN(yearNum) ? null : new Date().getFullYear() - yearNum;
   const image = getImageUrl(imageUrl);
 
-  return (
-    <article
-      className="group flex h-full cursor-pointer flex-col gap-2.5 border-2 border-nero bg-card p-2 md:p-3"
-      onClick={onClick}
-    >
+  const headBlock = (
+    <>
       {/* 1 · Kopfzeile */}
       <div className="cap flex items-center justify-between gap-2 text-[10px] md:text-[11px]">
         <span className="truncate">{league}</span>
@@ -138,6 +138,11 @@ const JerseyCard = ({
         ) : null}
       </div>
 
+    </>
+  );
+
+  const imageBlock = (
+    <>
       {/* 2 · Bild mit farbigem Rahmen */}
       <div className={cn("grain grain-photo relative aspect-[4/5] overflow-hidden border-[4px] bg-sabbia md:border-[6px]", frameColorFor(id))}>
         {image ? (
@@ -175,6 +180,11 @@ const JerseyCard = ({
         </div>
       </div>
 
+    </>
+  );
+
+  const restBlock = (
+    <>
       {/* 3 · Titel */}
       <div>
         <h3 className="font-display text-[15px] font-semibold normal-case leading-tight tracking-[-0.02em] md:text-[17px]">{team}</h3>
@@ -299,6 +309,33 @@ const JerseyCard = ({
           Sofort kaufen — {formatEuros(sale_price_cents!)}
         </Button>
       )}
+    </>
+  );
+
+  if (layout === "row") {
+    // Listenansicht: Bild links, alle Infos rechts (gleicher Inhalt wie die Karte)
+    return (
+      <article
+        className="group grid cursor-pointer grid-cols-[112px_minmax(0,1fr)] gap-3 border-2 border-nero bg-card p-2 md:grid-cols-[180px_minmax(0,1fr)] md:gap-5 md:p-3"
+        onClick={onClick}
+      >
+        <div className="self-start">{imageBlock}</div>
+        <div className="flex min-w-0 flex-col gap-2.5">
+          {headBlock}
+          {restBlock}
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article
+      className="group flex h-full cursor-pointer flex-col gap-2.5 border-2 border-nero bg-card p-2 md:p-3"
+      onClick={onClick}
+    >
+      {headBlock}
+      {imageBlock}
+      {restBlock}
     </article>
   );
 };

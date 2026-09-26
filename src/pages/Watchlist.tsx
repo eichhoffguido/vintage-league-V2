@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -12,7 +13,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getPrimaryImage } from "@/utils/jerseyImage";
-import heroImage from "@/assets/hero-jersey.jpg";
 import { startCheckout } from "@/lib/checkout";
 
 const fetchFavoriteJerseys = async (favoriteIds: string[]) => {
@@ -65,12 +65,12 @@ const Watchlist = () => {
         <section className="py-24">
           <div className="container mx-auto px-4 text-center">
             <div className="mb-4 flex items-center justify-center">
-              <Heart className="h-12 w-12 text-primary" />
+              <Heart className="h-12 w-12 text-verde" />
             </div>
-            <h1 className="font-display text-4xl font-bold">Beobachtungsliste</h1>
+            <h1 className="display text-[40px] md:text-[64px]">Deine <span className="hollow-dark">Merkliste.</span></h1>
             <p className="mt-4 text-muted-foreground">Melde dich an, um deine Lieblings-Trikots zu speichern</p>
-            <Button variant="hero" size="lg" className="mt-6" asChild>
-              <Link to="/auth">Jetzt anmelden</Link>
+            <Button size="lg" className="mt-6" asChild>
+              <Link to="/auth">Jetzt anmelden →</Link>
             </Button>
           </div>
         </section>
@@ -83,31 +83,20 @@ const Watchlist = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Banner */}
-      <section className="grain relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url(${heroImage})` }} />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/80" />
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-2xl">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-px w-6 bg-primary/50" />
-              <span className="font-display text-xs tracking-[0.2em] text-primary">MEINE SAMMLUNG</span>
-            </div>
-            <h1 className="font-display text-4xl font-bold md:text-6xl">
-              Deine <span className="text-gradient">Beobachtungsliste</span>
-            </h1>
-            <p className="mt-4 font-serif text-lg italic text-muted-foreground">
-              Speichere Trikots, die dir gefallen, und behalte ihre Preise im Auge.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
+      <PageHeader
+        tone="verde"
+        eyebrow="La mia lista · Merkliste"
+        title="Deine"
+        hollowWord="Merkliste."
+        subline="Speichere Trikots, die dir gefallen, und behalte ihre Preise im Auge."
+      />
 
       {/* Watchlist Grid */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-10">
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                   <JerseyCardSkeleton />
@@ -115,29 +104,22 @@ const Watchlist = () => {
               ))}
             </div>
           ) : favoriteJerseys.length === 0 ? (
-            <div className="py-16 text-center">
-              <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="font-display text-xl text-muted-foreground">Keine Trikots in deiner Beobachtungsliste</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Klicke auf das Herz-Icon auf Trikot-Karten, um sie zu deiner Beobachtungsliste hinzuzufügen.
+            <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+              <Heart className="mx-auto mb-4 h-10 w-10" />
+              <p className="font-display text-lg font-semibold">Noch keine Trikots auf deiner Merkliste</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Tippe auf das Herz einer Trikot-Karte, um sie hier zu sammeln.
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-4 border-primary/30"
-                asChild
-              >
-                <Link to="/trade">Zum Marktplatz</Link>
+              <Button variant="outline" className="mt-5" asChild>
+                <Link to="/shop">Zum Marktplatz →</Link>
               </Button>
             </div>
           ) : (
             <>
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{favoriteJerseys.length}</span> Trikots in deiner Beobachtungsliste
-                </p>
+              <div className="cap mb-5 border-b border-nero pb-3 text-[11px] text-muted-foreground">
+                <span className="num mr-1 text-base text-nero">{favoriteJerseys.length}</span> Trikots auf deiner Merkliste
               </div>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-4">
                 {favoriteJerseys.map((jersey: any, index) => (
                   <div
                     key={jersey.id}
@@ -152,7 +134,7 @@ const Watchlist = () => {
                       year={jersey.year}
                       price_cents={jersey.price_cents}
                       imageUrl={getPrimaryImage(jersey) ?? undefined}
-                      verified={jersey.verification_status === "verified"}
+                      verification_status={jersey.verification_status}
                       condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
                       size={jersey.size}
                       user_id={jersey.user_id}

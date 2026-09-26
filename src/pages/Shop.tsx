@@ -6,7 +6,6 @@ import { useFilterState } from "@/hooks/useFilterState";
 import { filterJerseys, sortJerseys } from "@/utils/filterJerseys";
 import { Grid3X3, List, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
@@ -85,30 +84,32 @@ const Shop = () => {
 
       {/* Main Content */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-8">
+        <div className="container mx-auto px-4 md:px-10">
+          <div className="flex gap-8 lg:gap-10">
             {/* Desktop Filter Sidebar */}
             <FilterSidebar
               filters={filters}
               onChange={setFilters}
-              className="hidden md:block sticky top-20 self-start"
+              className="sticky top-36 hidden self-start md:block"
             />
 
             <div className="flex-1 min-w-0">
-              {/* Toolbar: Search + Sort + Mobile Filter Button + View Toggle */}
-              <div className="flex gap-3 mb-4 flex-wrap items-center">
+              {/* Werkzeugleiste: Suche · Sortierung · Filter (mobil) · Ansicht */}
+              <div className="mb-4 flex flex-wrap items-stretch gap-2 md:gap-3">
                 <input
                   type="text"
-                  placeholder="Suche nach Team oder Trikot…"
+                  placeholder="Suche nach Team oder Trikot …"
+                  aria-label="Trikots durchsuchen"
                   value={filters.search || ""}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value || null })}
-                  className="flex-1 min-w-[200px] rounded-sm border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none transition-colors"
+                  className="h-11 min-w-0 flex-[1_1_100%] border border-nero bg-card px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:flex-[1_1_240px] md:text-sm"
                 />
 
                 <select
                   value={filters.sortBy}
                   onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-                  className="rounded-sm border border-border bg-background px-3 py-2.5 text-xs uppercase tracking-wider text-muted-foreground focus:border-primary focus:outline-none"
+                  aria-label="Sortierung"
+                  className="cap h-11 flex-1 border border-nero bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:flex-none"
                 >
                   <option value="newest">Neueste</option>
                   <option value="price-asc">Preis aufsteigend</option>
@@ -116,107 +117,93 @@ const Shop = () => {
                   <option value="year-desc">Jahr (neueste)</option>
                 </select>
 
-                {/* Mobile Filter Button */}
-                <Button
-                  variant="outline"
-                  className="md:hidden relative"
-                  onClick={() => setDrawerOpen(true)}
-                >
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
+                {/* Filter-Button (mobil) */}
+                <Button variant="outline" className="h-11 md:hidden" onClick={() => setDrawerOpen(true)}>
+                  <SlidersHorizontal className="h-4 w-4" />
                   Filter
                   {activeFilterCount > 0 && (
-                    <Badge className="ml-2" variant="secondary">
+                    <span className="num ml-1 inline-flex h-5 min-w-5 items-center justify-center bg-nero px-1 text-xs text-avorio">
                       {activeFilterCount}
-                    </Badge>
+                    </span>
                   )}
                 </Button>
 
-                {/* View Mode Toggle */}
-                <div className="flex items-center gap-1 rounded-sm border border-border">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="icon"
-                    className="h-8 w-8"
+                {/* Ansicht: Raster / Liste */}
+                <div className="flex border border-nero" role="group" aria-label="Ansicht">
+                  <button
+                    type="button"
+                    aria-label="Rasteransicht"
+                    aria-pressed={viewMode === "grid"}
+                    className={`flex h-11 w-11 items-center justify-center ${viewMode === "grid" ? "bg-nero text-avorio" : "bg-card"}`}
                     onClick={() => setViewMode("grid")}
                   >
                     <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="icon"
-                    className="h-8 w-8"
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Listenansicht"
+                    aria-pressed={viewMode === "list"}
+                    className={`flex h-11 w-11 items-center justify-center border-l border-nero ${viewMode === "list" ? "bg-nero text-avorio" : "bg-card"}`}
                     onClick={() => setViewMode("list")}
                   >
                     <List className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
 
-              {/* Active Filter Chips */}
-              <ActiveFilterChips
-                filters={filters}
-                onChange={setFilters}
-                className="mb-4"
-              />
+              {/* Aktive Filter */}
+              <ActiveFilterChips filters={filters} onChange={setFilters} className="mb-4" />
 
-              {/* Result Count */}
-              <div className="mb-6 flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{sortedJerseys.length}</span> Trikots gefunden
-                </p>
+              {/* Trefferzahl */}
+              <div className="cap mb-5 border-b border-nero pb-3 text-[11px] text-muted-foreground">
+                <span className="num mr-1 text-base text-nero">{sortedJerseys.length}</span> Trikots gefunden
               </div>
 
-              {/* Jersey Grid */}
+              {/* Trikots */}
               {isLoading ? (
-                <div className={`grid gap-6 ${viewMode === "grid" ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"}`}>
+                <div className={viewMode === "grid" ? "grid grid-cols-2 gap-2.5 md:gap-6 xl:grid-cols-3 2xl:grid-cols-4" : "grid gap-3"}>
                   {[...Array(8)].map((_, i) => (
                     <JerseyCardSkeleton key={i} />
                   ))}
                 </div>
               ) : error ? (
-                <div className="py-16 text-center">
-                  <p className="font-display text-xl text-muted-foreground">Fehler beim Laden der Trikots.</p>
+                <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+                  <p className="font-display text-lg font-semibold">Fehler beim Laden der Trikots.</p>
                 </div>
               ) : (
-                <div className={`grid gap-6 ${viewMode === "grid" ? "sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1"}`}>
-                  {sortedJerseys.map((jersey: any, index: number) => (
-                    <div
+                <div className={viewMode === "grid" ? "grid grid-cols-2 gap-2.5 md:gap-6 xl:grid-cols-3 2xl:grid-cols-4" : "grid gap-3"}>
+                  {sortedJerseys.map((jersey: any) => (
+                    <JerseyCard
                       key={jersey.id}
-                      className="animate-fade-in"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      <JerseyCard
-                        id={jersey.id}
-                        name={jersey.name}
-                        team={jersey.team}
-                        league={jersey.league}
-                        year={jersey.year}
-                        price_cents={jersey.price_cents}
-                        imageUrl={getPrimaryImage(jersey) ?? undefined}
-                        verified={jersey.verification_status === "verified"}
-                        condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
-                        size={jersey.size}
-                        available_for_trade={jersey.available_for_trade}
-                        listing_type={jersey.listing_type}
-                        user_id={jersey.user_id}
-                        sale_price_cents={jersey.sale_price_cents}
-                        onQuickBuy={() => handleQuickBuy(jersey.id)}
-                        onClick={() => navigate(`/jersey/${jersey.id}`)}
-                      />
-                    </div>
+                      layout={viewMode === "list" ? "row" : "card"}
+                      id={jersey.id}
+                      name={jersey.name}
+                      team={jersey.team}
+                      league={jersey.league}
+                      year={jersey.year}
+                      price_cents={jersey.price_cents}
+                      imageUrl={getPrimaryImage(jersey) ?? undefined}
+                      verification_status={jersey.verification_status}
+                      condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                      size={jersey.size}
+                      available_for_trade={jersey.available_for_trade}
+                      listing_type={jersey.listing_type}
+                      user_id={jersey.user_id}
+                      sale_price_cents={jersey.sale_price_cents}
+                      onQuickBuy={() => handleQuickBuy(jersey.id)}
+                      onClick={() => navigate(`/jersey/${jersey.id}`)}
+                    />
                   ))}
                 </div>
               )}
 
               {!isLoading && sortedJerseys.length === 0 && (
-                <div className="py-16 text-center">
-                  <p className="font-display text-xl text-muted-foreground">Noch keine Trikots gefunden. Sei der Erste!</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4 border-primary/30"
-                    onClick={() => navigate("/collection")}
-                  >
+                <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+                  <p className="display text-[28px] md:text-[40px]">
+                    Nichts <span className="hollow-dark">gefunden.</span>
+                  </p>
+                  <p className="mt-3 text-muted-foreground">Keine Trikots zu diesen Filtern — oder stell dein eigenes ein.</p>
+                  <Button variant="outline" className="mt-5" onClick={() => navigate("/collection")}>
                     Trikot hinzufügen
                   </Button>
                 </div>

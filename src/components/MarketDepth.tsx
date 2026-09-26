@@ -44,10 +44,22 @@ const MarketDepth = ({ jerseyId }: MarketDepthProps) => {
     );
   }
 
+  const title = (
+    <>
+      <div className="cap text-rosso">Mercato · Markttiefe</div>
+      <h2 className="display mt-2.5 text-[32px] md:text-[44px]">
+        Gebote &amp; <span className="hollow-dark">Angebote.</span>
+      </h2>
+    </>
+  );
+
   if (isEmpty) {
     return (
-      <div className="rounded-sm border border-dashed border-border p-6 text-center">
-        <p className="text-sm text-muted-foreground">Noch keine Gebote oder Angebote</p>
+      <div>
+        {title}
+        <div className="mt-6 border-2 border-nero bg-card p-6 text-center">
+          <p className="cap text-[11px] text-muted-foreground">Noch keine Gebote oder Angebote</p>
+        </div>
       </div>
     );
   }
@@ -55,73 +67,37 @@ const MarketDepth = ({ jerseyId }: MarketDepthProps) => {
   const maxRows = Math.max(data!.bids.length, data!.asks.length);
 
   return (
-    <div className="rounded-sm border border-border p-6">
-      <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">
-        Markttiefe
-      </p>
-
-      {/* Spread */}
+    <div>
+      {title}
       {spread !== null && (
-        <div className="mb-4 flex items-center justify-center">
-          <span className="text-xs font-medium text-muted-foreground">
-            Spread: {formatEuros(spread)}
-          </span>
+        <div className="cap mt-4 text-[11px] text-muted-foreground">
+          Spread <span className="num ml-1 text-base text-nero">{formatEuros(spread)}</span>
         </div>
       )}
-
-      {/* Column headers */}
-      <div className="grid grid-cols-2 gap-4 mb-2">
-        <div className="grid grid-cols-2 gap-2">
-          <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">Gebot (Preis)</p>
-          <p className="text-[10px] uppercase tracking-wider text-primary font-semibold text-right">Anz.</p>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Angebot (Preis)</p>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold text-right">Anz.</p>
-        </div>
-      </div>
-
-      {/* Rows */}
-      <div className="space-y-1">
-        {Array.from({ length: maxRows }).map((_, i) => {
-          const bid = data!.bids[i];
-          const ask = data!.asks[i];
-          const isBestBid = i === 0 && bid !== undefined;
-          const isBestAsk = i === 0 && ask !== undefined;
-
-          return (
-            <div key={i} className="grid grid-cols-2 gap-4">
-              {/* Bid side */}
-              <div className="grid grid-cols-2 gap-2">
-                {bid ? (
-                  <>
-                    <p className={`text-sm font-medium ${isBestBid ? "text-primary font-bold" : "text-foreground"}`}>
-                      {formatEuros(bid.price_cents)}
-                    </p>
-                    <p className="text-sm text-right text-muted-foreground">{bid.count}</p>
-                  </>
-                ) : (
-                  <p className="col-span-2 text-sm text-muted-foreground">—</p>
-                )}
-              </div>
-
-              {/* Ask side */}
-              <div className="grid grid-cols-2 gap-2">
-                {ask ? (
-                  <>
-                    <p className={`text-sm font-medium ${isBestAsk ? "text-foreground font-bold" : "text-muted-foreground"}`}>
-                      {formatEuros(ask.price_cents)}
-                    </p>
-                    <p className="text-sm text-right text-muted-foreground">{ask.count}</p>
-                  </>
-                ) : (
-                  <p className="col-span-2 text-sm text-muted-foreground">—</p>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <table className="mt-6 w-full border-t border-nero text-sm">
+        <thead>
+          <tr className="cap border-b border-nero text-[10px] md:text-[11px]">
+            <th className="py-2 text-left font-medium text-verde">Gebot</th>
+            <th className="py-2 pr-4 text-right font-medium text-verde">Anz.</th>
+            <th className="border-l border-nero py-2 pl-4 text-left font-medium text-muted-foreground">Angebot</th>
+            <th className="py-2 text-right font-medium text-muted-foreground">Anz.</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: maxRows }).map((_, i) => {
+            const bid = data!.bids[i];
+            const ask = data!.asks[i];
+            return (
+              <tr key={i} className="border-b border-nero/25">
+                <td className={`num py-2 text-base ${i === 0 && bid ? "text-verde" : ""}`}>{bid ? formatEuros(bid.price_cents) : "—"}</td>
+                <td className="py-2 pr-4 text-right text-muted-foreground">{bid ? bid.count : ""}</td>
+                <td className={`num border-l border-nero py-2 pl-4 text-base ${i === 0 && ask ? "" : "text-muted-foreground"}`}>{ask ? formatEuros(ask.price_cents) : "—"}</td>
+                <td className="py-2 text-right text-muted-foreground">{ask ? ask.count : ""}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
