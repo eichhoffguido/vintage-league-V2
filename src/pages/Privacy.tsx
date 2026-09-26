@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { BRAND_NAME, CONTACT_EMAIL } from "@/config/brand";
 
 const Privacy = () => {
   return (
@@ -18,8 +19,8 @@ const Privacy = () => {
                 Für alle Fragen zum Datenschutz, zur Ausübung Ihrer Rechte und für allgemeine Anfragen kontaktieren Sie bitte:
               </p>
               <p className="text-muted-foreground">
-                <strong>VintageLeague</strong><br />
-                E-Mail: contact@vintage-league.de
+                <strong>{BRAND_NAME}</strong><br />
+                E-Mail: {CONTACT_EMAIL}
               </p>
             </section>
 
@@ -43,7 +44,7 @@ const Privacy = () => {
               <p className="text-muted-foreground mb-4">Wir verarbeiten Ihre Daten für folgende Zwecke:</p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                 <li>Kontoerstellung und -verwaltung</li>
-                <li>Bereitstellung der VintageLeague-Plattform und deren Funktionalität</li>
+                <li>Bereitstellung der {BRAND_NAME}-Plattform und deren Funktionalität</li>
                 <li>Verarbeitung von Transaktionen und Zahlungen</li>
                 <li>Kommunikation mit Ihnen (Support, Updates, wichtige Benachrichtigungen)</li>
                 <li>Verbesserung unserer Dienste und Benutzerfreundlichkeit</li>
@@ -103,7 +104,7 @@ const Privacy = () => {
                 <li><strong>Beschwerde:</strong> Recht, eine Beschwerde bei der Datenschutzbehörde einzureichen</li>
               </ul>
               <p className="text-muted-foreground mt-4">
-                Um diese Rechte auszuüben, kontaktieren Sie uns unter contact@vintage-league.de
+                Um diese Rechte auszuüben, kontaktieren Sie uns unter {CONTACT_EMAIL}
               </p>
             </section>
 
@@ -158,7 +159,7 @@ const Privacy = () => {
               </p>
               <p className="text-muted-foreground">
                 <strong>Datenschutz Kontakt:</strong><br />
-                E-Mail: contact@vintage-league.de
+                E-Mail: {CONTACT_EMAIL}
               </p>
             </section>
           </div>

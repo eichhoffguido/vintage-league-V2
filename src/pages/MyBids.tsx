@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -141,7 +140,6 @@ const MyBids = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <h1 className="font-display text-4xl font-bold mb-8">Meine Gebote</h1>
 

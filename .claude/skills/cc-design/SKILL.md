@@ -21,7 +21,7 @@ one strong green, a yellow circle, film grain. Magazine, not tech startup.
 2. **No real club crests, sponsor logos or sportswear marks** (swoosh, three stripes) in *our* imagery, illustrations or generated pictures. Check every generated image. (User-uploaded jerseys and the TheSportsDB favourite-club badge are content/functionality, not brand imagery.)
 3. **Italy is a feeling, not a costume:** Italian only in small caps eyebrows/labels („Figurine · Nuovi arrivi“, „Lo scambio“, „Verificato“). Headlines, buttons, forms, errors, legal text: **German**. No Vespa, kiosk, pizza, flags as decoration.
 4. **The jersey is the hero.** Product photos on light (white/beige) backgrounds, large; price is present but restrained.
-5. **Light platform.** Ivory is the page. Black appears as deliberate *stripes*, not as a dark theme.
+5. **Light platform with rhythm.** Ivory is the page, but **no page is all ivory**: every page mixes avorio with at least one nero or verde band (page header or stripe) — see §5.1. Never a dark theme either.
 6. Prices, counts, dates in mockups are sample values — never invent facts in production copy.
 
 ## 2. Colour
@@ -84,6 +84,23 @@ behind the word: on verde set `style="--fill: hsl(var(--verde))"`. Don't use hol
 - **Round stamp** (104 px avorio disc, rotated −9°, caps text) for status on hero imagery („Verificato · Grado 4/5“).
 - **Logo:** 03 CC-Ball monogram (two open C forming a ball, rosso dot) + wordmark „Calcio Classics“ in Jost 700 caps. On dark/verde grounds, the monogram gaps take the ground colour.
 
+### 5.1 Page composition — hell/dunkel-Rhythmus (Guido, 26.09.)
+Every page alternates light and dark like the homepage. Budget per page: **one coloured page header** (nero or verde) **+ up to two nero stripes**, footer always verde. Defaults:
+
+| Page | Header band | Stripes / dark modules |
+|---|---|---|
+| Startseite | verde hero block | Vertrauen (nero), Scambio (nero) |
+| Marktplatz `/shop` | **nero** page header (eyebrow, headline with hollow last word, sub, search) | Authentizitätsgarantie (nero trust stripe) after the first rows of the grid or before the footer |
+| Trikot-Detail | none (product on avorio) | „Echtheit & Prüfung“ nero stripe (verification status + trust points) below the fold |
+| Community | nero page header | — (posts on avorio) |
+| Tausch / Trades | nero header with shirt masks | — |
+| Sammlung, Profil, Onboarding | verde header band (personal space) | — |
+| Login / Registrierung | verde split (form on avorio) | — |
+| Admin | nero top bar | — |
+| Rechtliches, 404 | avorio only + verde footer is enough | — |
+
+Use the shared components `PageHeader` (`tone="avorio|nero|verde"`) and `NeroStripe` — don't hand-build bands per page. Hollow words on nero use `.hollow` (fill nero), on verde `.hollow` with `--fill` verde, on avorio `.hollow-dark`.
+
 ## 6. Components
 
 **Section header:** eyebrow (caps, rosso, Italian · German) → display headline with hollow last word → optional sub-line (18 px, muted) → right-aligned caps link „Alle anzeigen →“ with 1 px underline.
@@ -133,12 +150,13 @@ Short, confident, collector-to-collector. Du-Form. Verbs on buttons („Kollekti
 
 - Tokens live in `src/index.css` `:root` (see `reference/tokens.css`); Tailwind colours `verde, giallo, rosso, azzurro, avorio, carta, sabbia, nero, success, warning, danger, info` map to `hsl(var(--x))`.
 - Utilities: `.display`, `.cap`, `.num`, `.hollow`, `.hollow-dark`, `.grain`, `.tricolore`, `.shirt-mask`, `.nero-stripe`. Retired: `.text-gradient`, `.card-hover` glow, `.glow`, `.vintage-border`, `font-serif italic` taglines, Button `hover:-translate-y`.
-- Reuse shared components: `Logo` (CC monogram), `SectionHeader`, `NeroStripe`, `CircleGeometry`, `Figurina` (JerseyCard), `PriceSpectrum`. Don't restyle per page.
+- Reuse shared components: `Logo` (CC monogram), `PageHeader`, `SectionHeader`, `NeroStripe`, `TrustStripe`, `CircleGeometry`, `Figurina` (JerseyCard), `PriceSpectrum`. Don't restyle per page.
 - CMS-editable text/images come from `useSiteContent()` with code defaults — never hard-code homepage copy again.
 
 ## 10. Checklist before every PR with UI changes
 
 - [ ] Only tokens, no palette classes / hex / rgb in TSX; no rounded corners (except §4 exceptions); no shadows/glow.
+- [ ] Page has its light/dark rhythm per §5.1 (coloured header and/or nero stripe), not all ivory.
 - [ ] Headlines: display caps, hollow last word built with `paint-order`, German; eyebrow Italian·German caps.
 - [ ] No highlighted „ss“; no brand marks/crests in new imagery.
 - [ ] Desktop 1440 and mobile 390 checked on the Vercel preview; caps ≥ 10 px on mobile; tap targets ≥ 44 px.

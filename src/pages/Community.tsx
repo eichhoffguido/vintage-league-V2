@@ -12,7 +12,6 @@ import RichTextEditor from "@/components/RichTextEditor";
 import ImageUploader from "@/components/ImageUploader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -160,7 +159,6 @@ const Community = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
 
       {/* Hero */}
       <section className="grain relative border-b border-border bg-secondary/30 py-16">

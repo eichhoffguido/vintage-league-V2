@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { formatEuros } from "@/utils/currency";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -179,7 +178,6 @@ const UserProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <EmailVerificationBanner />
         <ProfilePageSkeleton />
         <Footer />
       </div>
@@ -203,7 +201,6 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         {/* Profile Section */}
         <div className="mb-12 rounded-sm border border-border bg-card p-8">

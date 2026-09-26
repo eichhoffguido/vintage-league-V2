@@ -1,12 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { CONTACT_EMAIL } from "@/config/brand";
 
 // Platzhalter — vor dem Beta-Launch mit den echten Angaben ersetzen.
 const OPERATOR_NAME = "VOLLSTÄNDIGER NAME";
 const OPERATOR_STREET = "STRASSE HAUSNUMMER";
 const OPERATOR_CITY = "PLZ ORT";
 const OPERATOR_COUNTRY = "Deutschland";
-const OPERATOR_EMAIL = "contact@vintage-league.de";
+const OPERATOR_EMAIL = CONTACT_EMAIL;
 
 const Imprint = () => {
   return (

@@ -6,7 +6,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatEuros } from "@/utils/currency";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -123,7 +122,6 @@ const SellerProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <EmailVerificationBanner />
         <div className="container mx-auto px-4 py-12">
           <div className="mb-8">
             <Skeleton className="h-10 w-40 mb-4" />
@@ -157,7 +155,6 @@ const SellerProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <EmailVerificationBanner />
         <div className="container mx-auto px-4 py-12">
           <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
@@ -184,7 +181,6 @@ const SellerProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailVerificationBanner />
       <div className="container mx-auto px-4 py-12">
         <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
