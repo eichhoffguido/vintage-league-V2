@@ -16,8 +16,11 @@ export const centsToEuros = (cents: number | null | undefined): number | null =>
   return Math.round((cents / 100) * 100) / 100;
 };
 
+// Deutsches Format: „1.234,50 €“ (Calcio Classics ist eine deutsche Seite)
+const EURO_FORMAT = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+
 export const formatEuros = (cents: number | null | undefined): string => {
   const euros = centsToEuros(cents);
   if (euros === null) return "";
-  return `€${euros.toFixed(2)}`;
+  return EURO_FORMAT.format(euros);
 };
