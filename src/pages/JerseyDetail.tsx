@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Gem, Calendar, Package, TrendingDown, Star } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MarketDepth from "@/components/MarketDepth";
@@ -20,6 +19,8 @@ import { AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import { getAgeTier, getVintageBonus } from "@/utils/priceIntelligence";
+import { cn } from "@/lib/utils";
 import { startCheckout } from "@/lib/checkout";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
@@ -36,33 +37,11 @@ type SaleHistory = {
   sold_at: string;
 };
 
-const getVintageBonus = (year: string): number => {
-  if (!year || year.trim() === "") return 1.0;
-  const yearNum = parseInt(year, 10);
-  if (Number.isNaN(yearNum)) return 1.0;
-  const age = new Date().getFullYear() - yearNum;
-  if (age >= 25) return 1.8;
-  if (age >= 15) return 1.4;
-  if (age >= 5) return 1.1;
-  return 1.0;
-};
-
-const getVintageTier = (age: number | string): string | null => {
-  if (age === "—") return null;
-  const ageNum = typeof age === "string" ? parseInt(age, 10) : age;
-  if (Number.isNaN(ageNum)) return null;
-  if (ageNum >= 25) return "Klassiker";
-  if (ageNum >= 15) return "Retro";
-  if (ageNum >= 5) return "Vintage";
-  return null;
-};
-
-const getConditionColor = (condition: number): string => {
-  if (condition >= 5) return "bg-green-100 text-green-800";
-  if (condition >= 4) return "bg-green-100 text-green-800";
-  if (condition >= 3) return "bg-yellow-100 text-yellow-800";
-  if (condition >= 2) return "bg-orange-100 text-orange-800";
-  return "bg-red-100 text-red-800";
+// Zustand als Status-Tag mit Design-Tokens (Skill cc-design §2): 4–5 verde, 3 giallo, 1–2 rosso
+const conditionTagClass = (condition: number): string => {
+  if (condition >= 4) return "border-verde text-verde";
+  if (condition === 3) return "border-giallo bg-giallo text-nero";
+  return "border-rosso text-rosso";
 };
 
 const JerseyDetail = () => {
@@ -77,6 +56,7 @@ const JerseyDetail = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [bidModalOpen, setBidModalOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
   const [lowestAsk, setLowestAsk] = useState<number | null | undefined>(undefined);
   const [highestBid, setHighestBid] = useState<number | null | undefined>(undefined);
   const { toast } = useToast();
@@ -238,354 +218,340 @@ const JerseyDetail = () => {
   }
 
   const vintageBonus = getVintageBonus(jersey.year);
+  const ageTier = getAgeTier(jersey.year);
   const isOwner = user?.id === jersey.user_id;
-  const age = Number.isNaN(parseInt(jersey.year, 10)) ? "—" : new Date().getFullYear() - parseInt(jersey.year, 10);
+  const isSold = jersey.listing_type === "sold";
+  const age = Number.isNaN(parseInt(jersey.year, 10)) ? null : new Date().getFullYear() - parseInt(jersey.year, 10);
+  const images = (jersey.image_urls && jersey.image_urls.length > 0 ? jersey.image_urls : [jersey.image_url])
+    .map((url) => getImageUrl(url))
+    .filter((url): url is string => !!url);
+  const mainImage = images[Math.min(activeImage, Math.max(0, images.length - 1))];
+  const isVerified = jersey.verification_status === "verified";
+  const isPending = jersey.verification_status === "pending";
+  const sellerName = jersey.profiles?.display_name || "Anonym";
+
+  const specs: { label: string; value: ReactNode }[] = [
+    { label: "Größe", value: <span className="num text-xl">{jersey.size}</span> },
+    {
+      label: "Zustand",
+      value: (
+        <span className="flex items-center gap-2">
+          <span className="num text-xl">{jersey.condition}/5</span>
+          <span className={cn("inline-flex border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]", conditionTagClass(jersey.condition))}>
+            {conditionLabels[jersey.condition]}
+          </span>
+        </span>
+      ),
+    },
+    {
+      label: "Alter",
+      value: (
+        <span className="flex items-center gap-2">
+          <span className="num text-xl">{age !== null ? `${age} Jahre` : "—"}</span>
+          {ageTier && (
+            <span className="inline-flex border border-nero px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]">
+              {ageTier}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    { label: "Vintage-Faktor", value: <span className="num text-xl">{vintageBonus}×</span> },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
-        </Button>
+      <main>
+        <div className="container mx-auto px-4 pb-14 pt-6 md:px-10 md:pb-24 md:pt-10">
+          <button
+            type="button"
+            className="cap mb-6 inline-flex items-center gap-2 text-xs underline-offset-4 hover:underline md:mb-8"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-4 w-4" /> Zurück
+          </button>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Jersey Image(s) */}
-          <div className="relative">
-            <div className="sticky top-20">
-              {getImageUrl(getPrimaryImage(jersey)) ? (
-                <div className="space-y-2">
-                  {(jersey.image_urls && jersey.image_urls.length > 0) ? (
-                    <>
-                      {/* Primary image */}
-                      <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                        <img src={getImageUrl(jersey.image_urls[0])!} alt={`${jersey.name} 1`} className="h-full w-full object-cover" />
-                      </div>
-                      {/* Secondary images grid */}
-                      {jersey.image_urls.length > 1 && (
-                        <div className="grid grid-cols-3 gap-2">
-                          {jersey.image_urls.slice(1).map((url: string, index: number) => (
-                            <div key={index} className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                              <img src={getImageUrl(url)!} alt={`${jersey.name} ${index + 2}`} className="h-full w-full object-cover" />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+            {/* Bilder */}
+            <div>
+              <div className="lg:sticky lg:top-32">
+                <div className="grain grain-photo relative aspect-[4/5] overflow-hidden border-2 border-nero bg-sabbia">
+                  {mainImage ? (
+                    <img src={mainImage} alt={`${jersey.team} ${jersey.name}`} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="aspect-square overflow-hidden rounded-sm bg-secondary">
-                      <img src={getImageUrl(jersey.image_url)!} alt={jersey.name} className="h-full w-full object-cover" />
+                    <div className="flex h-full items-center justify-center">
+                      <span className="display text-9xl text-nero/25">{jersey.team.charAt(0)}</span>
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="flex aspect-square items-center justify-center rounded-sm bg-secondary">
-                  <span className="font-display text-8xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
-                </div>
-              )}
-              {jersey.verification_status === "verified" && (
-                <div className="absolute left-3 top-3 flex items-center gap-1 rounded-sm bg-primary px-2 py-1">
-                  <ShieldCheck className="h-4 w-4 text-primary-foreground" />
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-primary-foreground">
-                    Zertifiziert
-                  </span>
-                </div>
-              )}
-              {jersey.available_for_trade && (
-                <div className="absolute right-3 top-3 flex items-center gap-1 rounded-sm bg-background/80 border border-border px-2 py-1 backdrop-blur-sm">
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-foreground">
-                    Tausch möglich
-                  </span>
-                </div>
-              )}
-              {vintageBonus > 1.0 && (
-                <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-sm bg-background/90 border border-primary/30 px-2 py-1 backdrop-blur-sm">
-                  <Gem className="h-4 w-4 text-primary" />
-                  <span className="font-display text-xs font-bold uppercase tracking-wider text-primary">
-                    {vintageBonus >= 1.8 ? "Klassiker" : vintageBonus >= 1.4 ? "Retro" : "Vintage"}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Jersey Details */}
-          <div className="space-y-6">
-            {/* Basic Info */}
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{jersey.league} · {jersey.year}</p>
-              <h1 className="font-display text-5xl font-bold mt-2">{jersey.team}</h1>
-              <p className="text-lg text-muted-foreground mt-2">{jersey.name}</p>
-            </div>
-
-            {/* Price */}
-            {jersey.sale_price_cents ? (
-              <div className="rounded-sm border border-border bg-secondary/50 p-6 space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Verkaufspreis</p>
-                  <p className="font-display text-4xl font-bold text-primary">{formatEuros(jersey.sale_price_cents)}</p>
-                </div>
-                <PriceIntelligence
-                  team={jersey.team}
-                  year={parseInt(jersey.year) || 0}
-                  condition={jersey.condition}
-                  size={jersey.size}
-                  listingPriceCents={jersey.sale_price_cents}
-                />
-              </div>
-            ) : jersey.price_cents && (
-              <div className="rounded-sm border border-border bg-secondary/50 p-6 space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Schätzpreis</p>
-                  <p className="font-display text-4xl font-bold">{formatEuros(jersey.price_cents)}</p>
-                </div>
-                <PriceIntelligence
-                  team={jersey.team}
-                  year={parseInt(jersey.year) || 0}
-                  condition={jersey.condition}
-                  size={jersey.size}
-                  listingPriceCents={jersey.price_cents}
-                />
-              </div>
-            )}
-
-            {/* Market Price Section */}
-            <div className="rounded-sm border border-border bg-secondary/50 p-6">
-              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Marktpreise</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Sofort kaufen ab</p>
-                  {lowestAsk === undefined ? (
-                    <Skeleton className="h-7 w-24" />
-                  ) : lowestAsk !== null ? (
-                    <p className="font-display text-2xl font-bold text-foreground">{formatEuros(lowestAsk)}</p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic">Kein Angebot verfügbar</p>
+                  <div className="absolute left-3 top-3 z-[2] flex flex-wrap gap-1.5">
+                    {isVerified && (
+                      <span className="inline-flex items-center gap-1 border border-verde bg-verde px-2 py-1 font-body text-[11px] font-medium uppercase leading-none tracking-[0.14em] text-avorio">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Verificato
+                      </span>
+                    )}
+                    {jersey.available_for_trade && !isSold && (
+                      <span className="inline-flex border border-rosso bg-card px-2 py-1 font-body text-[11px] font-medium uppercase leading-none tracking-[0.14em] text-rosso">
+                        Tausch möglich
+                      </span>
+                    )}
+                    {isSold && (
+                      <span className="inline-flex border border-nero bg-nero px-2 py-1 font-body text-[11px] font-medium uppercase leading-none tracking-[0.14em] text-avorio">
+                        Verkauft
+                      </span>
+                    )}
+                  </div>
+                  {ageTier && (
+                    <span className="absolute bottom-3 left-3 z-[2] inline-flex border border-nero bg-card px-2 py-1 font-body text-[11px] font-medium uppercase leading-none tracking-[0.14em]">
+                      {ageTier}
+                    </span>
                   )}
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Höchstes Gebot</p>
-                  {highestBid === undefined ? (
-                    <Skeleton className="h-7 w-24" />
-                  ) : highestBid !== null ? (
-                    <p className="font-display text-2xl font-bold text-primary">{formatEuros(highestBid)}</p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground italic">Noch kein Gebot</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons - Moved above the fold */}
-            <div className="space-y-3">
-              {isOwner ? (
-                <Button variant="outline" className="w-full" onClick={() => navigate("/collection")}>
-                  <Package className="mr-2 h-4 w-4" /> Sammlung bearbeiten
-                </Button>
-              ) : jersey.listing_type === "sold" ? (
-                <div className="rounded-sm border border-border bg-secondary/50 p-4 text-center">
-                  <Badge variant="secondary" className="font-display text-sm uppercase tracking-wider">
-                    Bereits verkauft
-                  </Badge>
-                  <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
-                </div>
-              ) : (
-                <>
-                  {jersey.sale_price_cents && (
-                    <Button
-                      variant="hero"
-                      className="w-full uppercase tracking-wider"
-                      onClick={handleKaufen}
-                      disabled={checkoutLoading}
-                    >
-                      {checkoutLoading ? "Wird geladen..." : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
-                    </Button>
-                  )}
-                  <Button
-                    variant={jersey.sale_price_cents ? "outline" : "hero"}
-                    className="w-full uppercase tracking-wider"
-                    onClick={() => {
-                      if (!user) { navigate("/auth"); return; }
-                      setBidModalOpen(true);
-                    }}
-                  >
-                    Gebot abgeben
-                  </Button>
-                  {jersey.available_for_trade && (
-                    <Button variant="outline" className="w-full uppercase tracking-wider" onClick={() => navigate("/trade")}>
-                      Tausch vorschlagen
-                    </Button>
-                  )}
-                  {!jersey.sale_price_cents && !jersey.available_for_trade && (
-                    <p className="text-sm text-muted-foreground text-center py-2">
-                      Dieses Trikot ist derzeit nicht verfügbar
-                    </p>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Specifications */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-sm border border-border p-4 space-y-2">
-                <p className="text-xs text-muted-foreground">Größe</p>
-                <Badge variant="secondary" className="text-base py-1">{jersey.size}</Badge>
-              </div>
-              <div className="rounded-sm border border-border p-4 space-y-2">
-                <p className="text-xs text-muted-foreground">Zustand</p>
-                <div className="space-y-1">
-                  <p className="font-semibold">{jersey.condition}/5</p>
-                  <Badge className={getConditionColor(jersey.condition)}>
-                    {conditionLabels[jersey.condition]}
-                  </Badge>
-                </div>
-              </div>
-              <div className="rounded-sm border border-border p-4 space-y-2">
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> Alter
-                </p>
-                <div className="space-y-1">
-                  <p className="font-semibold">{age !== "—" ? `${age} Jahre` : "—"}</p>
-                  {getVintageTier(age) && (
-                    <Badge variant="default">{getVintageTier(age)}</Badge>
-                  )}
-                </div>
-              </div>
-              <div className="rounded-sm border border-border p-4 space-y-2">
-                <p className="text-xs text-muted-foreground">Vintage Faktor</p>
-                <div className="flex items-center gap-2">
-                  <Gem className="h-4 w-4 text-amber-600" />
-                  <p className="font-semibold text-lg">{vintageBonus}x</p>
-                </div>
-              </div>
-            </div>
-
-
-            {/* Description */}
-            {jersey.description && jersey.description.trim() && (
-              <div className="rounded-sm border border-border p-6">
-                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Beschreibung</p>
-                <div
-                  className="text-sm text-foreground prose prose-sm max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(jersey.description) }}
-                />
-              </div>
-            )}
-
-            {/* Owner Info - Enhanced */}
-            <div className="rounded-sm border border-border bg-gradient-to-br from-secondary/30 to-secondary/5 p-6">
-              <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wider font-semibold">Verkäufer</p>
-              <div className="flex items-start gap-4">
-                {/* Avatar */}
-                {jersey.profiles?.avatar_url ? (
-                  <img
-                    src={jersey.profiles.avatar_url}
-                    alt={jersey.profiles?.display_name || "Seller"}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-display font-bold">
-                    {(jersey.profiles?.display_name || jersey.profiles?.id || "?").charAt(0).toUpperCase()}
+                {images.length > 1 && (
+                  <div className="mt-2 grid grid-cols-5 gap-2">
+                    {images.map((url, index) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => setActiveImage(index)}
+                        aria-label={`Bild ${index + 1} anzeigen`}
+                        aria-pressed={index === activeImage}
+                        className={cn(
+                          "aspect-square overflow-hidden border-2 bg-sabbia",
+                          index === activeImage ? "border-nero" : "border-transparent opacity-70 hover:opacity-100",
+                        )}
+                      >
+                        <img src={url} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
                   </div>
                 )}
-                <div className="flex-1 min-w-0">
-                  {/* Seller Name and Rating */}
-                  <p
-                    className="font-semibold text-lg cursor-pointer hover:text-primary break-words"
-                    onClick={() => navigate(`/seller/${jersey.user_id}`)}
-                  >
-                    {jersey.profiles?.display_name || jersey.profiles?.id || "Anonym"}
-                  </p>
-                  {/* Rating */}
-                  {jersey.profiles?.average_rating !== null && jersey.profiles?.average_rating !== undefined && (
-                    <div className="flex items-center gap-1 mt-1">
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-3.5 w-3.5 ${
-                              i < Math.round(jersey.profiles!.average_rating!)
-                                ? "fill-primary text-primary"
-                                : "text-muted-foreground/20"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-muted-foreground ml-1">
-                        {jersey.profiles.average_rating.toFixed(1)}
-                      </span>
+              </div>
+            </div>
+
+            {/* Infos */}
+            <div className="space-y-7">
+              <div>
+                <div className="cap text-rosso">
+                  {[jersey.league, jersey.year && `Saison ${jersey.year}`].filter(Boolean).join(" · ")}
+                </div>
+                <h1 className="display mt-3 text-[40px] leading-[0.9] md:text-[64px]">{jersey.team}</h1>
+                {jersey.name && <p className="mt-3 text-lg text-muted-foreground">{jersey.name}</p>}
+              </div>
+
+              {/* Preis + Preiseinschätzung */}
+              {(jersey.sale_price_cents || jersey.price_cents) && (
+                <div className="space-y-4 border-2 border-nero bg-card p-5">
+                  <div>
+                    <div className="cap text-[11px] text-muted-foreground">{jersey.sale_price_cents ? "Verkaufspreis" : "Schätzpreis"}</div>
+                    <div className="num mt-1 text-[44px] leading-none">
+                      {formatEuros(jersey.sale_price_cents || jersey.price_cents)}
                     </div>
+                  </div>
+                  <PriceIntelligence
+                    team={jersey.team}
+                    year={parseInt(jersey.year) || 0}
+                    condition={String(jersey.condition)}
+                    size={jersey.size}
+                    listingPriceCents={jersey.sale_price_cents || jersey.price_cents || undefined}
+                  />
+                </div>
+              )}
+
+              {/* Marktpreise */}
+              <div className="grid grid-cols-2 border-y border-nero">
+                <div className="py-4 pr-4">
+                  <div className="cap text-[11px] text-muted-foreground">Sofort kaufen ab</div>
+                  {lowestAsk === undefined ? (
+                    <Skeleton className="mt-2 h-7 w-24" />
+                  ) : lowestAsk !== null ? (
+                    <div className="num mt-1 text-2xl">{formatEuros(lowestAsk)}</div>
+                  ) : (
+                    <div className="mt-1 text-sm text-muted-foreground">Kein Angebot verfügbar</div>
                   )}
-                  {/* Bio */}
-                  {jersey.profiles?.bio && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{jersey.profiles.bio}</p>
+                </div>
+                <div className="border-l border-nero py-4 pl-4">
+                  <div className="cap text-[11px] text-muted-foreground">Höchstes Gebot</div>
+                  {highestBid === undefined ? (
+                    <Skeleton className="mt-2 h-7 w-24" />
+                  ) : highestBid !== null ? (
+                    <div className="num mt-1 text-2xl text-verde">{formatEuros(highestBid)}</div>
+                  ) : (
+                    <div className="mt-1 text-sm text-muted-foreground">Noch kein Gebot</div>
                   )}
                 </div>
               </div>
-              {/* View Profile Button */}
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={() => navigate(`/seller/${jersey.user_id}`)}
-              >
-                Verkäuferprofil besuchen
-              </Button>
-            </div>
 
-            {/* Verification Status */}
-            <div className="rounded-sm border border-border p-4">
-              <div className="flex items-center gap-2">
-                {jersey.verification_status === "verified" ? (
-                  <>
-                    <ShieldCheck className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-semibold">Verifiziert</p>
-                      <p className="text-xs text-muted-foreground">Dieses Trikot wurde von unserem Team geprüft</p>
-                    </div>
-                  </>
+              {/* Aktionen */}
+              <div className="space-y-2.5">
+                {isOwner ? (
+                  <Button variant="outline" size="lg" className="w-full" onClick={() => navigate("/collection")}>
+                    <Package className="h-4 w-4" /> Sammlung bearbeiten
+                  </Button>
+                ) : isSold ? (
+                  <div className="border-2 border-nero bg-card p-4 text-center">
+                    <div className="cap text-xs">Bereits verkauft</div>
+                    <p className="mt-2 text-sm text-muted-foreground">Dieses Trikot wurde bereits verkauft.</p>
+                  </div>
                 ) : (
                   <>
-                    <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />
-                    <div>
-                      <p className="text-sm font-semibold">Nicht verifiziert</p>
-                      <p className="text-xs text-muted-foreground">Dieses Trikot wurde noch nicht geprüft</p>
-                    </div>
+                    {jersey.sale_price_cents && (
+                      <Button variant="dark" size="lg" className="w-full" onClick={handleKaufen} disabled={checkoutLoading}>
+                        {checkoutLoading ? "Wird geladen …" : `Sofort kaufen — ${formatEuros(jersey.sale_price_cents)}`}
+                      </Button>
+                    )}
+                    <Button
+                      variant={jersey.sale_price_cents ? "outline" : "default"}
+                      size="lg"
+                      className="w-full"
+                      onClick={() => {
+                        if (!user) {
+                          navigate("/auth");
+                          return;
+                        }
+                        setBidModalOpen(true);
+                      }}
+                    >
+                      Gebot abgeben
+                    </Button>
+                    {jersey.available_for_trade && (
+                      <Button variant="outline" size="lg" className="w-full border-rosso text-rosso hover:bg-rosso hover:text-avorio" onClick={() => navigate("/trade")}>
+                        ⇄ Tausch vorschlagen
+                      </Button>
+                    )}
+                    {!jersey.sale_price_cents && !jersey.available_for_trade && (
+                      <p className="py-2 text-center text-sm text-muted-foreground">Dieses Trikot ist derzeit nicht verfügbar</p>
+                    )}
                   </>
                 )}
               </div>
-            </div>
 
-            {/* Market Depth */}
-            <MarketDepth jerseyId={id!} />
+              {/* Spezifikationen */}
+              <dl className="border-t border-nero">
+                {specs.map((spec) => (
+                  <div key={spec.label} className="flex items-center justify-between gap-4 border-b border-nero py-3">
+                    <dt className="cap text-[11px] text-muted-foreground">{spec.label}</dt>
+                    <dd>{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
 
-            {/* Price History - Zuletzt verkauft */}
-            {saleHistory.length > 0 && (
-              <div className="rounded-sm border border-border p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <TrendingDown className="h-5 w-5 text-muted-foreground" />
-                  <p className="text-sm font-semibold uppercase tracking-wider">Zuletzt verkauft</p>
+              {/* Beschreibung */}
+              {jersey.description && jersey.description.trim() && (
+                <div>
+                  <div className="cap text-[11px] text-muted-foreground">Beschreibung</div>
+                  <div
+                    className="prose prose-sm mt-3 max-w-none text-foreground prose-headings:font-display prose-headings:tracking-[-0.03em] prose-a:text-verde"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(jersey.description) }}
+                  />
                 </div>
-                <div className="space-y-3">
-                  {saleHistory.map((sale) => (
-                    <div key={sale.id} className="flex items-center justify-between text-sm">
-                      <div className="flex-1">
-                        <p className="text-muted-foreground">
-                          {sale.condition}/5 • {new Date(sale.sold_at).toLocaleDateString('de-DE', { month: 'short', day: 'numeric' })}
-                        </p>
-                      </div>
-                      {sale.price_cents ? (
-                        <p className="font-semibold text-primary">{formatEuros(sale.price_cents)}</p>
-                      ) : (
-                        <p className="text-muted-foreground text-xs">Preis nicht angegeben</p>
-                      )}
+              )}
+
+              {/* Verkäufer */}
+              <div className="border-2 border-nero bg-card p-5">
+                <div className="cap text-[11px] text-muted-foreground">Il venditore · Verkäufer</div>
+                <div className="mt-4 flex items-start gap-4">
+                  {jersey.profiles?.avatar_url ? (
+                    <img src={jersey.profiles.avatar_url} alt={sellerName} className="h-12 w-12 rounded-full border border-nero object-cover" />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-nero bg-sabbia font-display text-lg font-bold">
+                      {sellerName.charAt(0).toUpperCase()}
                     </div>
-                  ))}
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <button
+                      type="button"
+                      className="break-words text-left font-display text-lg font-semibold tracking-[-0.02em] underline-offset-4 hover:underline"
+                      onClick={() => navigate(`/seller/${jersey.user_id}`)}
+                    >
+                      {sellerName}
+                    </button>
+                    {jersey.profiles?.average_rating !== null && jersey.profiles?.average_rating !== undefined && (
+                      <div className="mt-1 flex items-center gap-1">
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={cn("h-3.5 w-3.5", i < Math.round(jersey.profiles!.average_rating!) ? "fill-giallo text-giallo" : "text-nero/20")}
+                            />
+                          ))}
+                        </div>
+                        <span className="num ml-1 text-sm">{jersey.profiles.average_rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                    {jersey.profiles?.bio && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{jersey.profiles.bio}</p>}
+                  </div>
                 </div>
+                <Button variant="outline" className="mt-4 w-full" onClick={() => navigate(`/seller/${jersey.user_id}`)}>
+                  Verkäuferprofil besuchen →
+                </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* Schwarzer Streifen: Echtheit & Prüfung (Skill cc-design §5.1) */}
+        <section className="nero-stripe" aria-label="Echtheit und Prüfung">
+          <div className="container mx-auto grid gap-8 px-4 py-12 md:px-10 md:py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14">
+            <div>
+              <div className="cap text-avorio/75">
+                <span className="text-rosso">Verifica</span> · Echtheit &amp; Prüfung
+              </div>
+              <h2 className="display mt-3 text-[36px] md:text-[56px]">
+                {isVerified ? "Geprüft und" : isPending ? "Prüfung" : "Noch nicht"}{" "}
+                <span className="hollow">{isVerified ? "verificato." : isPending ? "läuft." : "geprüft."}</span>
+              </h2>
+              <p className="mt-4 max-w-md text-base text-avorio/85">
+                {isVerified
+                  ? "Dieses Trikot wurde von unserem Team geprüft: Stoff, Stickerei, Label und Flock."
+                  : isPending
+                    ? "Unser Team prüft dieses Trikot gerade. Bis dahin trägt es kein Verificato-Siegel."
+                    : "Dieses Trikot wurde noch nicht geprüft. Frag im Zweifel die Community nach einem Legit-Check."}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 border-t border-avorio/35 sm:grid-cols-3 sm:border-t-0">
+              {[
+                ["01", "Echtheitsprüfung", "Stoff, Label, Stickerei und Flock werden kontrolliert."],
+                ["02", "Faire Einordnung", "Marktwert aus über 22.000 Referenzpreisen."],
+                ["03", "Sicher bezahlen", "Bezahlung über Stripe — deine Kartendaten landen nie bei uns."],
+              ].map(([nr, title, text], i) => (
+                <div key={nr} className={cn("border-b border-avorio/35 py-5 sm:border-b-0 sm:py-0", i > 0 && "sm:border-l sm:pl-6", i < 2 && "sm:pr-6")}>
+                  <div className="display hollow text-[44px] leading-[0.8] md:text-[64px]" aria-hidden>{nr}</div>
+                  <h3 className="mt-3 text-base md:mt-5 md:text-lg">{title}</h3>
+                  <p className="mt-1.5 text-sm text-avorio/80">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Markttiefe + Zuletzt verkauft */}
+        <div className="container mx-auto grid gap-10 px-4 py-14 md:px-10 md:py-20 lg:grid-cols-2 lg:gap-14">
+          <MarketDepth jerseyId={id!} />
+          {saleHistory.length > 0 && (
+            <div>
+              <div className="cap text-rosso">Storico · Preisverlauf</div>
+              <h2 className="display mt-2.5 text-[32px] md:text-[44px]">
+                Zuletzt <span className="hollow-dark">verkauft.</span>
+              </h2>
+              <ul className="mt-6 border-t border-nero">
+                {saleHistory.map((sale) => (
+                  <li key={sale.id} className="flex items-center justify-between gap-4 border-b border-nero py-3 text-sm">
+                    <span className="text-muted-foreground">
+                      Zustand {sale.condition}/5 · {new Date(sale.sold_at).toLocaleDateString("de-DE", { month: "short", day: "numeric" })}
+                    </span>
+                    {sale.price_cents ? (
+                      <span className="num text-lg">{formatEuros(sale.price_cents)}</span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Preis nicht angegeben</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </main>
       <Footer />
       <PlaceBidModal
         open={bidModalOpen}
