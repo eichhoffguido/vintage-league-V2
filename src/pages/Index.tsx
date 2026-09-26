@@ -19,6 +19,7 @@ import heroImage from "@/assets/hero-jersey.jpg";
 import heroCollectibles from "@/assets/hero-collectibles.jpg";
 import heroRarity from "@/assets/hero-rarity.jpg";
 import { BRAND_NAME } from "@/config/brand";
+import { startCheckout } from "@/lib/checkout";
 
 const fetchFeaturedJerseys = async () => {
   const { data, error } = await supabase
@@ -166,13 +167,9 @@ const Index = () => {
     }
     setCheckoutLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { jersey_id: jerseyId, buyer_id: user.id },
-      });
-      if (error) throw error;
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({ title: "Fehler", description: err.message || "Checkout konnte nicht gestartet werden", variant: "destructive" });
+      await startCheckout({ jersey_id: jerseyId });
+    } catch (err) {
+      toast({ title: "Kauf nicht möglich", description: err instanceof Error ? err.message : "Checkout konnte nicht gestartet werden.", variant: "destructive" });
       setCheckoutLoading(false);
     }
   };

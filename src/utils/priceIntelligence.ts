@@ -18,12 +18,28 @@ export interface PriceIntelligence {
   };
 }
 
+export type PriceVerdictTone = "schnaeppchen" | "fair" | "ueber" | "premium";
+
 export interface PriceVerdict {
   label: string;
+  /** Textfarbe (Design-Token, Skill cc-design §6) */
   color: string;
+  /** Flächenfarbe (Design-Token) */
   bg: string;
+  tone: PriceVerdictTone;
   icon?: string;
 }
+
+export type AgeTier = "Klassiker" | "Retro" | "Vintage";
+
+/** Alters-Stufe aus dem Jahr (≥25 Klassiker, ≥15 Retro, ≥5 Vintage) — eine Quelle für alle Anzeigen. */
+export const getAgeTier = (year: string): AgeTier | null => {
+  const bonus = getVintageBonus(year);
+  if (bonus >= 1.8) return "Klassiker";
+  if (bonus >= 1.4) return "Retro";
+  if (bonus > 1.0) return "Vintage";
+  return null;
+};
 
 const conditionMultiplier: Record<number, number> = {
   5: 1.0,
@@ -58,36 +74,18 @@ export const getPriceVerdict = (
 ): PriceVerdict => {
   const range = maxVal - minVal;
   if (range === 0) {
-    return { label: "Fairer Preis", color: "text-green-500", bg: "bg-green-500" };
+    return { label: "Fairer Preis", color: "text-verde", bg: "bg-verde", tone: "fair" };
   }
-
   if (price <= fairVal * 0.85) {
-    return {
-      label: "Schnäppchen 🔥",
-      color: "text-primary",
-      bg: "bg-primary",
-      icon: "🔥",
-    };
+    return { label: "Schnäppchen", color: "text-verde", bg: "bg-verde", tone: "schnaeppchen" };
   }
   if (price <= fairVal * 1.05) {
-    return {
-      label: "Fairer Preis",
-      color: "text-green-500",
-      bg: "bg-green-500",
-    };
+    return { label: "Fairer Preis", color: "text-verde", bg: "bg-verde", tone: "fair" };
   }
   if (price <= fairVal * 1.2) {
-    return {
-      label: "Über Marktwert",
-      color: "text-green-500",
-      bg: "bg-green-500",
-    };
+    return { label: "Über Marktwert", color: "text-nero", bg: "bg-giallo", tone: "ueber" };
   }
-  return {
-    label: "Premium-Preis",
-    color: "text-orange-400",
-    bg: "bg-orange-400",
-  };
+  return { label: "Premium-Preis", color: "text-rosso", bg: "bg-rosso", tone: "premium" };
 };
 
 /**
@@ -143,6 +141,6 @@ export const calculatePriceIntelligence = (options: {
  */
 export const getPositionColor = (percentile: number): string => {
   if (percentile < 33) return "text-primary"; // Good deals
-  if (percentile < 66) return "text-green-500"; // Fair price
-  return "text-orange-400"; // Expensive
+  if (percentile < 66) return "text-verde"; // Fair price
+  return "text-rosso"; // Expensive
 };
