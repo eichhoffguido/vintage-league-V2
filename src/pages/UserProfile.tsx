@@ -26,6 +26,7 @@ import { Plus, Trash2, ArrowLeftRight, Upload, Shirt, AlertCircle, Edit2, CheckC
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
+import DeleteJerseyDialog, { type DeleteJerseyTarget } from "@/components/DeleteJerseyDialog";
 
 // Figurina-Optik für die eigene Sammlung (Skill cc-design §6). Rahmenfarbe rein dekorativ, stabil pro Trikot.
 const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
@@ -41,6 +42,7 @@ const UserProfile = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [jerseyToDelete, setJerseyToDelete] = useState<DeleteJerseyTarget | null>(null);
   const [profileForm, setProfileForm] = useState({
     display_name: "",
     bio: "",
@@ -75,6 +77,7 @@ const UserProfile = () => {
         .from("user_jerseys")
         .select("*")
         .eq("user_id", user!.id)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -149,18 +152,6 @@ const UserProfile = () => {
     e.target.value = "";
     if (file) uploadAvatar.mutate(file);
   };
-
-  // Delete jersey
-  const deleteJersey = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("user_jerseys").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-jerseys"] });
-      toast.success("Trikot entfernt");
-    },
-  });
 
   // Initialize form with profile data
   useEffect(() => {
@@ -483,7 +474,7 @@ const UserProfile = () => {
                     aria-label="Trikot entfernen"
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteJersey.mutate(jersey.id);
+                      setJerseyToDelete({ id: jersey.id, team: jersey.team, name: jersey.name });
                     }}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -552,6 +543,8 @@ const UserProfile = () => {
             )}
           </SheetContent>
         </Sheet>
+
+        <DeleteJerseyDialog jersey={jerseyToDelete} onClose={() => setJerseyToDelete(null)} />
       </div>
       <Footer />
     </div>

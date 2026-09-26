@@ -26,6 +26,7 @@ import { Plus, ArrowLeftRight, Shirt, AlertCircle, ShieldCheck, Clock, XCircle }
 import { useEffect } from "react";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import DeleteJerseyDialog, { type DeleteJerseyTarget } from "@/components/DeleteJerseyDialog";
 
 // Rahmenfarbe rotiert rein dekorativ, stabil pro Trikot (Skill cc-design §2, wie Figurina)
 const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
@@ -51,6 +52,7 @@ const Collection = () => {
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [saleModalOpen, setSaleModalOpen] = useState(false);
   const [salePrice, setSalePrice] = useState("");
+  const [jerseyToDelete, setJerseyToDelete] = useState<DeleteJerseyTarget | null>(null);
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     available_for_trade: false,
@@ -70,6 +72,7 @@ const Collection = () => {
         .from("user_jerseys")
         .select("*")
         .eq("user_id", user!.id)
+        .is("deleted_at", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -169,17 +172,6 @@ const Collection = () => {
       toast.success("Trikot aktualisiert");
     },
     onError: (e: Error) => toast.error(e.message),
-  });
-
-  const deleteJersey = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("user_jerseys").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
-      toast.success("Trikot entfernt");
-    },
   });
 
   const toggleTrade = useMutation({
@@ -875,12 +867,10 @@ const Collection = () => {
                           className="w-full"
                           onClick={(e) => {
                             e.stopPropagation();
-                            deleteJersey.mutate(selectedJersey.id);
-                            setDetailSheetOpen(false);
+                            setJerseyToDelete({ id: selectedJersey.id, team: selectedJersey.team, name: selectedJersey.name });
                           }}
-                          disabled={deleteJersey.isPending}
                         >
-                          {deleteJersey.isPending ? "Wird gelöscht..." : "Löschen"}
+                          Löschen
                         </Button>
                       </>
                     )}
@@ -968,6 +958,12 @@ const Collection = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <DeleteJerseyDialog
+        jersey={jerseyToDelete}
+        onClose={() => setJerseyToDelete(null)}
+        onDeleted={() => setDetailSheetOpen(false)}
+      />
 
       <Footer />
     </div>
