@@ -1,5 +1,6 @@
-import { useState, type CSSProperties } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState, type CSSProperties } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { rememberPostLoginPath } from "@/utils/postLoginRedirect";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,12 @@ const Auth = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // ?next=/community → nach Login (und ggf. Onboarding-Prüfung) dorthin zurück
+  useEffect(() => {
+    rememberPostLoginPath(searchParams.get("next"));
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

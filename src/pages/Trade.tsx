@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import { authPath } from "@/utils/postLoginRedirect";
 
 const LABEL = "cap text-[11px] leading-none text-nero";
 
@@ -32,7 +33,7 @@ const Trade = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/auth");
+    if (!authLoading && !user) navigate(authPath("/trade"));
   }, [authLoading, user, navigate]);
 
   // Available jerseys from OTHER users

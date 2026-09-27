@@ -25,6 +25,7 @@ import { LikeButton } from "@/components/LikeButton";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
 import { authorName } from "@/utils/authorName";
+import { authPath } from "@/utils/postLoginRedirect";
 
 type PostWithRelations = Tables<"forum_posts"> & {
   profiles?: Tables<"profiles"> | null;
@@ -49,7 +50,7 @@ const AttachedImages = ({ urls }: { urls: string[] | null }) =>
 
 const CommunityPost = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [post, setPost] = useState<PostWithRelations | null>(null);
@@ -62,9 +63,14 @@ const CommunityPost = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ kind: "post" } | { kind: "comment"; id: string } | null>(null);
   const { likeCount, isLikedByMe, toggleLike } = useLikes(post ? [post.id] : []);
 
+  // Community nur für Mitglieder: Gäste zum Login, danach zurück zu diesem Beitrag
   useEffect(() => {
-    if (id) { fetchPost(); fetchComments(); }
-  }, [id]);
+    if (!authLoading && !user) navigate(authPath(`/community/${id ?? ""}`), { replace: true });
+  }, [authLoading, user, id, navigate]);
+
+  useEffect(() => {
+    if (id && user) { fetchPost(); fetchComments(); }
+  }, [id, user]);
 
   const fetchPost = async () => {
     const { data, error } = await supabase

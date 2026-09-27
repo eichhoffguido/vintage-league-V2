@@ -577,6 +577,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      community_post_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       soft_delete_user_jersey: {
         Args: {
           p_jersey_id: string
