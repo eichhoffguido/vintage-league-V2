@@ -58,7 +58,7 @@ const Favorites = () => {
         </div>
 
         {favoriteJerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+          <div className="border border-dashed border-border p-12 text-center">
             <Heart className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
             <p className="font-display text-xl text-muted-foreground">
               Noch keine Favoriten gespeichert
@@ -67,8 +67,7 @@ const Favorites = () => {
               Durchstöbere den Shop und speichere deine Lieblings-Trikots.
             </p>
             <Button
-              variant="hero"
-              className="mt-4 uppercase tracking-wider"
+              className="mt-4"
               onClick={() => navigate("/shop")}
             >
               Zum Shop

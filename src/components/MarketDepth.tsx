@@ -33,7 +33,7 @@ const MarketDepth = ({ jerseyId }: MarketDepthProps) => {
 
   if (loading) {
     return (
-      <div className="rounded-sm border border-border p-6 space-y-3">
+      <div className="border border-border p-6 space-y-3">
         <Skeleton className="h-5 w-32" />
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (

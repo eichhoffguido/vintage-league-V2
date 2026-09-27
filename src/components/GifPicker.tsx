@@ -86,7 +86,7 @@ const GifPicker = ({ onGifSelect }: GifPickerProps) => {
               key={gif.id}
               onClick={() => handleGifSelect(gif)}
               className={cn(
-                "group relative overflow-hidden rounded-md border border-border transition-all hover:border-primary hover:shadow-md"
+                "group relative overflow-hidden border border-border transition-all hover:border-primary"
               )}
               title={gif.title}
             >
@@ -95,7 +95,7 @@ const GifPicker = ({ onGifSelect }: GifPickerProps) => {
                 alt={gif.title}
                 className="h-24 w-full object-cover transition-transform group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+              <div className="absolute inset-0 bg-nero/0 transition-colors group-hover:bg-nero/20" />
             </button>
           ))}
         </div>

@@ -270,8 +270,7 @@ const Onboarding = () => {
 
             <div className="mt-12 flex gap-4">
               <Button
-                variant="hero"
-                className="flex-1 uppercase tracking-wider"
+                className="flex-1"
                 onClick={() => setStep("profile")}
               >
                 Weiter zu Schritt 2 von 4
@@ -279,7 +278,7 @@ const Onboarding = () => {
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 uppercase tracking-wider"
+                className="flex-1"
                 onClick={() => setStep("add-jersey")}
               >
                 Überspringen
@@ -338,8 +337,7 @@ const Onboarding = () => {
 
               <Button
                 type="submit"
-                variant="hero"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? "Wird gespeichert..." : "Weiter"}
@@ -398,8 +396,7 @@ const Onboarding = () => {
 
               <Button
                 type="submit"
-                variant="hero"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
               >
                 Weiter
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -408,7 +405,7 @@ const Onboarding = () => {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
                 onClick={handleSkipStep}
               >
                 Überspringen
@@ -443,8 +440,7 @@ const Onboarding = () => {
 
             <div className="space-y-3">
               <Button
-                variant="hero"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
                 onClick={handleNavigateToAddJersey}
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -452,7 +448,7 @@ const Onboarding = () => {
               </Button>
               <Button
                 variant="outline"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
                 onClick={handleNavigateToCollection}
               >
                 Später

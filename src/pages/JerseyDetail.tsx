@@ -181,7 +181,7 @@ const JerseyDetail = () => {
             <Skeleton className="h-10 w-40 mb-4" />
           </div>
           <div className="grid gap-8 lg:grid-cols-2">
-            <Skeleton className="aspect-square rounded-sm" />
+            <Skeleton className="aspect-square " />
             <div className="space-y-6">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-8 w-2/3" />
@@ -206,7 +206,7 @@ const JerseyDetail = () => {
           <Button variant="outline" className="mb-6" onClick={() => navigate(-1)}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
           </Button>
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
+          <div className="border border-dashed border-border p-12 text-center">
             <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive/30" />
             <p className="font-display text-xl text-muted-foreground">Trikot nicht gefunden</p>
             <p className="mt-2 text-sm text-muted-foreground">{error || "Das angeforderte Trikot existiert nicht."}</p>

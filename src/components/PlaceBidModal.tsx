@@ -100,7 +100,7 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
             <p className="text-sm text-muted-foreground">
               Gebot angenommen! Du wirst zur Zahlung weitergeleitet.
             </p>
-            <Button className="w-full uppercase tracking-wider" variant="hero" onClick={handleCheckout} disabled={loading}>
+            <Button className="w-full" onClick={handleCheckout} disabled={loading}>
               {loading ? "Wird geladen..." : "Zur Zahlung"}
             </Button>
             <Button variant="outline" className="w-full" onClick={handleClose}>Schließen</Button>
@@ -110,16 +110,16 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
             <p className="text-sm text-muted-foreground">
               Gebot platziert. Du wirst benachrichtigt wenn dein Gebot angenommen wird.
             </p>
-            <Button className="w-full uppercase tracking-wider" onClick={handleClose}>Schließen</Button>
+            <Button className="w-full" onClick={handleClose}>Schließen</Button>
           </div>
         ) : (
           <div className="space-y-5 pt-2">
             {/* Jersey info */}
             <div className="flex items-center gap-3">
               {imageUrl ? (
-                <img src={imageUrl} alt={jersey.name} className="h-16 w-16 rounded-sm object-cover bg-secondary flex-shrink-0" />
+                <img src={imageUrl} alt={jersey.name} className="h-16 w-16 object-cover bg-secondary flex-shrink-0" />
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-sm bg-secondary text-muted-foreground font-display font-bold text-xl flex-shrink-0">
+                <div className="flex h-16 w-16 items-center justify-center bg-secondary text-muted-foreground font-display font-bold text-xl flex-shrink-0">
                   {jersey.team.charAt(0)}
                 </div>
               )}
@@ -134,7 +134,7 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
 
             {/* Reference: highest bid */}
             {highestBid !== undefined && highestBid !== null && (
-              <div className="rounded-sm border border-border bg-secondary/50 px-4 py-2 text-sm">
+              <div className="border border-border bg-secondary/50 px-4 py-2 text-sm">
                 Höchstes Gebot: <span className="font-semibold text-primary">{formatEuros(highestBid)}</span>
               </div>
             )}
@@ -161,7 +161,7 @@ const PlaceBidModal = ({ open, onClose, jersey, highestBid, lowestAsk }: PlaceBi
               <Button variant="outline" className="flex-1" onClick={handleClose} disabled={loading}>
                 Abbrechen
               </Button>
-              <Button className="flex-1 uppercase tracking-wider" variant="hero" onClick={handleSubmit} disabled={loading || !priceEuros}>
+              <Button className="flex-1" onClick={handleSubmit} disabled={loading || !priceEuros}>
                 {loading ? "Wird gesendet..." : "Gebot abgeben"}
               </Button>
             </div>
