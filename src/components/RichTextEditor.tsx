@@ -32,6 +32,9 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+// Werkzeugleiste im cc-design: eckige Felder, aktiv = nero gefüllt (Skill cc-design §6)
+const TOOL = "flex h-10 w-10 items-center justify-center transition-colors";
+
 const ToolbarButton = ({
   onClick,
   active,
@@ -45,10 +48,8 @@ const ToolbarButton = ({
     type="button"
     onClick={onClick}
     className={cn(
-      "rounded-sm p-1.5 transition-colors",
-      active
-        ? "bg-primary/10 text-primary"
-        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+      TOOL,
+      active ? "bg-nero text-avorio" : "text-nero hover:bg-nero/10"
     )}
   >
     {children}
@@ -74,7 +75,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none min-h-[120px] focus:outline-none px-3 py-2 text-foreground",
+          "prose prose-cc max-w-none min-h-[120px] px-3 py-2 text-base focus:outline-none",
         "data-placeholder": placeholder || "",
       },
     },
@@ -136,8 +137,8 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
   return (
     <div
       className={cn(
-        "rounded-sm border transition-colors",
-        dragActive && dragCounter > 0 ? "border-primary bg-primary/5" : "border-border"
+        "border bg-card transition-colors focus-within:ring-2 focus-within:ring-ring",
+        dragActive && dragCounter > 0 ? "border-verde bg-verde/5" : "border-nero"
       )}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
@@ -145,7 +146,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
       onDragEnd={handleDragEnd}
       onDrop={handleDragEnd}
     >
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-muted/50 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-nero bg-sabbia/60 px-1 py-1">
         <ToolbarButton onClick={toggleBold} active={editor.isActive("bold")}>
           <Bold className="h-4 w-4" />
         </ToolbarButton>
@@ -155,14 +156,14 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         <ToolbarButton onClick={toggleUnderline} active={editor.isActive("underline")}>
           <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className="mx-1 h-5 w-px bg-nero/30" />
         <ToolbarButton onClick={toggleH2} active={editor.isActive("heading", { level: 2 })}>
           <Heading2 className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton onClick={toggleH3} active={editor.isActive("heading", { level: 3 })}>
           <Heading3 className="h-4 w-4" />
         </ToolbarButton>
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className="mx-1 h-5 w-px bg-nero/30" />
         <ToolbarButton onClick={toggleBulletList} active={editor.isActive("bulletList")}>
           <List className="h-4 w-4" />
         </ToolbarButton>
@@ -172,14 +173,9 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
         <ToolbarButton onClick={toggleCodeBlock} active={editor.isActive("codeBlock")}>
           <Code className="h-4 w-4" />
         </ToolbarButton>
-        <span className="mx-1 h-5 w-px bg-border" />
+        <span className="mx-1 h-5 w-px bg-nero/30" />
         <Popover open={emojiPickerOpen} onOpenChange={setEmojiPickerOpen}>
-          <PopoverTrigger className={cn(
-            "rounded-sm p-1.5 transition-colors",
-            emojiPickerOpen
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          )}>
+          <PopoverTrigger className={cn(TOOL, emojiPickerOpen ? "bg-nero text-avorio" : "text-nero hover:bg-nero/10")}>
             <Smile className="h-4 w-4" />
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[350px] p-0 z-[9999]" align="start" sideOffset={4}>
@@ -187,12 +183,7 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
           </PopoverContent>
         </Popover>
         <Popover open={gifPickerOpen} onOpenChange={setGifPickerOpen}>
-          <PopoverTrigger className={cn(
-            "rounded-sm p-1.5 transition-colors",
-            gifPickerOpen
-              ? "bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          )}>
+          <PopoverTrigger className={cn(TOOL, gifPickerOpen ? "bg-nero text-avorio" : "text-nero hover:bg-nero/10")}>
             <ImageIcon className="h-4 w-4" />
           </PopoverTrigger>
           <PopoverContent className="w-full max-w-[calc(100vw-2rem)] md:max-w-[400px] p-0 z-[9999]" align="start" sideOffset={4}>
@@ -204,8 +195,8 @@ const RichTextEditor = ({ content, onChange, maxLength, placeholder }: RichTextE
       {maxLength && (
         <div
           className={cn(
-            "border-t border-border px-3 py-1 text-right text-xs",
-            overLimit ? "text-destructive font-medium" : "text-muted-foreground"
+            "num border-t border-nero px-3 py-1 text-right text-sm",
+            overLimit ? "text-rosso" : "text-muted-foreground"
           )}
         >
           {textLength}/{maxLength}

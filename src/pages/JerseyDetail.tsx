@@ -415,7 +415,7 @@ const JerseyDetail = () => {
                       Gebot abgeben
                     </Button>
                     {jersey.available_for_trade && (
-                      <Button variant="outline" size="lg" className="w-full border-rosso text-rosso hover:bg-rosso hover:text-avorio" onClick={() => navigate("/trade")}>
+                      <Button variant="outline" size="lg" className="w-full border-rosso text-rosso hover:bg-rosso hover:text-avorio" onClick={() => navigate(user ? `/trade?jersey=${jersey.id}` : "/auth")}>
                         ⇄ Tausch vorschlagen
                       </Button>
                     )}

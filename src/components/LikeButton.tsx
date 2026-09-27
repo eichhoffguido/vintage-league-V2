@@ -33,10 +33,10 @@ export function LikeButton({ liked, count, pending, onClick, size = "sm", classN
         }
       }}
       className={cn(
-        "flex cursor-pointer items-center gap-1 rounded-sm transition-colors",
+        "num flex min-h-11 cursor-pointer items-center gap-1.5 transition-colors",
         pending && "opacity-60",
-        liked ? "text-primary" : "text-muted-foreground hover:text-primary",
-        size === "sm" ? "text-xs" : "text-sm",
+        liked ? "text-nero" : "text-muted-foreground hover:text-nero",
+        size === "sm" ? "text-sm" : "text-base",
         className,
       )}
     >
