@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type CheckoutStatus = "paid" | "pending" | "failed" | "expired";
 type ViewState =
@@ -66,16 +67,39 @@ const PaymentSuccess = () => {
     };
   }, [sessionId]);
 
+  // Farbstreifen oben im Rahmen = Status (Skill cc-design §2: success verde, warning giallo, danger rosso)
+  const bar =
+    state.kind !== "result" ? "bg-nero"
+    : state.status === "paid" ? "bg-verde"
+    : state.status === "pending" ? "bg-giallo"
+    : "bg-rosso";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <main className="container mx-auto px-4 py-24">
-        <div className="mx-auto max-w-xl border border-border bg-card p-8 text-center">
-          <Content state={state} />
+      <main className="container mx-auto px-4 py-14 md:py-24">
+        <div className="mx-auto max-w-xl border-2 border-nero bg-card text-center">
+          <div className={cn("h-1.5", bar)} aria-hidden />
+          <div className="p-6 md:p-10">
+            <div className="cap mb-6 text-[11px] text-rosso">Pagamento · Zahlung</div>
+            <Content state={state} />
+          </div>
         </div>
       </main>
       <Footer />
     </div>
+  );
+};
+
+/** Display-Headline, letztes Wort hohl (Skill cc-design §3). */
+const Title = ({ children }: { children: string }) => {
+  const words = children.split(" ");
+  // „…“ allein wäre als Hohlwort zu wenig — dann das Wort davor mitnehmen
+  const last = words[words.length - 1] === "…" ? `${words.splice(-2).join(" ")}` : words.pop();
+  return (
+    <h1 className="display mb-4 text-[34px] md:text-[52px]">
+      {words.join(" ")} <span className="hollow-dark">{last}</span>
+    </h1>
   );
 };
 
@@ -84,8 +108,8 @@ const Content = ({ state }: { state: ViewState }) => {
     return (
       <>
         <Loader2 className="mx-auto mb-6 h-12 w-12 animate-spin text-muted-foreground" aria-hidden />
-        <h1 className="font-display text-3xl font-bold mb-3">Zahlung wird geprüft …</h1>
-        <p className="text-muted-foreground">Einen Moment, wir fragen den Status bei Stripe ab.</p>
+        <Title>Zahlung wird geprüft …</Title>
+        <p className="text-base text-muted-foreground md:text-lg">Einen Moment, wir fragen den Status bei Stripe ab.</p>
       </>
     );
   }
@@ -100,16 +124,16 @@ const Content = ({ state }: { state: ViewState }) => {
     return (
       <>
         <XCircle className="mx-auto mb-6 h-12 w-12 text-muted-foreground" aria-hidden />
-        <h1 className="font-display text-3xl font-bold mb-3">{copy.title}</h1>
-        <p className="text-muted-foreground mb-8">{copy.text}</p>
+        <Title>{copy.title}</Title>
+        <p className="mb-8 text-base text-muted-foreground md:text-lg">{copy.text}</p>
         <div className="flex flex-wrap justify-center gap-4">
           {state.reason === "login" && (
             <Button asChild>
-              <Link to="/auth">Anmelden</Link>
+              <Link to="/auth">Anmelden →</Link>
             </Button>
           )}
           <Button asChild variant="outline">
-            <Link to="/shop">Zum Marktplatz</Link>
+            <Link to="/shop">Zum Marktplatz →</Link>
           </Button>
         </div>
       </>
@@ -121,17 +145,17 @@ const Content = ({ state }: { state: ViewState }) => {
   if (state.status === "paid") {
     return (
       <>
-        <CheckCircle2 className="mx-auto mb-6 h-12 w-12 text-primary" aria-hidden />
-        <h1 className="font-display text-3xl font-bold mb-3">Zahlung erfolgreich.</h1>
-        <p className="text-muted-foreground mb-8">
+        <CheckCircle2 className="mx-auto mb-6 h-12 w-12 text-verde" aria-hidden />
+        <Title>Zahlung erfolgreich.</Title>
+        <p className="mb-8 text-base text-muted-foreground md:text-lg">
           Du hast {formatEuro(state.amountCents)} bezahlt. Das Trikot gehört dir — der Verkäufer wurde benachrichtigt.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Button asChild>
-            <Link to={jerseyLink}>Zum Trikot</Link>
+            <Link to={jerseyLink}>Zum Trikot →</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/shop">Weiter stöbern</Link>
+            <Link to="/shop">Weiter stöbern →</Link>
           </Button>
         </div>
       </>
@@ -141,15 +165,15 @@ const Content = ({ state }: { state: ViewState }) => {
   if (state.status === "pending") {
     return (
       <>
-        <Clock className="mx-auto mb-6 h-12 w-12 text-muted-foreground" aria-hidden />
-        <h1 className="font-display text-3xl font-bold mb-3">Zahlung in Bearbeitung.</h1>
-        <p className="text-muted-foreground mb-8">
+        <Clock className="mx-auto mb-6 h-12 w-12 text-giallo" aria-hidden />
+        <Title>Zahlung in Bearbeitung.</Title>
+        <p className="mb-8 text-base text-muted-foreground md:text-lg">
           Deine Zahlung über {formatEuro(state.amountCents)} ist noch nicht bestätigt. Bei Lastschrift (SEPA) kann das
           einige Werktage dauern. Das Trikot bleibt so lange für dich reserviert.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Button asChild variant="outline">
-            <Link to={jerseyLink}>Zum Trikot</Link>
+            <Link to={jerseyLink}>Zum Trikot →</Link>
           </Button>
         </div>
       </>
@@ -159,21 +183,19 @@ const Content = ({ state }: { state: ViewState }) => {
   const expired = state.status === "expired";
   return (
     <>
-      <XCircle className="mx-auto mb-6 h-12 w-12 text-destructive" aria-hidden />
-      <h1 className="font-display text-3xl font-bold mb-3">
-        {expired ? "Bezahlvorgang abgelaufen." : "Zahlung fehlgeschlagen."}
-      </h1>
-      <p className="text-muted-foreground mb-8">
+      <XCircle className="mx-auto mb-6 h-12 w-12 text-rosso" aria-hidden />
+      <Title>{expired ? "Bezahlvorgang abgelaufen." : "Zahlung fehlgeschlagen."}</Title>
+      <p className="mb-8 text-base text-muted-foreground md:text-lg">
         {expired
           ? "Die Reservierung ist abgelaufen, es wurde nichts abgebucht. Ist das Trikot noch verfügbar, kannst du es erneut kaufen."
           : "Der Kauf konnte nicht abgeschlossen werden. Falls bereits Geld abgebucht wurde, wird es automatisch erstattet."}
       </p>
       <div className="flex flex-wrap justify-center gap-4">
         <Button asChild>
-          <Link to={jerseyLink}>Zum Trikot</Link>
+          <Link to={jerseyLink}>Zum Trikot →</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/shop">Zum Marktplatz</Link>
+          <Link to="/shop">Zum Marktplatz →</Link>
         </Button>
       </div>
     </>

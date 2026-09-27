@@ -166,23 +166,23 @@ const Admin = () => {
 
         {/* Stats */}
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-sm border border-border bg-card p-6">
+          <div className="border-2 border-nero bg-card p-6">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-yellow-500" />
+              <div className="h-3 w-3 rounded-full bg-giallo" />
               <p className="text-sm text-muted-foreground">Ausstehend</p>
             </div>
             <p className="mt-2 font-display text-4xl font-bold">{counts.pending}</p>
           </div>
-          <div className="rounded-sm border border-border bg-card p-6">
+          <div className="border-2 border-nero bg-card p-6">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-green-500" />
+              <div className="h-3 w-3 rounded-full bg-verde" />
               <p className="text-sm text-muted-foreground">Verifiziert</p>
             </div>
             <p className="mt-2 font-display text-4xl font-bold">{counts.verified}</p>
           </div>
-          <div className="rounded-sm border border-border bg-card p-6">
+          <div className="border-2 border-nero bg-card p-6">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500" />
+              <div className="h-3 w-3 rounded-full bg-rosso" />
               <p className="text-sm text-muted-foreground">Abgelehnt</p>
             </div>
             <p className="mt-2 font-display text-4xl font-bold">{counts.rejected}</p>
@@ -195,25 +195,25 @@ const Admin = () => {
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-sm border border-border bg-card">
+              <div key={i} className="animate-pulse border-2 border-nero bg-card">
                 <div className="aspect-square bg-secondary" />
                 <div className="space-y-3 p-4">
-                  <div className="h-4 w-3/4 rounded bg-secondary" />
-                  <div className="h-4 w-1/2 rounded bg-secondary" />
+                  <div className="h-4 w-3/4 bg-secondary" />
+                  <div className="h-4 w-1/2 bg-secondary" />
                 </div>
               </div>
             ))}
           </div>
         ) : jerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500/30" />
+          <div className="border border-dashed border-border p-12 text-center">
+            <CheckCircle className="mx-auto mb-4 h-12 w-12 text-verde/30" />
             <p className="font-display text-xl text-muted-foreground">Keine ausstehenden Trikots</p>
             <p className="mt-2 text-sm text-muted-foreground">Alle Trikots wurden geprüft.</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {jerseys.map((jersey: any) => (
-              <div key={jersey.id} className="overflow-hidden rounded-sm border border-border bg-card">
+              <div key={jersey.id} className="overflow-hidden border-2 border-nero bg-card">
                 {getPrimaryImage(jersey) ? (
                   <div className="aspect-square overflow-hidden bg-secondary">
                     <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover" />
@@ -238,7 +238,7 @@ const Admin = () => {
                     <Button
                       variant="default"
                       size="sm"
-                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      className="flex-1"
                       onClick={() => verifyJersey.mutate(jersey.id)}
                       disabled={verifyJersey.isPending || rejectJersey.isPending}
                     >
@@ -268,7 +268,7 @@ const Admin = () => {
                     <Button
                       variant={jersey.is_featured ? "default" : "outline"}
                       size="sm"
-                      className={jersey.is_featured ? "bg-yellow-600 hover:bg-yellow-700" : ""}
+                      className={jersey.is_featured ? "border-giallo bg-giallo text-nero hover:bg-giallo/90" : ""}
                       onClick={() => toggleFeatured.mutate({ jerseyId: jersey.id, isFeatured: jersey.is_featured })}
                       disabled={toggleFeatured.isPending}
                       title="Als featured markieren"

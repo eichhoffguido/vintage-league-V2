@@ -149,8 +149,11 @@ Short, confident, collector-to-collector. Du-Form. Verbs on buttons („Kollekti
 ## 9. Implementation notes (vintage-league-V2)
 
 - Tokens live in `src/index.css` `:root` (see `reference/tokens.css`); Tailwind colours `verde, giallo, rosso, azzurro, avorio, carta, sabbia, nero, success, warning, danger, info` map to `hsl(var(--x))`.
-- Utilities: `.display`, `.cap`, `.num`, `.hollow`, `.hollow-dark`, `.grain`, `.tricolore`, `.shirt-mask`, `.nero-stripe`. Retired: `.text-gradient`, `.card-hover` glow, `.glow`, `.vintage-border`, `font-serif italic` taglines, Button `hover:-translate-y`.
-- Reuse shared components: `Logo` (CC monogram), `PageHeader`, `SectionHeader`, `NeroStripe`, `TrustStripe`, `CircleGeometry`, `Figurina` (JerseyCard), `PriceSpectrum`. Don't restyle per page.
+- Utilities: `.display`, `.cap`, `.num`, `.hollow`, `.hollow-dark`, `.grain` (+ `.grain-photo`, `.grain-dark`), `.tricolore`, `.shirt-mask`, `.nero-stripe`, `.prose-cc` (with `prose`, for Tiptap editor + viewer and legal texts). Removed in R8 (do not reintroduce): `.text-gradient`, `.card-hover`, `.glow`, `.vintage-*`, `font-serif`, `gold`/`vintage-red` colours, Button variants `hero`/`bid`, `.shimmer-loader` (Skeleton = `animate-pulse bg-sabbia`).
+- Base styles set h1–h6 to display caps. User-written titles (posts, dialog titles, prose headings) need `normal-case`.
+- Reuse shared components: `Logo` (CC monogram), `PageHeader` (`aside` slot for decoration, e.g. `TradeShirts`), `SectionHeader`, `LegalPage` (legal texts), `NeroStripe`, `TrustStripe`, `CircleGeometry`, `Figurina` (JerseyCard, optional `footer` for an extra action), `PriceSpectrum`, `DeleteJerseyDialog`. Don't restyle per page.
+- Community tiles: first post image + a small circle accent on a corner (giallo / rosso / outline ring, stable per post id) — the circle geometry in miniature.
+- Destructive actions always ask first (AlertDialog, rosso action). Jerseys are soft-deleted via RPC `soft_delete_user_jersey`.
 - CMS-editable text/images come from `useSiteContent()` with code defaults — never hard-code homepage copy again.
 
 ## 10. Checklist before every PR with UI changes

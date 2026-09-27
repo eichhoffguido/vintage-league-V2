@@ -76,7 +76,7 @@ const MultiImageUpload = ({ images, onImagesChange, disabled }: MultiImageUpload
       {images.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {images.map((url, index) => (
-            <div key={index} className="relative h-20 w-20 overflow-hidden rounded-sm border border-border">
+            <div key={index} className="relative h-20 w-20 overflow-hidden border border-border">
               <img
                 src={url}
                 alt={`Jersey image ${index + 1}`}
@@ -85,7 +85,7 @@ const MultiImageUpload = ({ images, onImagesChange, disabled }: MultiImageUpload
               <button
                 onClick={() => handleRemove(index)}
                 disabled={uploading || disabled}
-                className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-bl-sm bg-destructive text-destructive-foreground hover:bg-destructive/80 disabled:opacity-50"
+                className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center bg-destructive text-destructive-foreground hover:bg-destructive/80 disabled:opacity-50"
               >
                 <X className="h-3 w-3" />
               </button>
