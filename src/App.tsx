@@ -26,6 +26,7 @@ import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import SellerProfile from "./pages/SellerProfile.tsx";
 import Imprint from "./pages/Imprint.tsx";
 import Privacy from "./pages/Privacy.tsx";
+import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import MyBids from "./pages/MyBids.tsx";
 
@@ -108,6 +109,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/imprint" element={<Imprint />} />
               <Route path="/privacy" element={<Privacy />} />
+              <Route path="/agb" element={<Terms />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

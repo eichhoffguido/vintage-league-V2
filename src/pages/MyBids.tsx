@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useNavigate, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -56,6 +57,7 @@ const statusConfig: Record<BidStatus, { label: string; className: string }> = {
 
 
 const MyBids = () => {
+  const page = useSiteContent("bids");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -147,7 +149,7 @@ const MyBids = () => {
       <Header />
 
       {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
-      <PageHeader tone="verde" eyebrow="Le mie offerte · Gebote" title="Meine" hollowWord="Gebote." />
+      <PageHeader tone="verde" eyebrow={page.header.eyebrow} headline={page.header.headline} />
 
       <div className="container mx-auto px-4 py-8 md:px-10 md:py-12">
         {loading ? (

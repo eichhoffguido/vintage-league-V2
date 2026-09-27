@@ -1,5 +1,5 @@
 // Zentrale Marken-Konstanten für Calcio Classics (Skill cc-design).
-// Alle sichtbaren Markennamen, Kontakt- und Social-Links kommen von hier.
+// Markenname und Produktions-URL.
 
 export const BRAND_NAME = "Calcio Classics";
 
@@ -8,10 +8,5 @@ export const SITE_URL: string =
   (import.meta.env.VITE_SITE_URL as string | undefined) ??
   (typeof window !== "undefined" ? window.location.origin : "https://calcioclassics.de");
 
-// Postfach wird bei Ionos angelegt (Plan G2, Schritt 8) — bis dahin Platzhalter-Adresse der neuen Domain.
-export const CONTACT_EMAIL = "kontakt@calcioclassics.de";
-
-export const INSTAGRAM_HANDLE = "@calcioclassics.de";
-export const INSTAGRAM_URL = "https://instagram.com/calcioclassics.de";
-
-export const BRAND_TAGLINE = "Vintage-Fußballtrikots aus Deutschland — mit Herz für Calcio.";
+// Kontakt-E-Mail, Instagram und Footer-Claim sind seit CC-C2b im CMS pflegbar
+// (Standard: SITE_SETTINGS / FOOTER_CONTENT in src/content/pages.ts).
