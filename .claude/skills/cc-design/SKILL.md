@@ -55,7 +55,7 @@ Card frame colours rotate verde → azzurro → giallo → rosso (by index or le
 Jost is the free stand-in for ITC Avant Garde, Barlow Condensed for DIN Condensed — production uses the free fonts.
 
 ### Hollow type (outline) — the connecting motif
-Rule: **the last word of a display headline is hollow** („Neu im *Album.*“, „Häufig gestellte *Fragen.*“, hero „*maglie.*“). Max one hollow word per headline; hollow numerals (01–04) allowed in stripes.
+Default: **the last word of a display headline is hollow** („Neu im *Album.*“, „Häufig gestellte *Fragen.*“, hero „*maglie.*“). Guido 28.09.: normal and hollow words **may be mixed freely** (several hollow words, also mid-headline) — editors decide per headline in the CMS. Storage format everywhere: one string, `*word*` = hollow, newline = line break (e.g. `Il tuo\nalbum di *maglie.*`). Hollow numerals (01–04) allowed in stripes.
 
 Build it ONLY like this (plain `color: transparent; -webkit-text-stroke` breaks: Jost has overlapping contours inside A, B, R, K, 4 and tight tracking makes letters cross):
 
