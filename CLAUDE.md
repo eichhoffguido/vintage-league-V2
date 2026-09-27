@@ -3,7 +3,7 @@
 ## Project
 React + TypeScript + Vite + Supabase marketplace for vintage football jerseys, rebranding to **Calcio Classics**.
 Repo: https://github.com/eichhoffguido/vintage-league-V2
-Live: https://vintage-league-v2.vercel.app (moves to https://calcioclassics.de — see plan task CC-D1)
+Live: https://calcioclassics.de (since CC-D1; the old https://vintage-league-v2.vercel.app redirects there)
 
 ## Working mode (since 26.09.2026)
 Guido works directly with Claude Code on his Mac (local clone). Claude Code implements a task only after

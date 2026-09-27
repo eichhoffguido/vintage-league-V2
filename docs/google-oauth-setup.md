@@ -108,12 +108,15 @@ Google OAuth is now active on your Supabase project.
 1. Still in **Authentication**, click **URL Configuration**.
 2. Check that **Site URL** is set to your production domain:
    ```
-   https://vintage-league-v2.vercel.app
+   https://calcioclassics.de
    ```
-   > If you later set up a custom domain, update this to match.
+   > Since CC-D1 (custom domain). Before that it was https://vintage-league-v2.vercel.app.
 3. Under **Redirect URLs**, add if not already present:
    ```
+   https://calcioclassics.de/**
+   https://www.calcioclassics.de/**
    https://vintage-league-v2.vercel.app/**
+   https://*-guido-eichhoffs-projects.vercel.app/**
    ```
    This allows Supabase to redirect users back to your app after login.
 4. Click **Save**.
@@ -154,7 +157,7 @@ Supabase handles the OAuth exchange using the credentials you set in Part 2. You
 | 1.4 | OAuth client ID created with correct redirect URI | ☐ |
 | 1.5 | Client ID and Client Secret copied | ☐ |
 | 2.3 | Google provider enabled in Supabase | ☐ |
-| 2.4 | Site URL set to `https://vintage-league-v2.vercel.app` | ☐ |
+| 2.4 | Site URL set to `https://calcioclassics.de` | ☐ |
 | 3.1 | Vercel env vars confirmed present | ☐ |
 
 ---
