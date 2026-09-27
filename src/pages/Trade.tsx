@@ -1,23 +1,26 @@
 import { useState } from "react";
-import { formatEuros } from "@/utils/currency";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
+import TradeShirts from "@/components/trade/TradeShirts";
+import JerseyCard from "@/components/JerseyCard";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeftRight, Send, ArrowRight } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import { useEffect } from "react";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+
+const LABEL = "cap text-[11px] leading-none text-nero";
 
 const Trade = () => {
   const { user, loading: authLoading } = useAuth();
@@ -79,103 +82,139 @@ const Trade = () => {
       setMessage("");
       queryClient.invalidateQueries({ queryKey: ["trade-requests"] });
     },
-    onError: (e: any) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   if (authLoading) return null;
 
+  const selectedImage = selectedJersey ? getPrimaryImage(selectedJersey) : null;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="font-display text-5xl font-bold md:text-7xl">Tauschbörse</h1>
-          <p className="mt-1 text-muted-foreground">Finde Trikots anderer Sammler und schlage einen Tausch vor</p>
+
+      {/* Seitenkopf nero mit Trikot-Silhouetten (Skill cc-design §5.1) */}
+      <PageHeader
+        tone="nero"
+        eyebrow="Lo scambio · Tauschbörse"
+        title="Die"
+        hollowWord="Tauschbörse."
+        subline="Finde Trikots anderer Sammler und schlage einen Tausch vor."
+        aside={<TradeShirts />}
+      >
+        <Button variant="outline" className="border-avorio text-avorio hover:bg-avorio hover:text-nero" onClick={() => navigate("/trades")}>
+          Meine Tausch-Anfragen →
+        </Button>
+      </PageHeader>
+
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 md:px-10">
+          {!isLoading && availableJerseys.length > 0 && (
+            <div className="cap mb-5 border-b border-nero pb-3 text-[11px] text-muted-foreground">
+              <span className="num mr-1 text-base text-nero">{availableJerseys.length}</span> Trikots zum Tausch
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <JerseyCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : availableJerseys.length === 0 ? (
+            <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+              <ArrowLeftRight className="mx-auto mb-4 h-10 w-10" />
+              <p className="font-display text-lg font-semibold">Aktuell keine Trikots zum Tausch verfügbar.</p>
+              <p className="mt-2 text-base text-muted-foreground">Markiere deine eigenen Trikots als tauschbar, um loszulegen.</p>
+              <Button variant="outline" className="mt-6" onClick={() => navigate("/collection")}>
+                Zur Sammlung →
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+              {availableJerseys.map((jersey: any) => (
+                <JerseyCard
+                  key={jersey.id}
+                  id={jersey.id}
+                  name={jersey.name}
+                  team={jersey.team}
+                  league={jersey.league}
+                  year={jersey.year}
+                  price_cents={jersey.price_cents}
+                  imageUrl={getPrimaryImage(jersey) ?? undefined}
+                  verification_status={jersey.verification_status}
+                  condition={jersey.condition as 1 | 2 | 3 | 4 | 5}
+                  size={jersey.size}
+                  available_for_trade={jersey.available_for_trade}
+                  listing_type={jersey.listing_type}
+                  user_id={jersey.user_id}
+                  sale_price_cents={jersey.sale_price_cents}
+                  onClick={() => navigate(`/jersey/${jersey.id}`)}
+                  footer={
+                    <div className="space-y-2">
+                      <div className="cap truncate text-[10px] text-muted-foreground">
+                        Sammler: <span className="text-nero">{jersey.profiles?.display_name || "Anonym"}</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="w-full px-2 text-[10px] md:text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedJersey(jersey);
+                        }}
+                      >
+                        Tausch vorschlagen ⇄
+                      </Button>
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          )}
         </div>
+      </section>
 
-        {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <JerseyCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : availableJerseys.length === 0 ? (
-          <div className="rounded-sm border border-dashed border-border p-12 text-center">
-            <ArrowLeftRight className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-            <p className="font-display text-xl text-muted-foreground">Aktuell keine Trikots zum Tausch verfügbar</p>
-            <p className="mt-2 text-sm text-muted-foreground">Markiere deine eigenen Trikots als tauschbar, um loszulegen!</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {availableJerseys.map((jersey: any) => (
-              <div key={jersey.id} className="group overflow-hidden rounded-sm border border-border bg-card transition-colors hover:border-primary/30">
-                {getPrimaryImage(jersey) ? (
-                  <div className="aspect-square overflow-hidden bg-secondary">
-                    <img src={getPrimaryImage(jersey)!} alt={jersey.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
-                  </div>
-                ) : (
-                  <div className="flex aspect-square items-center justify-center bg-secondary">
-                    <span className="font-display text-4xl text-muted-foreground/30">{jersey.team.charAt(0)}</span>
-                  </div>
-                )}
-                <div className="p-4">
-                  <p className="text-xs text-muted-foreground">{jersey.league} · {jersey.year}</p>
-                  <h3 className="font-display text-xl font-semibold">{jersey.team}</h3>
-                  <p className="text-sm text-muted-foreground">{jersey.name}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <Badge variant="secondary" className="text-[10px]">{jersey.size}</Badge>
-                    <span className="text-xs text-muted-foreground">{jersey.condition}/5 · {conditionLabels[jersey.condition]}</span>
-                  </div>
-                  {jersey.price_cents && (
-                    <p className="mt-1 text-sm font-semibold text-primary">≈ {formatEuros(jersey.price_cents)}</p>
-                  )}
-                  <p className="mt-2 text-[10px] text-muted-foreground">
-                    Sammler: {(jersey.profiles as any)?.display_name || "Anonym"}
-                  </p>
-                  <Button
-                    variant="hero"
-                    size="sm"
-                    className="mt-3 w-full uppercase tracking-wider"
-                    onClick={() => setSelectedJersey(jersey)}
-                  >
-                    <ArrowLeftRight className="mr-2 h-4 w-4" /> Tausch vorschlagen
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Trade proposal dialog */}
+      {/* Tausch vorschlagen */}
       <Dialog open={!!selectedJersey} onOpenChange={(open) => !open && setSelectedJersey(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[90vh] overflow-y-auto shadow-none sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Tausch vorschlagen</DialogTitle>
+            <DialogTitle className="font-display text-2xl font-semibold normal-case tracking-[-0.02em]">Tausch vorschlagen</DialogTitle>
           </DialogHeader>
           {selectedJersey && (
-            <div className="space-y-4">
-              <div className="rounded-sm border border-border bg-secondary/50 p-3">
-                <p className="text-xs text-muted-foreground">Du möchtest tauschen gegen:</p>
-                <p className="font-display font-semibold">{selectedJersey.team} — {selectedJersey.name}</p>
-                <p className="text-xs text-muted-foreground">{selectedJersey.condition}/5 · {selectedJersey.size}</p>
+            <div className="space-y-5">
+              {/* Gewünschtes Trikot */}
+              <div className="flex gap-3 border border-nero bg-background p-3">
+                <div className="h-20 w-16 shrink-0 border-2 border-nero bg-sabbia">
+                  {selectedImage ? (
+                    <img src={selectedImage} alt={`${selectedJersey.team} ${selectedJersey.name}`} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center font-display text-2xl text-nero/40">{selectedJersey.team.charAt(0)}</div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="cap text-[10px] text-rosso">Du möchtest</div>
+                  <p className="mt-1 font-display text-[17px] font-semibold leading-tight tracking-[-0.02em]">{selectedJersey.team}</p>
+                  <p className="text-sm text-muted-foreground">{selectedJersey.name}</p>
+                  <p className="cap mt-1 text-[10px] text-muted-foreground">
+                    {selectedJersey.size} · {conditionLabels[selectedJersey.condition]}
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Dein Trikot zum Tauschen *</Label>
+                <Label className={LABEL}>Dein Trikot zum Tauschen *</Label>
                 {myJerseys.length === 0 ? (
-                  <div className="rounded-sm border border-dashed border-border bg-secondary/30 p-4 text-center">
-                    <p className="text-sm text-muted-foreground mb-3">Du hast noch keine Trikots in deiner Sammlung.</p>
+                  <div className="border border-dashed border-nero p-4 text-center">
+                    <p className="mb-3 text-base text-muted-foreground">Du hast noch keine Trikots in deiner Sammlung.</p>
                     <Button
                       variant="outline"
-                      size="sm"
                       onClick={() => {
                         setSelectedJersey(null);
                         navigate("/collection");
                       }}
                       className="w-full"
                     >
-                      <ArrowRight className="mr-2 h-4 w-4" /> Zur Sammlung
+                      Zur Sammlung →
                     </Button>
                   </div>
                 ) : (
@@ -184,7 +223,7 @@ const Trade = () => {
                     <SelectContent>
                       {myJerseys.map((j) => (
                         <SelectItem key={j.id} value={j.id}>
-                          {j.team} — {j.name} ({j.size}, {j.condition}/5)
+                          {j.team} — {j.name} ({j.size}, {conditionLabels[j.condition]})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -193,9 +232,10 @@ const Trade = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Nachricht (optional)</Label>
+                <Label htmlFor="trade-message" className={LABEL}>Nachricht (optional)</Label>
                 <Textarea
-                  placeholder="Hallo! Ich interessiere mich für dein Trikot..."
+                  id="trade-message"
+                  placeholder="Hallo! Ich interessiere mich für dein Trikot …"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   maxLength={500}
@@ -203,13 +243,11 @@ const Trade = () => {
               </div>
 
               <Button
-                variant="hero"
-                className="w-full uppercase tracking-wider"
+                className="w-full"
                 disabled={!myOfferJerseyId || proposeTrade.isPending}
                 onClick={() => proposeTrade.mutate()}
               >
-                <Send className="mr-2 h-4 w-4" />
-                {proposeTrade.isPending ? "Wird gesendet..." : "Tausch-Anfrage senden"}
+                {proposeTrade.isPending ? "Wird gesendet …" : "Tausch-Anfrage senden ⇄"}
               </Button>
             </div>
           )}

@@ -162,6 +162,41 @@
     color: hsl(var(--avorio));
   }
 
+  /* Fließtext aus Tiptap (Editor + Viewer, Community). Mit `prose` kombinieren. */
+  .prose-cc {
+    --tw-prose-body: hsl(var(--foreground));
+    --tw-prose-headings: hsl(var(--nero));
+    --tw-prose-bold: hsl(var(--nero));
+    --tw-prose-links: hsl(var(--verde));
+    --tw-prose-counters: hsl(var(--muted-foreground));
+    --tw-prose-bullets: hsl(var(--nero));
+    --tw-prose-hr: hsl(var(--nero));
+    --tw-prose-quotes: hsl(var(--foreground));
+    --tw-prose-quote-borders: hsl(var(--rosso));
+    --tw-prose-code: hsl(var(--nero));
+    --tw-prose-pre-code: hsl(var(--nero));
+    --tw-prose-pre-bg: hsl(var(--sabbia));
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  .prose-cc :where(h2, h3) {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .prose-cc :where(img) {
+    border: 2px solid hsl(var(--nero));
+    max-height: 420px;
+    width: auto;
+  }
+  .prose-cc :where(pre) {
+    border: 1px solid hsl(var(--nero));
+    border-radius: 0;
+  }
+  .prose-cc :where(p:first-child) { margin-top: 0; }
+  .prose-cc :where(p:last-child) { margin-bottom: 0; }
+
   /* --- Legacy-Klassen, neutralisiert (Aufräumen in CC-R8) --- */
   .text-gradient {
     color: inherit;

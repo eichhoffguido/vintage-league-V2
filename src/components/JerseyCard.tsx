@@ -35,6 +35,8 @@ interface JerseyCardProps {
   onQuickBuy?: () => void;
   /** "card" = Figurina (Raster), "row" = kompakte Zeile (Listenansicht) */
   layout?: "card" | "row";
+  /** Zusätzliche Aktion unten in der Karte (z. B. „Tausch vorschlagen“ in der Tauschbörse). */
+  footer?: ReactNode;
 }
 
 // Rahmenfarbe rotiert rein dekorativ, stabil pro Trikot (Skill cc-design §2)
@@ -85,6 +87,7 @@ const JerseyCard = ({
   user_id,
   onQuickBuy,
   layout = "card",
+  footer,
 }: JerseyCardProps) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const { user } = useAuth();
@@ -309,6 +312,8 @@ const JerseyCard = ({
           Sofort kaufen — {formatEuros(sale_price_cents!)}
         </Button>
       )}
+
+      {footer}
     </>
   );
 

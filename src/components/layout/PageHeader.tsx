@@ -14,6 +14,8 @@ interface PageHeaderProps {
   subline?: ReactNode;
   /** Rechts/unten: Suche, CTAs … */
   children?: ReactNode;
+  /** Dekoration rechts neben dem Text (Desktop), mobil darunter — z. B. Trikot-Silhouetten. */
+  aside?: ReactNode;
   className?: string;
 }
 
@@ -27,7 +29,7 @@ const TONE_CLASS: Record<Tone, string> = {
  * Seitenkopf-Band. Sorgt für den Hell/Dunkel-Rhythmus je Seite (Skill cc-design §5.1).
  * Auf nero/verde wird das hohle Wort mit der Band-Farbe gefüllt, auf avorio dunkel konturiert.
  */
-const PageHeader = ({ tone = "nero", eyebrow, title, hollowWord, subline, children, className }: PageHeaderProps) => {
+const PageHeader = ({ tone = "nero", eyebrow, title, hollowWord, subline, children, aside, className }: PageHeaderProps) => {
   const hollowClass = tone === "avorio" ? "hollow-dark" : "hollow";
   const fill = tone === "verde" ? "hsl(var(--verde))" : tone === "nero" ? "hsl(var(--nero))" : undefined;
 
@@ -36,27 +38,35 @@ const PageHeader = ({ tone = "nero", eyebrow, title, hollowWord, subline, childr
       {tone === "verde" && (
         <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-giallo md:-right-28 md:-top-28 md:h-96 md:w-96" />
       )}
-      <div className="container relative mx-auto px-4 py-12 md:px-10 md:py-20">
-        {eyebrow && (
-          <div className={cn("cap", tone === "avorio" ? "text-rosso" : "text-avorio/75")}>{eyebrow}</div>
+      <div
+        className={cn(
+          "container relative mx-auto px-4 py-12 md:px-10 md:py-20",
+          aside && "lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12",
         )}
-        <h1 className="display mt-3 text-[40px] md:text-[80px]">
-          {title}
-          {hollowWord && (
-            <>
-              {" "}
-              <span className={hollowClass} style={fill ? ({ "--fill": fill } as CSSProperties) : undefined}>
-                {hollowWord}
-              </span>
-            </>
+      >
+        <div className="min-w-0">
+          {eyebrow && (
+            <div className={cn("cap", tone === "avorio" ? "text-rosso" : "text-avorio/75")}>{eyebrow}</div>
           )}
-        </h1>
-        {subline && (
-          <p className={cn("mt-5 max-w-2xl text-base md:text-lg", tone === "avorio" ? "text-muted-foreground" : "text-avorio/85")}>
-            {subline}
-          </p>
-        )}
-        {children && <div className="mt-8">{children}</div>}
+          <h1 className="display mt-3 text-[40px] md:text-[80px]">
+            {title}
+            {hollowWord && (
+              <>
+                {" "}
+                <span className={hollowClass} style={fill ? ({ "--fill": fill } as CSSProperties) : undefined}>
+                  {hollowWord}
+                </span>
+              </>
+            )}
+          </h1>
+          {subline && (
+            <p className={cn("mt-5 max-w-2xl text-base md:text-lg", tone === "avorio" ? "text-muted-foreground" : "text-avorio/85")}>
+              {subline}
+            </p>
+          )}
+          {children && <div className="mt-8">{children}</div>}
+        </div>
+        {aside && <div className="mt-10 lg:mt-0">{aside}</div>}
       </div>
     </section>
   );

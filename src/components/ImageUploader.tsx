@@ -148,15 +148,17 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
       {images.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {images.map((url, index) => (
-            <div key={index} className="relative h-16 w-16 overflow-hidden rounded-sm border border-border">
+            <div key={index} className="relative h-16 w-16 overflow-hidden border-2 border-nero">
               <img
                 src={url}
                 alt={`Upload ${index + 1}`}
                 className="h-full w-full object-cover"
               />
               <button
+                type="button"
+                aria-label="Bild entfernen"
                 onClick={() => handleRemove(index)}
-                className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-bl-sm bg-destructive text-destructive-foreground hover:bg-destructive/80"
+                className="absolute right-0 top-0 flex h-6 w-6 items-center justify-center bg-nero text-avorio hover:bg-rosso"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -175,17 +177,16 @@ const ImageUploader = ({ images, onImagesChange }: ImageUploaderProps) => {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`rounded-sm border-2 border-dashed transition-colors ${
-            dragActive ? "border-primary bg-primary/5" : "border-border"
+          className={`border border-dashed p-1 transition-colors ${
+            dragActive ? "border-verde bg-verde/5" : "border-nero"
           }`}
         >
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={handleSelect}
             disabled={!user}
-            className="w-full text-xs uppercase tracking-wider"
+            className="w-full"
           >
             <ImagePlus className="mr-1 h-3 w-3" />
             Bild hinzufügen ({remaining} übrig)

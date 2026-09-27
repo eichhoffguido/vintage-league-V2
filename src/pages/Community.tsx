@@ -1,30 +1,36 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy, Clock, User } from "lucide-react";
+import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy } from "lucide-react";
 import { LikeButton } from "@/components/LikeButton";
 import { useLikes } from "@/hooks/useLikes";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RichTextEditor from "@/components/RichTextEditor";
 import ImageUploader from "@/components/ImageUploader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import PageHeader from "@/components/layout/PageHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
 const iconMap: Record<string, React.ReactNode> = {
-  Wrench: <Wrench className="h-5 w-5" />,
-  Shield: <Shield className="h-5 w-5" />,
-  Search: <Search className="h-5 w-5" />,
-  TrendingUp: <TrendingUp className="h-5 w-5" />,
-  Trophy: <Trophy className="h-5 w-5" />,
+  Wrench: <Wrench className="h-3.5 w-3.5" />,
+  Shield: <Shield className="h-3.5 w-3.5" />,
+  Search: <Search className="h-3.5 w-3.5" />,
+  TrendingUp: <TrendingUp className="h-3.5 w-3.5" />,
+  Trophy: <Trophy className="h-3.5 w-3.5" />,
 };
+
+const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
+const CHIP = "cap flex shrink-0 items-center gap-2 border border-nero px-3.5 py-2.5 text-[11px] transition-colors md:text-xs";
+const LABEL = "cap text-[11px] leading-none text-nero";
 
 const Community = () => {
   const { user } = useAuth();
@@ -142,7 +148,7 @@ const Community = () => {
       setDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["forum-posts"] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Fehler beim Erstellen");
     },
   });
@@ -160,104 +166,104 @@ const Community = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero */}
-      <section className="grain relative border-b border-border bg-secondary/30 py-16">
-        <div className="container mx-auto px-4">
-          <div className="mb-2 flex items-center gap-2">
-            <div className="h-px w-6 bg-primary/50" />
-            <span className="font-display text-xs tracking-[0.2em] text-primary">COMMUNITY</span>
-          </div>
-          <h1 className="font-display text-5xl font-bold md:text-7xl">
-            Wissen <span className="text-gradient">teilen</span>
-          </h1>
-          <p className="mt-3 max-w-lg font-serif italic text-muted-foreground">
-            Tipps zur Restaurierung, Pflege und Lagerung — von Sammlern für Sammler.
-          </p>
-          <div className="mt-6">
-            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetDialog(); setDialogOpen(open); }}>
-              <DialogTrigger asChild>
-                <Button variant="hero" className="uppercase tracking-wider" onClick={() => { if (!user) navigate("/auth"); }}>
-                  <Plus className="mr-2 h-4 w-4" /> Beitrag erstellen
-                </Button>
-              </DialogTrigger>
-              {user && (
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="font-display">Neuer Beitrag</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-2">
-                    {categoriesError && (
-                      <div className="rounded-sm border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-                        Fehler beim Laden der Kategorien. Bitte versuche es später erneut.
-                      </div>
-                    )}
-                    <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))}>
-                      <SelectTrigger disabled={categories.length === 0}><SelectValue placeholder={categories.length === 0 ? "Kategorien werden geladen..." : "Kategorie wählen"} /></SelectTrigger>
-                      <SelectContent>
-                        {categories.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input placeholder="Titel" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
-                    <RichTextEditor content={newPost.content} onChange={(v) => setNewPost((p) => ({ ...p, content: v }))} maxLength={5000} placeholder="Dein Beitrag..." />
-                    <ImageUploader images={newPost.images} onImagesChange={(imgs) => setNewPost((p) => ({ ...p, images: imgs }))} />
-                    <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full uppercase tracking-wider">
-                      {createPostMutation.isPending ? "Wird erstellt..." : "Veröffentlichen"}
-                    </Button>
+      {/* Seitenkopf: schwarzes Band (Skill cc-design §5.1) */}
+      <PageHeader
+        tone="nero"
+        eyebrow="La comunità · Community"
+        title="Wissen"
+        hollowWord="teilen."
+        subline="Tipps zur Restaurierung, Pflege und Lagerung — von Sammlern für Sammler."
+      >
+        <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetDialog(); setDialogOpen(open); }}>
+          <DialogTrigger asChild>
+            <Button variant="light" onClick={() => { if (!user) navigate("/auth"); }}>
+              <Plus className="h-4 w-4" /> Beitrag erstellen
+            </Button>
+          </DialogTrigger>
+          {user && (
+            <DialogContent className="max-h-[90vh] overflow-y-auto shadow-none sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="font-display text-2xl font-semibold normal-case tracking-[-0.02em]">Neuer Beitrag</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-5 pt-1">
+                {categoriesError && (
+                  <div className="border border-rosso bg-rosso/5 p-3 text-sm text-rosso">
+                    Fehler beim Laden der Kategorien. Bitte versuche es später erneut.
                   </div>
-                </DialogContent>
-              )}
-            </Dialog>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories + Posts */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          {/* Search and Sort */}
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex-1 min-w-0">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Beiträge durchsuchen..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+                )}
+                <div className="space-y-2">
+                  <Label className={LABEL}>Kategorie</Label>
+                  <Select value={newPost.category_id} onValueChange={(v) => setNewPost((p) => ({ ...p, category_id: v }))}>
+                    <SelectTrigger disabled={categories.length === 0}><SelectValue placeholder={categories.length === 0 ? "Kategorien werden geladen …" : "Kategorie wählen"} /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="post-title" className={LABEL}>Titel</Label>
+                  <Input id="post-title" placeholder="Worum geht es?" value={newPost.title} onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))} maxLength={200} />
+                </div>
+                <div className="space-y-2">
+                  <Label className={LABEL}>Beitrag</Label>
+                  <RichTextEditor content={newPost.content} onChange={(v) => setNewPost((p) => ({ ...p, content: v }))} maxLength={5000} placeholder="Dein Beitrag …" />
+                </div>
+                <ImageUploader images={newPost.images} onImagesChange={(imgs) => setNewPost((p) => ({ ...p, images: imgs }))} />
+                <Button onClick={handleCreatePost} disabled={createPostMutation.isPending || categories.length === 0} className="w-full">
+                  {createPostMutation.isPending ? "Wird veröffentlicht …" : "Veröffentlichen →"}
+                </Button>
               </div>
-            </div>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[160px]">
-                <SelectValue placeholder="Sortieren nach" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Neueste</SelectItem>
-                <SelectItem value="oldest">Älteste</SelectItem>
-                <SelectItem value="most-comments">Meiste Antworten</SelectItem>
-              </SelectContent>
-            </Select>
+            </DialogContent>
+          )}
+        </Dialog>
+      </PageHeader>
+
+      {/* Werkzeugleiste + Beiträge */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 md:px-10">
+          {/* Suche · Sortierung (wie Marktplatz) */}
+          <div className="mb-4 flex flex-wrap items-stretch gap-2 md:gap-3">
+            <input
+              type="text"
+              placeholder="Beiträge durchsuchen …"
+              aria-label="Beiträge durchsuchen"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 min-w-0 flex-[1_1_100%] border border-nero bg-card px-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:flex-[1_1_240px] md:text-sm"
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sortierung"
+              className="cap h-11 flex-1 border border-nero bg-card px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:flex-none"
+            >
+              <option value="newest">Neueste</option>
+              <option value="oldest">Älteste</option>
+              <option value="most-comments">Meiste Antworten</option>
+            </select>
           </div>
 
-          {/* Category filter */}
-          <div className="mb-8 flex flex-wrap gap-2">
+          {/* Kategorien als Chips — mobil horizontal scrollbar */}
+          <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0" role="tablist" aria-label="Kategorien">
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeCategory === "all"}
               onClick={() => setActiveCategory("all")}
-              className={`rounded-sm border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors ${
-                activeCategory === "all" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
-              }`}
+              className={cn(CHIP, activeCategory === "all" ? "bg-nero text-avorio" : "hover:bg-nero/5")}
             >
               Alle
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-2 rounded-sm border px-4 py-2 text-xs font-medium uppercase tracking-wider transition-colors ${
-                  activeCategory === cat.id ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/50"
-                }`}
+                className={cn(CHIP, activeCategory === cat.id ? "bg-nero text-avorio" : "hover:bg-nero/5")}
               >
                 {cat.icon && iconMap[cat.icon]}
                 {cat.name}
@@ -265,55 +271,59 @@ const Community = () => {
             ))}
           </div>
 
-          {/* Posts list */}
+          {/* Trefferzahl */}
+          <div className="cap mb-5 border-b border-nero pb-3 text-[11px] text-muted-foreground">
+            <span className="num mr-1 text-base text-nero">{posts.length}</span> {posts.length === 1 ? "Beitrag" : "Beiträge"}
+          </div>
+
+          {/* Beiträge */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-40 animate-pulse rounded-sm border border-border bg-secondary/30" />
+                <div key={i} className="h-48 animate-pulse border-2 border-nero bg-sabbia" />
               ))}
             </div>
           ) : posts.length === 0 ? (
-            <div className="py-16 text-center">
-              <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-              <p className="text-muted-foreground">Noch keine Beiträge in dieser Kategorie.</p>
+            <div className="border-2 border-nero bg-card px-6 py-12 text-center">
+              <MessageSquare className="mx-auto mb-4 h-10 w-10" />
+              <p className="font-display text-lg font-semibold">
+                {searchQuery ? "Keine Beiträge zu deiner Suche." : "Noch keine Beiträge in dieser Kategorie."}
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
               {posts.map((post) => (
                 <button
                   key={post.id}
+                  type="button"
                   onClick={() => navigate(`/community/${post.id}`)}
-                  className="group flex flex-col items-start gap-4 rounded-sm border border-border bg-card p-5 text-left transition-colors hover:border-primary/30 hover:bg-secondary/30"
+                  className="group flex h-full flex-col items-stretch border-2 border-nero bg-card p-4 text-left md:p-5"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
-                      {post.pinned && (
-                        <span className="rounded-sm bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                          Angepinnt
-                        </span>
-                      )}
-                      {post.forum_categories && (
-                        <span className="rounded-sm border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {post.forum_categories.name}
-                        </span>
-                      )}
+                  {/* Kopfzeile: Anpinnung + Kategorie */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {post.pinned && <span className={cn(TAG, "border-verde bg-verde text-avorio")}>Angepinnt</span>}
+                    {post.forum_categories && (
+                      <span className={cn(TAG, "border-nero text-nero")}>{post.forum_categories.name}</span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-3 line-clamp-2 font-display text-[19px] font-semibold leading-tight tracking-[-0.02em] decoration-1 underline-offset-4 group-hover:underline md:text-[21px]">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-base leading-snug text-muted-foreground">
+                    {post.content.replace(/<[^>]*>/g, "")}
+                  </p>
+
+                  {/* Meta: Autor · Datum | Antworten · Likes — unten angeheftet */}
+                  <div className="min-h-4 flex-1" />
+                  <div className="flex items-center justify-between gap-3 border-t border-nero pt-1">
+                    <div className="cap min-w-0 truncate text-[10px] text-muted-foreground md:text-[11px]">
+                      {post.profiles?.display_name || "Anonym"} · {formatDate(post.created_at)}
                     </div>
-                    <h3 className="font-display text-xl font-semibold group-hover:text-primary transition-colors line-clamp-1">
-                      {post.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content.replace(/<[^>]*>/g, "")}</p>
-                    <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {post.profiles?.display_name || "Anonym"}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(post.created_at)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MessageSquare className="h-3 w-3" />
-                        {post.comment_count} {post.comment_count === 1 ? "Antwort" : "Antworten"}
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span className="num flex items-center gap-1.5 text-sm text-muted-foreground" aria-label={`${post.comment_count} Antworten`}>
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        {post.comment_count}
                       </span>
                       <LikeButton
                         liked={isLikedByMe(post.id)}
