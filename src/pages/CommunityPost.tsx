@@ -24,6 +24,7 @@ import { useLikes } from "@/hooks/useLikes";
 import { LikeButton } from "@/components/LikeButton";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+import { authorName } from "@/utils/authorName";
 
 type PostWithRelations = Tables<"forum_posts"> & {
   profiles?: Tables<"profiles"> | null;
@@ -191,7 +192,7 @@ const CommunityPost = () => {
           <h1 className="mt-4 font-display normal-case text-[30px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[48px]">{post.title}</h1>
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-avorio/35 pt-3">
             <div className="cap text-[11px] text-avorio/75">
-              {post.profiles?.display_name || "Anonym"} · {formatDate(post.created_at)}
+              {authorName(post.user_id, post.profiles)} · {formatDate(post.created_at)}
             </div>
             <LikeButton
               size="md"
@@ -237,7 +238,7 @@ const CommunityPost = () => {
                 <li key={comment.id} className="border-b border-nero py-5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="cap text-[10px] text-muted-foreground md:text-[11px]">
-                      <span className="text-nero">{comment.profiles?.display_name || "Anonym"}</span> · {formatDate(comment.created_at)}
+                      <span className="text-nero">{authorName(comment.user_id, comment.profiles)}</span> · {formatDate(comment.created_at)}
                     </div>
                     {user?.id === comment.user_id && (
                       <Button

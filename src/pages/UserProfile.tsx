@@ -27,6 +27,7 @@ import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import DeleteJerseyDialog, { type DeleteJerseyTarget } from "@/components/DeleteJerseyDialog";
+import DeleteAccountSection from "@/components/profile/DeleteAccountSection";
 
 // Figurina-Optik für die eigene Sammlung (Skill cc-design §6). Rahmenfarbe rein dekorativ, stabil pro Trikot.
 const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
@@ -369,6 +370,7 @@ const UserProfile = () => {
             </div>
           </div>
         )}
+        {editMode && <DeleteAccountSection />}
 
         {/* Collection Section */}
         <SectionHeader
