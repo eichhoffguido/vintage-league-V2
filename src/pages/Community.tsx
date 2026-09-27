@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import { authorName } from "@/utils/authorName";
 
 const iconMap: Record<string, React.ReactNode> = {
   Wrench: <Wrench className="h-3.5 w-3.5" />,
@@ -353,7 +354,7 @@ const Community = () => {
                   <div className="min-h-4 flex-1" />
                   <div className="flex items-center justify-between gap-3 border-t border-nero pt-1">
                     <div className="cap min-w-0 truncate text-[10px] text-muted-foreground md:text-[11px]">
-                      {post.profiles?.display_name || "Anonym"} · {formatDate(post.created_at)}
+                      {authorName(post.user_id, post.profiles)} · {formatDate(post.created_at)}
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <span className="num flex items-center gap-1.5 text-sm text-muted-foreground" aria-label={`${post.comment_count} Antworten`}>
