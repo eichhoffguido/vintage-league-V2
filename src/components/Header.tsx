@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import Logo from "@/components/brand/Logo";
+import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import { HEADER_CATEGORY_CHIPS, categoryToShopUrl, isCategoryChipActive, isJustDroppedActive } from "@/data/categoryFilters";
 import { parseFiltersFromParams } from "@/hooks/useFilterState";
 import { cn } from "@/lib/utils";
@@ -89,6 +90,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-30 bg-background">
       <div className="tricolore" aria-hidden />
+      <AnnouncementBar />
       <EmailVerificationBanner />
 
       {/* Hauptleiste */}

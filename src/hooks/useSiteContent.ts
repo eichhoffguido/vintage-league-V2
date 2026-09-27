@@ -11,6 +11,20 @@ import {
   TRADES_CONTENT,
   TRADE_CONTENT,
   WATCHLIST_CONTENT,
+  DETAIL_CONTENT,
+  PROFILE_CONTENT,
+  BIDS_CONTENT,
+  SELLER_CONTENT,
+  NOTFOUND_CONTENT,
+  FOOTER_CONTENT,
+  SITE_SETTINGS,
+  type DetailContent,
+  type ProfileContent,
+  type BidsContent,
+  type SellerContent,
+  type NotFoundContent,
+  type FooterContent,
+  type SiteSettings,
   type AuthContent,
   type CollectionContent,
   type CommunityContent,
@@ -20,7 +34,7 @@ import {
   type TradesContent,
   type WatchlistContent,
 } from "@/content/pages";
-import { IMPRINT_DEFAULT, PRIVACY_DEFAULT_HTML, type ImprintContent } from "@/content/legal";
+import { IMPRINT_DEFAULT, PRIVACY_DEFAULT_HTML, TERMS_DEFAULT_HTML, type ImprintContent } from "@/content/legal";
 
 // ---------------------------------------------------------------------------
 // Standardwerte je Seite. Ein CMS-Schlüssel ist "<seite>.<pfad>", z. B. "home.album.headline"
@@ -37,6 +51,14 @@ export interface SiteContentMap {
   watchlist: WatchlistContent;
   auth: AuthContent;
   onboarding: OnboardingContent;
+  detail: DetailContent;
+  profile: ProfileContent;
+  bids: BidsContent;
+  seller: SellerContent;
+  notfound: NotFoundContent;
+  footer: FooterContent;
+  /** Seitenübergreifend: Kontakt, Social, Hinweisband */
+  site: SiteSettings;
 }
 export type SitePage = keyof SiteContentMap;
 
@@ -50,6 +72,13 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
   watchlist: WATCHLIST_CONTENT,
   auth: AUTH_CONTENT,
   onboarding: ONBOARDING_CONTENT,
+  detail: DETAIL_CONTENT,
+  profile: PROFILE_CONTENT,
+  bids: BIDS_CONTENT,
+  seller: SELLER_CONTENT,
+  notfound: NOTFOUND_CONTENT,
+  footer: FOOTER_CONTENT,
+  site: SITE_SETTINGS,
 };
 
 interface SiteContentRow {
@@ -211,6 +240,9 @@ export interface LegalContent {
   privacyHtml: string;
   /** Zeitpunkt der letzten Änderung des Datenschutztexts im CMS (sonst null). */
   privacyUpdatedAt: string | null;
+  /** AGB (leer, bis gepflegt) */
+  termsHtml: string;
+  termsUpdatedAt: string | null;
 }
 
 export function useLegalContent(): LegalContent {
@@ -218,6 +250,10 @@ export function useLegalContent(): LegalContent {
   return useMemo(() => {
     const imprintRow = rows?.find((r) => r.key === "legal.imprint");
     const privacyRow = rows?.find((r) => r.key === "legal.privacy");
+    const termsRow = rows?.find((r) => r.key === "legal.terms");
+    const htmlOf = (row: SiteContentRow | undefined) =>
+      row && isRecord(row.value) && typeof row.value.html === "string" ? row.value.html : "";
+    const terms = htmlOf(termsRow);
 
     const imprint: ImprintContent = { ...IMPRINT_DEFAULT };
     if (imprintRow && isRecord(imprintRow.value)) {
@@ -235,6 +271,8 @@ export function useLegalContent(): LegalContent {
       imprint,
       privacyHtml: html.trim() ? html : PRIVACY_DEFAULT_HTML,
       privacyUpdatedAt: html.trim() ? privacyRow!.updated_at : null,
+      termsHtml: terms.trim() ? terms : TERMS_DEFAULT_HTML,
+      termsUpdatedAt: terms.trim() ? termsRow!.updated_at : null,
     };
   }, [rows]);
 }

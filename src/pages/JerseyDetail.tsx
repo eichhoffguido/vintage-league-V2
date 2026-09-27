@@ -1,4 +1,6 @@
 import { useState, useEffect, type ReactNode } from "react";
+import Headline from "@/components/brand/Headline";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,6 +47,7 @@ const conditionTagClass = (condition: number): string => {
 };
 
 const JerseyDetail = () => {
+  const page = useSiteContent("detail");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -228,6 +231,7 @@ const JerseyDetail = () => {
   const mainImage = images[Math.min(activeImage, Math.max(0, images.length - 1))];
   const isVerified = jersey.verification_status === "verified";
   const isPending = jersey.verification_status === "pending";
+  const verificationState = isVerified ? page.verification.verified : isPending ? page.verification.pending : page.verification.unverified;
   const sellerName = jersey.profiles?.display_name || "Anonym";
 
   const specs: { label: string; value: ReactNode }[] = [
@@ -495,26 +499,17 @@ const JerseyDetail = () => {
           <div className="container mx-auto grid gap-8 px-4 py-12 md:px-10 md:py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14">
             <div>
               <div className="cap text-avorio/75">
-                <span className="text-rosso">Verifica</span> · Echtheit &amp; Prüfung
+                <span className="text-rosso">{page.verification.eyebrow}</span> · {page.verification.label}
               </div>
               <h2 className="display mt-3 text-[36px] md:text-[56px]">
-                {isVerified ? "Geprüft und" : isPending ? "Prüfung" : "Noch nicht"}{" "}
-                <span className="hollow">{isVerified ? "verificato." : isPending ? "läuft." : "geprüft."}</span>
+                <Headline text={verificationState.headline} ground="nero" />
               </h2>
               <p className="mt-4 max-w-md text-base text-avorio/85">
-                {isVerified
-                  ? "Dieses Trikot wurde von unserem Team geprüft: Stoff, Stickerei, Label und Flock."
-                  : isPending
-                    ? "Unser Team prüft dieses Trikot gerade. Bis dahin trägt es kein Verificato-Siegel."
-                    : "Dieses Trikot wurde noch nicht geprüft. Frag im Zweifel die Community nach einem Legit-Check."}
+                {verificationState.text}
               </p>
             </div>
             <div className="grid grid-cols-1 border-t border-avorio/35 sm:grid-cols-3 sm:border-t-0">
-              {[
-                ["01", "Echtheitsprüfung", "Stoff, Label, Stickerei und Flock werden kontrolliert."],
-                ["02", "Faire Einordnung", "Marktwert aus über 22.000 Referenzpreisen."],
-                ["03", "Sicher bezahlen", "Bezahlung über Stripe — deine Kartendaten landen nie bei uns."],
-              ].map(([nr, title, text], i) => (
+              {page.verification.points.map(({ title, text }, i) => [String(i + 1).padStart(2, "0"), title, text] as const).map(([nr, title, text], i) => (
                 <div key={nr} className={cn("border-b border-avorio/35 py-5 sm:border-b-0 sm:py-0", i > 0 && "sm:border-l sm:pl-6", i < 2 && "sm:pr-6")}>
                   <div className="display hollow text-[44px] leading-[0.8] md:text-[64px]" aria-hidden>{nr}</div>
                   <h3 className="mt-3 text-base md:mt-5 md:text-lg">{title}</h3>
@@ -530,7 +525,7 @@ const JerseyDetail = () => {
           <MarketDepth jerseyId={id!} />
           {saleHistory.length > 0 && (
             <div>
-              <div className="cap text-rosso">Storico · Preisverlauf</div>
+              <div className="cap text-rosso">{page.historyEyebrow}</div>
               <h2 className="display mt-2.5 text-[32px] md:text-[44px]">
                 Zuletzt <span className="hollow-dark">verkauft.</span>
               </h2>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const StarRating = ({ rating }: { rating: number | null }) => {
 };
 
 const SellerProfile = () => {
+  const page = useSiteContent("seller");
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -193,7 +195,7 @@ const SellerProfile = () => {
       {/* Öffentliches Profil → schwarzes Kopfband (Skill cc-design §5.1) */}
       <PageHeader
         tone="nero"
-        eyebrow="Il venditore · Verkäufer"
+        eyebrow={page.eyebrow}
         title={profile.display_name || "Sammler"}
         className="[&_h1]:break-words"
       >
@@ -235,7 +237,7 @@ const SellerProfile = () => {
                   <span className="num text-sm text-avorio/70">({ratings.length})</span>
                 </div>
               ) : (
-                <p className="text-sm text-avorio/70">Keine Bewertungen</p>
+                <p className="text-sm text-avorio/70">{page.reviews.none}</p>
               )}
             </dd>
           </div>
@@ -264,9 +266,8 @@ const SellerProfile = () => {
         <SectionHeader
           className="mb-6 border-b border-nero pb-5 md:mb-8"
           size="md"
-          eyebrow="Le maglie · Trikots"
-          title="Verfügbare"
-          hollowWord="Trikots."
+          eyebrow={page.jerseys.eyebrow}
+          headline={page.jerseys.headline}
           subline={`${jerseys.length} verfügbar`}
         />
 
@@ -274,7 +275,7 @@ const SellerProfile = () => {
           <div className="border-2 border-nero bg-card px-6 py-12 text-center">
             <Shirt className="mx-auto mb-4 h-10 w-10" />
             <p className="font-display text-lg font-semibold">
-              Noch keine Trikots eingestellt
+              {page.jerseys.empty}
             </p>
           </div>
         ) : (
@@ -308,9 +309,8 @@ const SellerProfile = () => {
             <SectionHeader
               className="mb-6 mt-14 md:mb-8 md:mt-20"
               size="md"
-              eyebrow="Le recensioni · Bewertungen"
-              title="Letzte"
-              hollowWord="Bewertungen."
+              eyebrow={page.reviews.eyebrow}
+              headline={page.reviews.headline}
               subline={`Letzte ${ratings.length} Bewertungen`}
             />
             <ul className="border-t border-nero">

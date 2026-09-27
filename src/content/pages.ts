@@ -13,7 +13,7 @@ export interface CommunityContent {
   header: PageHeaderContent;
   teaser: { eyebrow: string; headline: string; text: string; cta: string };
 }
-export interface TradeContent { header: PageHeaderContent }
+export interface TradeContent { header: PageHeaderContent; empty: { title: string; text: string } }
 export interface TradesContent { header: PageHeaderContent }
 export interface CollectionContent { header: PageHeaderContent; empty: string }
 export interface WatchlistContent { header: PageHeaderContent }
@@ -24,7 +24,10 @@ export interface AuthContent {
   formEyebrow: string;
   formTitle: string;
 }
-export interface OnboardingContent { header: { eyebrow: string; headline: string } }
+export interface OnboardingContent {
+  header: { eyebrow: string; headline: string };
+  welcome: { headline: string; intro: string; features: { title: string; text: string }[] };
+}
 
 export const SHOP_CONTENT: ShopContent = {
   header: {
@@ -53,6 +56,10 @@ export const TRADE_CONTENT: TradeContent = {
     eyebrow: "Lo scambio · Tauschbörse",
     headline: "Die *Tauschbörse.*",
     subline: "Finde Trikots anderer Sammler und schlage einen Tausch vor.",
+  },
+  empty: {
+    title: "Aktuell keine Trikots zum Tausch verfügbar.",
+    text: "Markiere deine eigenen Trikots als tauschbar, um loszulegen.",
   },
 };
 
@@ -95,4 +102,118 @@ export const AUTH_CONTENT: AuthContent = {
 
 export const ONBOARDING_CONTENT: OnboardingContent = {
   header: { eyebrow: "Benvenuto · Willkommen", headline: "Dein Start bei *Calcio Classics.*" },
+  welcome: {
+    headline: "Willkommen bei Calcio Classics!",
+    intro: "Die Community-erste Plattform für den Handel mit Vintage-Fußballtrikots",
+    features: [
+      { title: "Deine Sammlung", text: "Katalogisiere deine Lieblings-Trikots und verwalte deine Sammlung" },
+      { title: "Community", text: "Verbinde dich mit anderen Sammlern und tausche Trikots" },
+      { title: "Marktplatz", text: "Entdecke Trikots von anderen Sammlern im Marktplatz" },
+    ],
+  },
+};
+
+// --- C2b (28.09.): weitere Seiten + seitenübergreifende Einstellungen -------------------------------
+
+export interface DetailContent {
+  verification: {
+    eyebrow: string;
+    label: string;
+    verified: { headline: string; text: string };
+    pending: { headline: string; text: string };
+    unverified: { headline: string; text: string };
+    points: { title: string; text: string }[];
+  };
+  historyEyebrow: string;
+}
+export interface ProfileContent {
+  header: { eyebrow: string; headline: string };
+  collection: { eyebrow: string; headline: string };
+  empty: string;
+}
+export interface BidsContent { header: { eyebrow: string; headline: string } }
+export interface SellerContent {
+  eyebrow: string;
+  jerseys: { eyebrow: string; headline: string; empty: string };
+  reviews: { eyebrow: string; headline: string; none: string };
+}
+export interface NotFoundContent {
+  eyebrow: string;
+  headline: string;
+  text: string;
+  primaryCta: string;
+  secondaryCta: string;
+}
+export interface FooterContent { claim: string }
+export interface SiteSettings {
+  contact: { email: string; instagramHandle: string; instagramUrl: string };
+  /** Hinweisband ganz oben (z. B. „Private Beta“), im CMS ein-/ausschaltbar. */
+  announcement: { enabled: boolean; text: string; linkLabel: string; linkUrl: string };
+}
+
+export const DETAIL_CONTENT: DetailContent = {
+  verification: {
+    eyebrow: "Verifica",
+    label: "Echtheit & Prüfung",
+    verified: {
+      headline: "Geprüft und *verificato.*",
+      text: "Dieses Trikot wurde von unserem Team geprüft: Stoff, Stickerei, Label und Flock.",
+    },
+    pending: {
+      headline: "Prüfung *läuft.*",
+      text: "Unser Team prüft dieses Trikot gerade. Bis dahin trägt es kein Verificato-Siegel.",
+    },
+    unverified: {
+      headline: "Noch nicht *geprüft.*",
+      text: "Dieses Trikot wurde noch nicht geprüft. Frag im Zweifel die Community nach einem Legit-Check.",
+    },
+    points: [
+      { title: "Echtheitsprüfung", text: "Stoff, Label, Stickerei und Flock werden kontrolliert." },
+      { title: "Faire Einordnung", text: "Marktwert aus über 22.000 Referenzpreisen." },
+      { title: "Sicher bezahlen", text: "Bezahlung über Stripe — deine Kartendaten landen nie bei uns." },
+    ],
+  },
+  historyEyebrow: "Storico · Preisverlauf",
+};
+
+export const PROFILE_CONTENT: ProfileContent = {
+  header: { eyebrow: "Il mio profilo · Profil", headline: "Mein *Profil.*" },
+  collection: { eyebrow: "La mia collezione · Sammlung", headline: "Meine *Sammlung.*" },
+  empty: "Noch keine Trikots in deiner Sammlung",
+};
+
+export const BIDS_CONTENT: BidsContent = {
+  header: { eyebrow: "Le mie offerte · Gebote", headline: "Meine *Gebote.*" },
+};
+
+export const SELLER_CONTENT: SellerContent = {
+  eyebrow: "Il venditore · Verkäufer",
+  jerseys: { eyebrow: "Le maglie · Trikots", headline: "Verfügbare *Trikots.*", empty: "Noch keine Trikots eingestellt" },
+  reviews: { eyebrow: "Le recensioni · Bewertungen", headline: "Letzte *Bewertungen.*", none: "Keine Bewertungen" },
+};
+
+export const NOTFOUND_CONTENT: NotFoundContent = {
+  eyebrow: "Fuorigioco · Seite nicht gefunden",
+  headline: "Im *Abseits.*",
+  text: "Diese Seite gibt es nicht (mehr). Vielleicht wurde das Trikot schon verkauft — im Marktplatz warten viele andere.",
+  primaryCta: "Zum Marktplatz →",
+  secondaryCta: "Zur Startseite",
+};
+
+export const FOOTER_CONTENT: FooterContent = {
+  claim: "Vintage-Fußballtrikots aus Deutschland — mit Herz für Calcio.",
+};
+
+export const SITE_SETTINGS: SiteSettings = {
+  contact: {
+    email: "kontakt@calcioclassics.de",
+    instagramHandle: "@calcioclassics.de",
+    instagramUrl: "https://instagram.com/calcioclassics.de",
+  },
+  announcement: {
+    enabled: false,
+    text: "Private Beta — Kaufen läuft im Testmodus.",
+    linkLabel: "",
+    linkUrl: "",
+  },
 };

@@ -14,7 +14,6 @@ import { COMMON_TEAMS } from "@/data/teams-leagues";
 import { toast } from "sonner";
 import { ArrowRight, Shirt, Users, TrendingUp, Plus } from "lucide-react";
 import { retryAsync } from "@/utils/retry";
-import { BRAND_NAME } from "@/config/brand";
 
 type Step = "welcome" | "profile" | "favorite" | "add-jersey";
 
@@ -228,10 +227,10 @@ const Onboarding = () => {
 
             <div className="mb-12 text-center">
               <h2 className="display text-[36px] md:text-[52px]">
-                Willkommen bei {BRAND_NAME}!
+                {page.welcome.headline}
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Die Community-erste Plattform für den Handel mit Vintage-Fußballtrikots
+                {page.welcome.intro}
               </p>
             </div>
 
@@ -241,9 +240,9 @@ const Onboarding = () => {
                 <div className="flex justify-center mb-4">
                   <Shirt className="h-12 w-12 text-verde" />
                 </div>
-                <h3 className="font-display text-lg font-bold">Deine Sammlung</h3>
+                <h3 className="font-display text-lg font-bold">{page.welcome.features[0]?.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Katalogisiere deine Lieblings-Trikots und verwalte deine Sammlung
+                  {page.welcome.features[0]?.text}
                 </p>
               </div>
 
@@ -252,9 +251,9 @@ const Onboarding = () => {
                 <div className="flex justify-center mb-4">
                   <Users className="h-12 w-12 text-verde" />
                 </div>
-                <h3 className="font-display text-lg font-bold">Community</h3>
+                <h3 className="font-display text-lg font-bold">{page.welcome.features[1]?.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Verbinde dich mit anderen Sammlern und tausche Trikots
+                  {page.welcome.features[1]?.text}
                 </p>
               </div>
 
@@ -263,9 +262,9 @@ const Onboarding = () => {
                 <div className="flex justify-center mb-4">
                   <TrendingUp className="h-12 w-12 text-verde" />
                 </div>
-                <h3 className="font-display text-lg font-bold">Marktplatz</h3>
+                <h3 className="font-display text-lg font-bold">{page.welcome.features[2]?.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Entdecke Trikots von anderen Sammlern im Marktplatz
+                  {page.welcome.features[2]?.text}
                 </p>
               </div>
             </div>

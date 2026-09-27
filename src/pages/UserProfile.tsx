@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/utils/compressImage";
@@ -36,6 +37,7 @@ const frameColorFor = (id: string) =>
 const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
 
 const UserProfile = () => {
+  const page = useSiteContent("profile");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -177,7 +179,7 @@ const UserProfile = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <PageHeader tone="verde" eyebrow="Il mio profilo · Profil" title="Mein" hollowWord="Profil." />
+        <PageHeader tone="verde" eyebrow={page.header.eyebrow} headline={page.header.headline} />
         <ProfilePageSkeleton />
         <Footer />
       </div>
@@ -209,7 +211,7 @@ const UserProfile = () => {
       <Header />
 
       {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
-      <PageHeader tone="verde" eyebrow="Il mio profilo · Profil" title="Mein" hollowWord="Profil.">
+      <PageHeader tone="verde" eyebrow={page.header.eyebrow} headline={page.header.headline}>
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div className="flex min-w-0 items-start gap-4 md:gap-6">
             <div className="relative shrink-0">
@@ -376,9 +378,8 @@ const UserProfile = () => {
         <SectionHeader
           className="mb-6 mt-14 border-b border-nero pb-5 md:mb-8 md:mt-20"
           size="md"
-          eyebrow="La mia collezione · Sammlung"
-          title="Meine"
-          hollowWord="Sammlung."
+          eyebrow={page.collection.eyebrow}
+          headline={page.collection.headline}
           subline={`${jerseys.length} Trikots`}
         />
 
@@ -400,7 +401,7 @@ const UserProfile = () => {
         ) : jerseys.length === 0 ? (
           <div className="border-2 border-nero bg-card px-6 py-12 text-center">
             <Shirt className="mx-auto mb-4 h-10 w-10" />
-            <p className="font-display text-lg font-semibold">Noch keine Trikots in deiner Sammlung</p>
+            <p className="font-display text-lg font-semibold">{page.empty}</p>
             <p className="mt-2 text-sm text-muted-foreground">Gehe zu deiner Sammlung und füge dein erstes Trikot hinzu.</p>
             <Button className="mt-5" onClick={() => navigate("/collection")}>
               <Plus className="h-4 w-4" /> Zur Sammlung

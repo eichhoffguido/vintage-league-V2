@@ -144,8 +144,8 @@ const Trade = () => {
           ) : availableJerseys.length === 0 ? (
             <div className="border-2 border-nero bg-card px-6 py-12 text-center">
               <ArrowLeftRight className="mx-auto mb-4 h-10 w-10" />
-              <p className="font-display text-lg font-semibold">Aktuell keine Trikots zum Tausch verfügbar.</p>
-              <p className="mt-2 text-base text-muted-foreground">Markiere deine eigenen Trikots als tauschbar, um loszulegen.</p>
+              <p className="font-display text-lg font-semibold">{page.empty.title}</p>
+              <p className="mt-2 text-base text-muted-foreground">{page.empty.text}</p>
               <Button variant="outline" className="mt-6" onClick={() => navigate("/collection")}>
                 Zur Sammlung →
               </Button>
