@@ -5,7 +5,7 @@ import type { HomeContent } from "@/content/home";
 /** FAQ zweispaltig: Kopf links, Akkordeon rechts mit „+ / −“ (Skill cc-design §6). Anker #faq bleibt. */
 const FaqSection = ({ content }: { content: HomeContent["faq"] }) => (
   <section id="faq" className="container mx-auto scroll-mt-28 px-4 pb-12 pt-14 md:px-10 md:pb-28 md:pt-[104px] lg:grid lg:grid-cols-[480px_1fr] lg:gap-20">
-    <SectionHeader eyebrow={content.eyebrow} title={content.title} hollowWord={content.hollowWord} subline={content.text} size="md" className="md:flex-col md:items-start" />
+    <SectionHeader eyebrow={content.eyebrow} headline={content.headline} subline={content.text} size="md" className="md:flex-col md:items-start" />
     <AccordionPrimitive.Root type="single" collapsible defaultValue="item-0" className="mt-5 border-b border-nero lg:mt-0">
       {content.items.map((item, i) => (
         <AccordionPrimitive.Item key={item.question} value={`item-${i}`} className="group border-t border-nero">

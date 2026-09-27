@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Plus, ArrowLeftRight, Shirt, AlertCircle, ShieldCheck, Clock, XCircle } from "lucide-react";
@@ -40,6 +41,7 @@ const DIALOG_TITLE = "font-display text-2xl font-semibold normal-case tracking-[
 const STATUS_BOX = "cap flex h-11 w-full items-center justify-center gap-2 border";
 
 const Collection = () => {
+  const page = useSiteContent("collection");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -282,10 +284,9 @@ const Collection = () => {
       {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
       <PageHeader
         tone="verde"
-        eyebrow="La mia collezione · Sammlung"
-        title="Meine"
-        hollowWord="Sammlung."
-        subline="Dein persönliches Album. Lege fest, welche Trikots du tauschst und welche du verkaufst."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
       >
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
@@ -457,7 +458,7 @@ const Collection = () => {
           ) : jerseys.length === 0 ? (
             <div className="border-2 border-nero bg-card px-6 py-12 text-center">
               <Shirt className="mx-auto mb-4 h-10 w-10" />
-              <p className="font-display text-lg font-semibold">Noch keine Trikots in deiner Sammlung</p>
+              <p className="font-display text-lg font-semibold">{page.empty}</p>
               <p className="mt-2 text-sm text-muted-foreground">Füge dein erstes Trikot hinzu und starte deine Kollektion.</p>
               <Button className="mt-5" onClick={() => setDialogOpen(true)}>
                 <Plus /> Trikot hinzufügen

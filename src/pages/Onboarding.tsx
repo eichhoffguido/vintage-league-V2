@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ interface OnboardingState {
 }
 
 const Onboarding = () => {
+  const page = useSiteContent("onboarding");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("welcome");
@@ -211,7 +213,7 @@ const Onboarding = () => {
 
   // Grünes Kopfband für den persönlichen Bereich (Skill cc-design §5.1)
   const OnboardingBand = () => (
-    <PageHeader tone="verde" eyebrow="Benvenuto · Willkommen" title="Dein Start bei" hollowWord="Calcio Classics." />
+    <PageHeader tone="verde" eyebrow={page.header.eyebrow} headline={page.header.headline} />
   );
 
   // Welcome Step

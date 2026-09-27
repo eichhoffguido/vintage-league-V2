@@ -1,9 +1,10 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { HomeContent } from "@/content/home";
 import { cn } from "@/lib/utils";
+import Headline from "@/components/brand/Headline";
 
 export interface HomeStats {
   jerseys: number;
@@ -18,7 +19,6 @@ interface HomeHeroProps {
 }
 
 const SLIDE_MS = 6000;
-const VERDE_FILL = { "--fill": "hsl(var(--verde))" } as CSSProperties;
 
 /** Suche + CTAs + Kennzahlen — auf Verde (Desktop, im grünen Block) oder auf Avorio (Mobile, unter dem Foto). */
 const HeroActions = ({ content, stats, onSell, tone }: HomeHeroProps & { tone: "verde" | "avorio" }) => {
@@ -171,10 +171,7 @@ const HomeHero = ({ content, stats, onSell }: HomeHeroProps) => {
           {slideNav}
           <div className="relative">
             <h1 className="display text-[clamp(88px,9.4vw,136px)] leading-[0.84] tracking-[-0.06em]">
-              {content.headline.map((line) => (
-                <span key={line} className="block">{line}</span>
-              ))}
-              <span className="hollow block" style={{ ...VERDE_FILL, WebkitTextStrokeWidth: "5px" }}>{content.hollowWord}</span>
+              <Headline text={content.headline} ground="verde" blockLines hollowStyle={{ WebkitTextStrokeWidth: "5px" }} />
             </h1>
             <p className="mt-7 max-w-[470px] text-xl leading-[1.38]">{slide.subline}</p>
             <div className="mt-7">
@@ -195,10 +192,7 @@ const HomeHero = ({ content, stats, onSell }: HomeHeroProps) => {
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-[84px] h-[190px] w-[190px] rounded-full bg-giallo" />
           {slideNav}
           <h1 className="display relative mt-4 text-[62px] leading-[0.84] tracking-[-0.06em] md:text-[96px]">
-            {content.headline.map((line) => (
-              <span key={line} className="block">{line}</span>
-            ))}
-            <span className="hollow block" style={VERDE_FILL}>{content.hollowWord}</span>
+            <Headline text={content.headline} ground="verde" blockLines />
           </h1>
           <p className="relative mt-5 max-w-[520px] text-base leading-[1.4]">{slide.subline}</p>
         </div>

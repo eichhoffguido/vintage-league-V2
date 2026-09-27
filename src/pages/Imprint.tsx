@@ -1,49 +1,75 @@
 import LegalPage from "@/components/layout/LegalPage";
-import { CONTACT_EMAIL } from "@/config/brand";
+import { useLegalContent } from "@/hooks/useSiteContent";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { IMPRINT_REQUIRED, type ImprintContent } from "@/content/legal";
 
-// Platzhalter — vor dem Beta-Launch mit den echten Angaben ersetzen.
-const OPERATOR_NAME = "VOLLSTÄNDIGER NAME";
-const OPERATOR_STREET = "STRASSE HAUSNUMMER";
-const OPERATOR_CITY = "PLZ ORT";
-const OPERATOR_COUNTRY = "Deutschland";
-const OPERATOR_EMAIL = CONTACT_EMAIL;
+// Angaben kommen aus dem CMS (site_content legal.imprint), gepflegt unter Admin → CMS → Rechtliches.
+const FIELD_LABELS: Record<keyof ImprintContent, string> = {
+  name: "Name / Firma",
+  street: "Straße und Hausnummer",
+  city: "PLZ und Ort",
+  country: "Land",
+  email: "E-Mail",
+  phone: "Telefon",
+  vat_id: "USt-IdNr.",
+  register: "Registereintrag",
+  responsible: "Verantwortlich für den Inhalt",
+};
 
 const Imprint = () => {
+  const { imprint } = useLegalContent();
+  const isAdmin = useIsAdmin();
+  const missing = IMPRINT_REQUIRED.filter((k) => !imprint[k].trim());
+  const address = [imprint.name, imprint.street, imprint.city, imprint.country].filter((v) => v.trim());
+
   return (
     <LegalPage title="Impressum.">
+      {isAdmin && missing.length > 0 && (
+        <div className="not-prose border-2 border-rosso bg-card p-4 text-base" role="alert">
+          <div className="cap text-[11px] text-rosso">Nur für Admins sichtbar</div>
+          <p className="mt-2">
+            Im Impressum fehlen Pflichtangaben: <strong>{missing.map((k) => FIELD_LABELS[k]).join(", ")}</strong>.
+            Bitte im CMS unter „Rechtliches“ ergänzen.
+          </p>
+        </div>
+      )}
+
       <section>
         <h2>Angaben gemäß § 5 DDG</h2>
         <p>
-          {OPERATOR_NAME}<br />
-          {OPERATOR_STREET}<br />
-          {OPERATOR_CITY}<br />
-          {OPERATOR_COUNTRY}
+          {address.map((line, i) => (
+            <span key={i}>
+              {i > 0 && <br />}
+              {line}
+            </span>
+          ))}
         </p>
+        {imprint.register.trim() && <p>{imprint.register}</p>}
+        {imprint.vat_id.trim() && <p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a UStG: {imprint.vat_id}</p>}
       </section>
 
       <section>
         <h2>Kontakt</h2>
         <p>
-          E-Mail: {OPERATOR_EMAIL}
+          {imprint.email.trim() && <>E-Mail: <a href={`mailto:${imprint.email}`}>{imprint.email}</a></>}
+          {imprint.phone.trim() && (
+            <>
+              <br />
+              Telefon: {imprint.phone}
+            </>
+          )}
         </p>
       </section>
 
       <section>
         <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
-        <p>
-          {OPERATOR_NAME}, Anschrift wie oben
-        </p>
+        <p>{imprint.responsible.trim() ? `${imprint.responsible}, Anschrift wie oben` : "Anschrift wie oben"}</p>
       </section>
 
       <section>
         <h2>Plattform der EU-Kommission zur Online-Streitbeilegung</h2>
         <p>
-          <a
-            href="https://ec.europa.eu/consumers/odr"
-            target="_blank"
-            rel="noopener noreferrer"
-           
-          >
+          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">
             https://ec.europa.eu/consumers/odr
           </a>
           <br />

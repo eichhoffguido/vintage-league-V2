@@ -14,7 +14,7 @@ const DealerSection = ({ content }: { content: HomeContent["dealer"] }) => (
       </div>
     </div>
     <div className="order-1 flex flex-col justify-between lg:order-2">
-      <SectionHeader eyebrow={content.eyebrow} title={content.title} hollowWord={content.hollowWord} subline={content.subline} size="md" />
+      <SectionHeader eyebrow={content.eyebrow} headline={content.headline} subline={content.subline} size="md" />
       <div className="order-3 mt-2 lg:mt-8">
         <ol>
           {content.points.map((point, i) => (

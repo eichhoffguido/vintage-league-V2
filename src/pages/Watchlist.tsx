@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -32,6 +33,7 @@ const fetchFavoriteJerseys = async (favoriteIds: string[]) => {
 };
 
 const Watchlist = () => {
+  const page = useSiteContent("watchlist");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -86,10 +88,9 @@ const Watchlist = () => {
       {/* Persönlicher Bereich → grünes Kopfband (Skill cc-design §5.1) */}
       <PageHeader
         tone="verde"
-        eyebrow="La mia lista · Merkliste"
-        title="Deine"
-        hollowWord="Merkliste."
-        subline="Speichere Trikots, die dir gefallen, und behalte ihre Preise im Auge."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
       />
 
       {/* Watchlist Grid */}

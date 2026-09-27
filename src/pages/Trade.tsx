@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import TradeShirts from "@/components/trade/TradeShirts";
 import JerseyCard from "@/components/JerseyCard";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { authPath } from "@/utils/postLoginRedirect";
 const LABEL = "cap text-[11px] leading-none text-nero";
 
 const Trade = () => {
+  const page = useSiteContent("trade");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -115,10 +117,9 @@ const Trade = () => {
       {/* Seitenkopf nero mit Trikot-Silhouetten (Skill cc-design §5.1) */}
       <PageHeader
         tone="nero"
-        eyebrow="Lo scambio · Tauschbörse"
-        title="Die"
-        hollowWord="Tauschbörse."
-        subline="Finde Trikots anderer Sammler und schlage einen Tausch vor."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
         aside={<TradeShirts />}
       >
         <Button variant="outline" className="border-avorio text-avorio hover:bg-avorio hover:text-nero" onClick={() => navigate("/trades")}>

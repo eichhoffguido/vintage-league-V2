@@ -1,6 +1,8 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { rememberPostLoginPath } from "@/utils/postLoginRedirect";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import Headline from "@/components/brand/Headline";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +24,7 @@ const Auth = () => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const page = useSiteContent("auth");
   const [searchParams] = useSearchParams();
 
   // ?next=/community → nach Login (und ggf. Onboarding-Prüfung) dorthin zurück
@@ -71,26 +74,23 @@ const Auth = () => {
         <section className="relative overflow-hidden bg-verde px-4 py-10 text-avorio md:px-10 md:py-16 lg:flex lg:flex-col lg:justify-between lg:px-16 lg:py-20">
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-[84px] h-[190px] w-[190px] rounded-full bg-giallo lg:-bottom-[190px] lg:-right-[150px] lg:top-auto lg:h-[440px] lg:w-[440px]" />
           <div aria-hidden className="pointer-events-none absolute right-8 top-8 hidden h-[110px] w-[110px] rounded-full border-2 border-avorio opacity-55 lg:block" />
-          <div className="cap relative text-avorio/75">Bentornato · Anmelden</div>
+          <div className="cap relative text-avorio/75">{page.eyebrow}</div>
           <h1 className="display relative mt-4 text-[44px] leading-[0.86] md:text-[80px] lg:text-[clamp(56px,5.2vw,80px)]">
-            Willkommen{" "}
-            <span className="hollow block" style={{ "--fill": "hsl(var(--verde))" } as CSSProperties}>
-              zurück.
-            </span>
+            <Headline text={page.headline} ground="verde" blockLines />
           </h1>
           <ul className="relative mt-6 max-w-sm space-y-2 text-base text-avorio/85 md:mt-8 md:text-lg">
-            <li>Deine Sammlung verwalten und Trikots einstellen.</li>
-            <li>Merkliste, Gebote und Tauschanfragen im Blick.</li>
-            <li>Mit der Community Wissen teilen.</li>
+            {page.points.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
           </ul>
         </section>
 
         <section className="flex items-center px-4 py-10 md:px-10 md:py-16 lg:px-16">
           <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5">
             <div>
-              <div className="cap text-rosso">Accesso · Login</div>
+              <div className="cap text-rosso">{page.formEyebrow}</div>
               <h2 className="mt-2 font-display text-2xl font-semibold normal-case tracking-[-0.02em] md:text-3xl">
-                Melde dich an, um deine Sammlung zu verwalten.
+                {page.formTitle}
               </h2>
             </div>
 

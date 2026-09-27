@@ -19,19 +19,19 @@ export interface HeroSlide {
 
 export interface HomeContent {
   hero: {
-    headline: string[];
-    hollowWord: string;
+    /** CMS-Überschrift: *Wort* = Outline, Zeilenumbruch = neue Zeile */
+    headline: string;
     searchPlaceholder: string;
     primaryCta: { label: string; to: string };
     secondaryCta: { label: string };
     stats: { jerseys: string; profiles: string; trades: string };
     slides: HeroSlide[];
   };
-  album: { eyebrow: string; title: string; hollowWord: string; subline: string; allLabel: string };
+  album: { eyebrow: string; headline: string; subline: string; allLabel: string };
+  trust: { eyebrow: string; label: string; ticker: string[]; features: { title: string; description: string }[] };
   dealer: {
     eyebrow: string;
-    title: string;
-    hollowWord: string;
+    headline: string;
     subline: string;
     image: string;
     imageAlt: string;
@@ -42,8 +42,7 @@ export interface HomeContent {
   swap: {
     eyebrow: string;
     word: string;
-    title: string;
-    hollowWord: string;
+    headline: string;
     text: string;
     offer: { label: string; caption: string; image: string };
     search: { label: string; caption: string; image: string };
@@ -53,8 +52,7 @@ export interface HomeContent {
   };
   community: {
     eyebrow: string;
-    title: string;
-    hollowWord: string;
+    headline: string;
     text: string;
     topics: { title: string; hint: string }[];
     cta: { label: string; to: string };
@@ -62,13 +60,12 @@ export interface HomeContent {
     imageAlt: string;
     caption: string;
   };
-  faq: { eyebrow: string; title: string; hollowWord: string; text: string; items: { question: string; answer: string }[] };
+  faq: { eyebrow: string; headline: string; text: string; items: { question: string; answer: string }[] };
 }
 
 export const HOME_CONTENT: HomeContent = {
   hero: {
-    headline: ["Il tuo", "album di"],
-    hollowWord: "maglie.",
+    headline: "Il tuo\nalbum di\n*maglie.*",
     searchPlaceholder: "Trikot, Verein, Spieler …",
     primaryCta: { label: "Kollektion entdecken →", to: "/shop" },
     secondaryCta: { label: "Trikot verkaufen" },
@@ -105,15 +102,24 @@ export const HOME_CONTENT: HomeContent = {
   },
   album: {
     eyebrow: "Figurine · Nuovi arrivi",
-    title: "Neu im",
-    hollowWord: "Album.",
+    headline: "Neu im *Album.*",
     subline: "Handverlesene Trikots — frisch kuratiert für Sammler.",
     allLabel: "Alle anzeigen →",
   },
+  trust: {
+    eyebrow: "Perché Calcio Classics",
+    label: "Authentizitätsgarantie",
+    ticker: ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in der EU"],
+    features: [
+      { title: "Echtheitszertifikat", description: "Jedes Stück wird von Experten geprüft und zertifiziert." },
+      { title: "Sammlerstücke", description: "Kuratierte Auswahl seltener und historischer Trikots." },
+      { title: "Versicherter Versand", description: "Sorgfältig verpackt und weltweit versichert." },
+      { title: "Käuferschutz", description: "Geld-zurück-Garantie bei Nicht-Authentizität." },
+    ],
+  },
   dealer: {
     eyebrow: "Per i commercianti · Für Händler",
-    title: "Deine Bühne für besondere",
-    hollowWord: "Trikots.",
+    headline: "Deine Bühne für besondere *Trikots.*",
     subline:
       "Präsentiere deine Raritäten einer leidenschaftlichen Community — in einem Umfeld, das Qualität und Authentizität in den Mittelpunkt stellt.",
     image: dealerImage,
@@ -129,8 +135,7 @@ export const HOME_CONTENT: HomeContent = {
   swap: {
     eyebrow: "Lo scambio · Trikottausch",
     word: "Scambio.",
-    title: "Trikot gegen",
-    hollowWord: "Trikot.",
+    headline: "Trikot gegen *Trikot.*",
     text: "Der klassische Trikottausch — digital. Finde Sammler mit den Raritäten, die dir fehlen, und biete deine eigenen Schätze zum Tausch an.",
     offer: { label: "Biete", caption: "Rosso-Nero · Home · 1991–92 · L", image: swapLeft },
     search: { label: "Suche", caption: "Azzurro · Home · 1990–91 · M", image: swapRight },
@@ -140,8 +145,7 @@ export const HOME_CONTENT: HomeContent = {
   },
   community: {
     eyebrow: "La comunità · Community",
-    title: "Wissen teilen, voneinander",
-    hollowWord: "lernen.",
+    headline: "Wissen teilen, voneinander *lernen.*",
     text: "Restaurierung, Pflege, Echtheitsprüfung — die Community teilt ihr Wissen rund um Vintage-Trikots.",
     topics: [
       { title: "Restaurierung", hint: "Anleitungen & Tipps" },
@@ -155,8 +159,7 @@ export const HOME_CONTENT: HomeContent = {
   },
   faq: {
     eyebrow: "Domande · FAQ",
-    title: "Häufig gestellte",
-    hollowWord: "Fragen.",
+    headline: "Häufig gestellte *Fragen.*",
     text: "Noch etwas offen? Die Community hilft — oder schreib uns direkt.",
     items: [
       {

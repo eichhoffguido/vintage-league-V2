@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { HomeContent } from "@/content/home";
+import Headline from "@/components/brand/Headline";
 
 interface SwapStripeProps {
   content: HomeContent["swap"];
@@ -77,7 +78,7 @@ const SwapStripe = ({ content, tradeCount }: SwapStripeProps) => (
       {/* Text + CTAs */}
       <div className="relative z-[3] mt-6 xl:absolute xl:left-10 xl:top-[380px] xl:mt-0 xl:w-[420px]">
         <h2 className="display text-[30px] leading-[0.92] md:text-[52px]">
-          {content.title} <span className="hollow">{content.hollowWord}</span>
+          <Headline text={content.headline} ground="nero" />
         </h2>
         <p className="mt-3 text-[15px] leading-[1.45] text-avorio/85 md:mt-5 md:text-lg">{content.text}</p>
         <div className="mt-5 grid gap-2 sm:flex sm:gap-3 md:mt-7">
