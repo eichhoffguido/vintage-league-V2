@@ -81,10 +81,11 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
   site: SITE_SETTINGS,
 };
 
-interface SiteContentRow {
+export interface SiteContentRow {
   key: string;
   value: unknown;
   updated_at: string;
+  updated_by?: string | null;
 }
 
 const SITE_MEDIA_BUCKET = "site-media";
@@ -152,7 +153,7 @@ export function useSiteContentRows() {
   return useQuery({
     queryKey: ["site-content"],
     queryFn: async (): Promise<SiteContentRow[]> => {
-      const { data, error } = await supabase.from("site_content").select("key, value, updated_at");
+      const { data, error } = await supabase.from("site_content").select("key, value, updated_at, updated_by");
       if (error) throw error;
       return (data ?? []) as SiteContentRow[];
     },

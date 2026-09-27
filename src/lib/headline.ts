@@ -29,3 +29,46 @@ export const headlinePlainText = (source: string) => source.replace(/\*([^*]+)\*
 /** Baut das Speicherformat aus Titel + hohlem Schlusswort (bisheriges Muster title/hollowWord). */
 export const toHeadline = (title: string, hollowWord?: string) =>
   hollowWord ? `${title} *${hollowWord}*`.trim() : title;
+
+// --- CMS-Editor: Wörter mit Outline-Markierung ⇄ Speicherformat ------------------------------------
+
+export interface HeadlineWord {
+  text: string;
+  hollow: boolean;
+}
+
+/** Speicherformat → Zeilen aus Wörtern mit Outline-Markierung. */
+export function toWords(value: string): HeadlineWord[][] {
+  return parseHeadline(value).map((line) =>
+    line.flatMap((part) =>
+      part.text
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((text) => ({ text, hollow: part.hollow })),
+    ),
+  );
+}
+
+/** Zeilen aus Wörtern → Speicherformat. Aufeinanderfolgende Outline-Wörter werden zu *…* zusammengefasst. */
+export function fromWords(lines: HeadlineWord[][]): string {
+  return lines
+    .map((words) => {
+      const out: string[] = [];
+      let run: string[] = [];
+      const flush = () => {
+        if (run.length) out.push(`*${run.join(" ")}*`);
+        run = [];
+      };
+      for (const w of words) {
+        if (w.hollow) run.push(w.text);
+        else {
+          flush();
+          out.push(w.text);
+        }
+      }
+      flush();
+      return out.join(" ");
+    })
+    .join("\n");
+}
+
