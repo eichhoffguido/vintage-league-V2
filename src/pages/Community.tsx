@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare, Plus, Wrench, Shield, Search, TrendingUp, Trophy } from "lucide-react";
+import { MessageSquare, Plus } from "lucide-react";
+import { COMMUNITY_ICONS, isCategoryVisible } from "@/content/communityIcons";
 import { LikeButton } from "@/components/LikeButton";
 import { useLikes } from "@/hooks/useLikes";
 import { Button } from "@/components/ui/button";
@@ -24,12 +25,9 @@ import { authPath } from "@/utils/postLoginRedirect";
 import type { Tables } from "@/integrations/supabase/types";
 import { authorName } from "@/utils/authorName";
 
-const iconMap: Record<string, React.ReactNode> = {
-  Wrench: <Wrench className="h-3.5 w-3.5" />,
-  Shield: <Shield className="h-3.5 w-3.5" />,
-  Search: <Search className="h-3.5 w-3.5" />,
-  TrendingUp: <TrendingUp className="h-3.5 w-3.5" />,
-  Trophy: <Trophy className="h-3.5 w-3.5" />,
+const CategoryIcon = ({ name }: { name: string | null }) => {
+  const entry = name ? COMMUNITY_ICONS[name] : undefined;
+  return entry ? <entry.icon className="h-3.5 w-3.5" /> : null;
 };
 
 const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
@@ -66,7 +64,7 @@ const Community = () => {
     setNewPost({ title: "", content: "", category_id: "", images: [] });
   };
 
-  const { data: categories = [], isError: categoriesError } = useQuery({
+  const { data: allCategories = [], isError: categoriesError } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("forum_categories").select("*").order("sort_order");
@@ -78,6 +76,9 @@ const Community = () => {
       return data;
     },
   });
+
+  // Ausgeblendete Kategorien (CMS → Community-Kategorien) erscheinen nicht als Chip und nicht im Dialog
+  const categories = allCategories.filter(isCategoryVisible);
 
   const { data: postsRaw = [], isLoading } = useQuery({
     queryKey: ["forum-posts", activeCategory],
@@ -333,7 +334,7 @@ const Community = () => {
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(CHIP, activeCategory === cat.id ? "bg-nero text-avorio" : "hover:bg-nero/5")}
               >
-                {cat.icon && iconMap[cat.icon]}
+                <CategoryIcon name={cat.icon} />
                 {cat.name}
               </button>
             ))}

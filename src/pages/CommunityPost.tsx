@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Pin, PinOff, Trash2 } from "lucide-react";
+import { toast as notify } from "sonner";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -51,6 +53,8 @@ const AttachedImages = ({ urls }: { urls: string[] | null }) =>
 const CommunityPost = () => {
   const { id } = useParams<{ id: string }>();
   const { user, loading: authLoading } = useAuth();
+  const isAdmin = useIsAdmin();
+  const [pinning, setPinning] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [post, setPost] = useState<PostWithRelations | null>(null);
@@ -136,9 +140,20 @@ const CommunityPost = () => {
   };
 
   const handleDeletePost = async () => {
-    if (!post || post.user_id !== user?.id) return;
+    // Eigene Beiträge oder Moderation durch Admins (RLS prüft serverseitig)
+    if (!post || (post.user_id !== user?.id && !isAdmin)) return;
     const { error } = await supabase.from("forum_posts").delete().eq("id", post.id);
     if (!error) { navigate("/community"); }
+  };
+
+  const togglePinned = async () => {
+    if (!post || !isAdmin) return;
+    setPinning(true);
+    const { error } = await supabase.from("forum_posts").update({ pinned: !post.pinned }).eq("id", post.id);
+    setPinning(false);
+    if (error) return notify.error(error.message);
+    setPost({ ...post, pinned: !post.pinned });
+    notify.success(post.pinned ? "Beitrag gelöst." : "Beitrag angepinnt — steht jetzt ganz oben.");
   };
 
   const handleDeleteComment = async (commentId: string) => {
@@ -200,6 +215,18 @@ const CommunityPost = () => {
             <div className="cap text-[11px] text-avorio/75">
               {authorName(post.user_id, post.profiles)} · {formatDate(post.created_at)}
             </div>
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={togglePinned}
+                  disabled={pinning}
+                  className="cap flex min-h-11 items-center gap-2 border border-avorio/60 px-3 text-[10px] text-avorio hover:bg-avorio hover:text-nero disabled:opacity-40"
+                >
+                  {post.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+                  {post.pinned ? "Lösen" : "Anpinnen"}
+                </button>
+              )}
             <LikeButton
               size="md"
               className={isLikedByMe(post.id) ? "text-avorio" : "text-avorio/60 hover:text-avorio"}
@@ -211,6 +238,7 @@ const CommunityPost = () => {
                 toggleLike.mutate(post.id);
               }}
             />
+            </div>
           </div>
         </div>
       </section>
@@ -223,7 +251,7 @@ const CommunityPost = () => {
               <RichTextViewer content={post.content} />
             </div>
             <AttachedImages urls={post.image_urls} />
-            {user?.id === post.user_id && (
+            {(user?.id === post.user_id || isAdmin) && (
               <div className="mt-8 flex justify-end">
                 <Button variant="outline" className="hover:border-rosso hover:bg-rosso" onClick={() => setDeleteTarget({ kind: "post" })}>
                   <Trash2 className="h-4 w-4" /> Beitrag löschen
@@ -246,7 +274,7 @@ const CommunityPost = () => {
                     <div className="cap text-[10px] text-muted-foreground md:text-[11px]">
                       <span className="text-nero">{authorName(comment.user_id, comment.profiles)}</span> · {formatDate(comment.created_at)}
                     </div>
-                    {user?.id === comment.user_id && (
+                    {(user?.id === comment.user_id || isAdmin) && (
                       <Button
                         variant="ghost"
                         size="icon"

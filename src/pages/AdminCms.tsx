@@ -8,6 +8,7 @@ import SectionCard from "@/components/cms/SectionCard";
 import { FaqEditor, HeroSlidesEditor } from "@/components/cms/TableListEditors";
 import LegalEditor from "@/components/cms/LegalEditor";
 import MediaLibrary from "@/components/cms/MediaLibrary";
+import CategoryEditor from "@/components/cms/CategoryEditor";
 import { CMS_PAGES, type CmsPage } from "@/content/cmsSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,7 @@ import { useSiteContentRows } from "@/hooks/useSiteContent";
 import { cn } from "@/lib/utils";
 
 const EXTRA = [
+  { id: "categories", title: "Community-Kategorien" },
   { id: "legal", title: "Rechtliches" },
   { id: "media", title: "Medien" },
 ] as const;
@@ -138,6 +140,8 @@ const AdminCms = () => {
             <LegalEditor />
           ) : area === "media" ? (
             <MediaLibrary />
+          ) : area === "categories" ? (
+            <CategoryEditor />
           ) : page ? (
             page.sections.map((section) =>
               section.special === "heroSlides" ? (
