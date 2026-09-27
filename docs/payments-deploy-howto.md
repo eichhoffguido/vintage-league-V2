@@ -68,10 +68,9 @@ Project Settings → Edge Functions → Secrets) → **Add new secret**:
 
 | Name | Wert |
 |---|---|
-| `SITE_URL` | `https://vintage-league-v2.vercel.app` |
+| `SITE_URL` | `https://calcioclassics.de` |
 
-Das ist die Adresse, auf die Stripe nach dem Bezahlen zurückleitet. Nach dem Domain-Umzug hier
-`https://calcioclassics.de` eintragen. Ohne `SITE_URL` funktioniert der Kauf nur noch von erlaubten Adressen
+Das ist die Adresse, auf die Stripe nach dem Bezahlen zurückleitet (seit CC-D1 die eigene Domain). Ohne `SITE_URL` funktioniert der Kauf nur noch von erlaubten Adressen
 aus (Produktion, Vorschau-Deployments, localhost) — sonst erscheint eine Fehlermeldung.
 
 Außerdem prüfen, dass diese Secrets schon existieren (nicht ändern): `STRIPE_SECRET_KEY`,
