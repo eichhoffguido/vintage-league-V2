@@ -14,6 +14,7 @@ import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
 import Admin from "./pages/Admin.tsx";
+import AdminCms from "./pages/AdminCms.tsx";
 import Trade from "./pages/Trade.tsx";
 import Trades from "./pages/Trades.tsx";
 import Community from "./pages/Community.tsx";
@@ -107,6 +108,7 @@ const App = () => (
               <Route path="/community/:id" element={<CommunityPost />} />
               <Route path="/my-bids" element={<MyBids />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/cms" element={<AdminCms />} />
               <Route path="/imprint" element={<Imprint />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/agb" element={<Terms />} />

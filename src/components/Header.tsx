@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown, ShieldCheck } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown, ShieldCheck, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -162,6 +162,9 @@ const Header = () => {
                         <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/admin")}>
                           <ShieldCheck className="mr-2 h-4 w-4" /> Admin
                         </DropdownMenuItem>
+                        <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/admin/cms")}>
+                          <PenLine className="mr-2 h-4 w-4" /> CMS
+                        </DropdownMenuItem>
                       </>
                     )}
                     <DropdownMenuSeparator className="bg-nero" />
@@ -258,7 +261,7 @@ const Header = () => {
                     { to: "/watchlist", label: "Merkliste" },
                     { to: "/my-bids", label: "Meine Gebote" },
                     { to: "/profile", label: "Profil" },
-                    ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
+                    ...(isAdmin ? [{ to: "/admin", label: "Admin" }, { to: "/admin/cms", label: "CMS" }] : []),
                   ]
                 : []),
               { to: "/#faq", label: "FAQ" },

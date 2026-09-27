@@ -8,7 +8,7 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 
-import { parseHeadline, headlinePlainText } from "@/lib/headline";
+import { parseHeadline, headlinePlainText, toWords, fromWords } from "@/lib/headline";
 import { mergeSiteContent } from "@/hooks/useSiteContent";
 
 describe("parseHeadline", () => {
@@ -83,5 +83,25 @@ describe("mergeSiteContent", () => {
     expect(mergeSiteContent("home", defaults, [row("home.dealer.image", "https://x.test/a.jpg")]).dealer.image).toBe(
       "https://x.test/a.jpg",
     );
+  });
+});
+
+describe("Wort-Chips ⇄ Speicherformat (CMS-Editor)", () => {
+  it("fasst aufeinanderfolgende Outline-Wörter zusammen", () => {
+    const lines = toWords("Wissen teilen, voneinander *lernen.*");
+    lines[0][0].hollow = true; // „Wissen“ zusätzlich hohl
+    expect(fromWords(lines)).toBe("*Wissen* teilen, voneinander *lernen.*");
+    lines[0][1].hollow = true;
+    expect(fromWords(lines)).toBe("*Wissen teilen,* voneinander *lernen.*");
+  });
+
+  it("hin und zurück bleibt gleich, auch mehrzeilig", () => {
+    const v = "Il tuo\nalbum di\n*maglie.*";
+    expect(fromWords(toWords(v))).toBe(v);
+  });
+
+  it("alles normal → keine Sternchen", () => {
+    const lines = toWords("Neu im *Album.*").map((l) => l.map((w) => ({ ...w, hollow: false })));
+    expect(fromWords(lines)).toBe("Neu im Album.");
   });
 });

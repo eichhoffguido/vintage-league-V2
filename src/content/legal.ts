@@ -13,6 +13,18 @@ export interface ImprintContent {
   responsible: string;
 }
 
+export const IMPRINT_LABELS: Record<keyof ImprintContent, string> = {
+  name: "Name / Firma",
+  street: "Straße und Hausnummer",
+  city: "PLZ und Ort",
+  country: "Land",
+  email: "E-Mail",
+  phone: "Telefon",
+  vat_id: "USt-IdNr.",
+  register: "Registereintrag (z. B. Amtsgericht, HRB)",
+  responsible: "Verantwortlich für den Inhalt (Name)",
+};
+
 /** Pflichtfelder — fehlt eines, sehen Admins auf /imprint einen Warnhinweis. */
 export const IMPRINT_REQUIRED: (keyof ImprintContent)[] = ["name", "street", "city", "email", "responsible"];
 

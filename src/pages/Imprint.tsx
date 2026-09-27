@@ -1,21 +1,9 @@
 import LegalPage from "@/components/layout/LegalPage";
 import { useLegalContent } from "@/hooks/useSiteContent";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { IMPRINT_REQUIRED, type ImprintContent } from "@/content/legal";
+import { IMPRINT_LABELS, IMPRINT_REQUIRED } from "@/content/legal";
 
 // Angaben kommen aus dem CMS (site_content legal.imprint), gepflegt unter Admin → CMS → Rechtliches.
-const FIELD_LABELS: Record<keyof ImprintContent, string> = {
-  name: "Name / Firma",
-  street: "Straße und Hausnummer",
-  city: "PLZ und Ort",
-  country: "Land",
-  email: "E-Mail",
-  phone: "Telefon",
-  vat_id: "USt-IdNr.",
-  register: "Registereintrag",
-  responsible: "Verantwortlich für den Inhalt",
-};
-
 const Imprint = () => {
   const { imprint } = useLegalContent();
   const isAdmin = useIsAdmin();
@@ -28,7 +16,7 @@ const Imprint = () => {
         <div className="not-prose border-2 border-rosso bg-card p-4 text-base" role="alert">
           <div className="cap text-[11px] text-rosso">Nur für Admins sichtbar</div>
           <p className="mt-2">
-            Im Impressum fehlen Pflichtangaben: <strong>{missing.map((k) => FIELD_LABELS[k]).join(", ")}</strong>.
+            Im Impressum fehlen Pflichtangaben: <strong>{missing.map((k) => IMPRINT_LABELS[k]).join(", ")}</strong>.
             Bitte im CMS unter „Rechtliches“ ergänzen.
           </p>
         </div>
