@@ -88,7 +88,10 @@ const DeleteAccountSection = () => {
                   <li>Deine Community-Beiträge bleiben ohne Namen stehen („Gelöschtes Mitglied“), angehängte Bilder werden entfernt.</li>
                   <li>Abgeschlossene Käufe und Verkäufe bleiben ohne Bezug zu dir erhalten (Aufbewahrungspflicht).</li>
                 </ul>
-                <p>Läuft gerade ein Kauf oder ein vereinbarter Tausch, ist das Löschen erst danach möglich.</p>
+                <p>
+                  Nicht möglich, solange ein Kauf, eine Gebotszahlung oder ein vereinbarter Tausch offen ist, und
+                  in den ersten 30 Tagen nach einem Kauf oder Verkauf (Versand, Rückfragen).
+                </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
