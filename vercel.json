@@ -1,9 +1,15 @@
 {
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/",
       "has": [{ "type": "host", "value": "vintage-league-v2.vercel.app" }],
-      "destination": "https://calcioclassics.de/:path*",
+      "destination": "https://calcioclassics.de/",
+      "permanent": true
+    },
+    {
+      "source": "/:path+",
+      "has": [{ "type": "host", "value": "vintage-league-v2.vercel.app" }],
+      "destination": "https://calcioclassics.de/:path+",
       "permanent": true
     }
   ],
