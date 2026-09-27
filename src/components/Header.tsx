@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import Logo from "@/components/brand/Logo";
 import { HEADER_CATEGORY_CHIPS, categoryToShopUrl, isCategoryChipActive, isJustDroppedActive } from "@/data/categoryFilters";
@@ -29,6 +30,7 @@ const Header = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileHeaderSearch, setMobileHeaderSearch] = useState("");
   const { user, signOut } = useAuth();
+  const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -152,6 +154,14 @@ const Header = () => {
                     <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/watchlist")}>
                       <Heart className="mr-2 h-4 w-4" /> Merkliste
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator className="bg-nero" />
+                        <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/admin")}>
+                          <ShieldCheck className="mr-2 h-4 w-4" /> Admin
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator className="bg-nero" />
                     <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" /> Logout
@@ -246,6 +256,7 @@ const Header = () => {
                     { to: "/watchlist", label: "Merkliste" },
                     { to: "/my-bids", label: "Meine Gebote" },
                     { to: "/profile", label: "Profil" },
+                    ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
                   ]
                 : []),
               { to: "/#faq", label: "FAQ" },
