@@ -577,6 +577,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      soft_delete_user_jersey: {
+        Args: {
+          p_jersey_id: string
+        }
+        Returns: undefined
+      }
       get_price_intelligence: {
         Args: {
           p_condition?: string
