@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
@@ -29,6 +29,7 @@ const Trade = () => {
   const [selectedJersey, setSelectedJersey] = useState<any>(null);
   const [myOfferJerseyId, setMyOfferJerseyId] = useState("");
   const [message, setMessage] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -40,15 +41,32 @@ const Trade = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_jerseys")
-        .select("*, profiles(display_name)")
+        .select("*")
         .eq("available_for_trade", true)
         .neq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+
+      // user_jerseys hat keinen FK auf profiles (user_id → auth.users) — Namen separat laden.
+      const userIds = [...new Set(data.map((j) => j.user_id))];
+      const { data: profiles } = userIds.length
+        ? await supabase.from("profiles").select("id, display_name").in("id", userIds)
+        : { data: [] };
+      const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+      return data.map((j) => ({ ...j, profiles: { display_name: nameById.get(j.user_id) ?? null } }));
     },
     enabled: !!user,
   });
+
+  // Einstieg von der Detailseite: /trade?jersey=<id> öffnet direkt den Dialog.
+  const preselectId = searchParams.get("jersey");
+  useEffect(() => {
+    if (!preselectId || !user || isLoading) return;
+    const target = availableJerseys.find((j) => j.id === preselectId);
+    if (target) setSelectedJersey(target);
+    else toast.error("Dieses Trikot ist nicht (mehr) zum Tausch verfügbar.");
+    setSearchParams({}, { replace: true });
+  }, [preselectId, user, isLoading, availableJerseys, setSearchParams]);
 
   // My jerseys (to offer in trade)
   const { data: myJerseys = [] } = useQuery({

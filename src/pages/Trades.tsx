@@ -83,13 +83,21 @@ const Trades = () => {
         .from("trade_requests")
         .select(`
           *,
-          requester_jersey:user_jerseys!trade_requests_requester_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, image_urls, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
-          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, image_urls, price_cents, user_id, profiles!user_jerseys_user_id_fkey(display_name)),
+          requester_jersey:user_jerseys!trade_requests_requester_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, image_urls, price_cents, user_id),
+          owner_jersey:user_jerseys!trade_requests_owner_jersey_id_fkey(id, name, team, league, year, condition, size, image_url, image_urls, price_cents, user_id),
           confirmations:trade_confirmations(user_id)
         `)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as any[];
+
+      // user_jerseys hat keinen FK auf profiles (user_id → auth.users) — Namen separat laden.
+      const userIds = [...new Set(data.flatMap((t) => [t.requester_jersey?.user_id, t.owner_jersey?.user_id]).filter(Boolean))] as string[];
+      const { data: profiles } = userIds.length
+        ? await supabase.from("profiles").select("id, display_name").in("id", userIds)
+        : { data: [] };
+      const nameById = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+      const withName = (j: any) => (j ? { ...j, profiles: { display_name: nameById.get(j.user_id) ?? null } } : j);
+      return data.map((t) => ({ ...t, requester_jersey: withName(t.requester_jersey), owner_jersey: withName(t.owner_jersey) })) as any[];
     },
     enabled: !!user,
   });

@@ -32,6 +32,21 @@ const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px]
 const CHIP = "cap flex shrink-0 items-center gap-2 border border-nero px-3.5 py-2.5 text-[11px] transition-colors md:text-xs";
 const LABEL = "cap text-[11px] leading-none text-nero";
 
+/** Erstes Bild eines Beitrags: angehängtes Foto, sonst erstes <img> (z. B. GIF) im Text. */
+const coverImage = (post: { image_urls: string[] | null; content: string }): string | null =>
+  post.image_urls?.[0] ?? post.content.match(/<img[^>]+src="([^"]+)"/i)?.[1] ?? null;
+
+// Kreis-Akzente auf der Bildecke (Kreisgeometrie der Startseite, Skill cc-design §5) —
+// stabil pro Beitrag, damit die Kacheln abwechslungsreich, aber ruhig wirken.
+const ACCENTS = [
+  { circle: "h-[72px] w-[72px] bg-giallo", pos: "right-0 top-0 translate-x-1/2 -translate-y-1/2", aspect: "aspect-[16/10]" },
+  { circle: "h-11 w-11 bg-rosso", pos: "right-0 top-0 translate-x-1/2 -translate-y-1/2", aspect: "aspect-[4/3]" },
+  { circle: "h-24 w-24 border-2 border-nero", pos: "left-0 top-0 -translate-x-1/2 -translate-y-1/2", aspect: "aspect-[16/10]" },
+  { circle: "h-[72px] w-[72px] bg-giallo", pos: "left-0 top-0 -translate-x-1/2 -translate-y-1/2", aspect: "aspect-[4/3]" },
+  { circle: "h-8 w-8 bg-rosso", pos: "bottom-0 left-0 -translate-x-1/2 translate-y-1/2", aspect: "aspect-[16/10]" },
+] as const;
+const accentFor = (id: string) => ACCENTS[[...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % ACCENTS.length];
+
 const Community = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -297,8 +312,28 @@ const Community = () => {
                   key={post.id}
                   type="button"
                   onClick={() => navigate(`/community/${post.id}`)}
-                  className="group flex h-full flex-col items-stretch border-2 border-nero bg-card p-4 text-left md:p-5"
+                  className="group relative flex h-full flex-col items-stretch overflow-hidden border-2 border-nero bg-card p-4 text-left md:p-5"
                 >
+                  {/* Titelbild mit Kreis-Akzent auf der Ecke — nur wenn der Beitrag ein Bild hat */}
+                  {(() => {
+                    const cover = coverImage(post);
+                    if (!cover) return null;
+                    const accent = accentFor(post.id);
+                    return (
+                      <div className="relative mb-4">
+                        <div className={cn("grain grain-photo overflow-hidden border-2 border-nero bg-sabbia", accent.aspect)}>
+                          <img
+                            src={cover}
+                            alt=""
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                          />
+                        </div>
+                        <span aria-hidden className={cn("pointer-events-none absolute z-[2] rounded-full", accent.circle, accent.pos)} />
+                      </div>
+                    );
+                  })()}
+
                   {/* Kopfzeile: Anpinnung + Kategorie */}
                   <div className="flex flex-wrap items-center gap-1.5">
                     {post.pinned && <span className={cn(TAG, "border-verde bg-verde text-avorio")}>Angepinnt</span>}
