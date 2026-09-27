@@ -188,7 +188,7 @@ const CommunityPost = () => {
             {post.pinned && <span className={cn(TAG, "border-verde bg-verde text-avorio")}>Angepinnt</span>}
             {post.forum_categories && <span className={cn(TAG, "border-avorio text-avorio")}>{post.forum_categories.name}</span>}
           </div>
-          <h1 className="mt-4 font-display text-[30px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[48px]">{post.title}</h1>
+          <h1 className="mt-4 font-display normal-case text-[30px] font-semibold leading-[1.05] tracking-[-0.03em] md:text-[48px]">{post.title}</h1>
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-avorio/35 pt-3">
             <div className="cap text-[11px] text-avorio/75">
               {post.profiles?.display_name || "Anonym"} · {formatDate(post.created_at)}

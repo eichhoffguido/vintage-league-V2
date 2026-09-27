@@ -307,7 +307,7 @@ const Community = () => {
                     )}
                   </div>
 
-                  <h3 className="mt-3 line-clamp-2 font-display text-[19px] font-semibold leading-tight tracking-[-0.02em] decoration-1 underline-offset-4 group-hover:underline md:text-[21px]">
+                  <h3 className="mt-3 line-clamp-2 font-display normal-case text-[19px] font-semibold leading-tight tracking-[-0.02em] decoration-1 underline-offset-4 group-hover:underline md:text-[21px]">
                     {post.title}
                   </h3>
                   <p className="mt-2 line-clamp-3 text-base leading-snug text-muted-foreground">

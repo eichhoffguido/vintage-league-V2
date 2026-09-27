@@ -184,6 +184,7 @@
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.02em;
+    text-transform: none;
   }
   .prose-cc :where(img) {
     border: 2px solid hsl(var(--nero));
