@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import Headline from "@/components/brand/Headline";
 
 type Tone = "avorio" | "nero" | "verde";
 
@@ -7,8 +8,10 @@ interface PageHeaderProps {
   tone?: Tone;
   /** Kleine Versal-Zeile über der Headline, Italienisch · Deutsch (z. B. „Il mercato · Marktplatz“). */
   eyebrow?: string;
+  /** CMS-Format: *Wort* = Outline, frei mischbar. Hat Vorrang vor title/hollowWord. */
+  headline?: string;
   /** Headline ohne das hohle Schlusswort. */
-  title: string;
+  title?: string;
   /** Letztes Wort der Headline — wird als Hohlschrift gesetzt (Skill cc-design §3). */
   hollowWord?: string;
   subline?: ReactNode;
@@ -29,7 +32,7 @@ const TONE_CLASS: Record<Tone, string> = {
  * Seitenkopf-Band. Sorgt für den Hell/Dunkel-Rhythmus je Seite (Skill cc-design §5.1).
  * Auf nero/verde wird das hohle Wort mit der Band-Farbe gefüllt, auf avorio dunkel konturiert.
  */
-const PageHeader = ({ tone = "nero", eyebrow, title, hollowWord, subline, children, aside, className }: PageHeaderProps) => {
+const PageHeader = ({ tone = "nero", eyebrow, headline, title = "", hollowWord, subline, children, aside, className }: PageHeaderProps) => {
   const hollowClass = tone === "avorio" ? "hollow-dark" : "hollow";
   const fill = tone === "verde" ? "hsl(var(--verde))" : tone === "nero" ? "hsl(var(--nero))" : undefined;
 
@@ -49,8 +52,8 @@ const PageHeader = ({ tone = "nero", eyebrow, title, hollowWord, subline, childr
             <div className={cn("cap", tone === "avorio" ? "text-rosso" : "text-avorio/75")}>{eyebrow}</div>
           )}
           <h1 className="display mt-3 text-[40px] md:text-[80px]">
-            {title}
-            {hollowWord && (
+            {headline !== undefined ? <Headline text={headline} ground={tone} /> : title}
+            {headline === undefined && hollowWord && (
               <>
                 {" "}
                 <span className={hollowClass} style={fill ? ({ "--fill": fill } as CSSProperties) : undefined}>

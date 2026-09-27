@@ -1,22 +1,16 @@
+import { useSiteContent } from "@/hooks/useSiteContent";
+
 // Authentizitätsgarantie als schwarzer Streifen (Skill cc-design §5 „Nero stripes“).
-// Texte bleiben inhaltlich wie bisher; ab CC-C2 kommen sie aus dem CMS.
-const TICKER = ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in der EU"];
-
-const FEATURES = [
-  { title: "Echtheitszertifikat", description: "Jedes Stück wird von Experten geprüft und zertifiziert." },
-  { title: "Sammlerstücke", description: "Kuratierte Auswahl seltener und historischer Trikots." },
-  { title: "Versicherter Versand", description: "Sorgfältig verpackt und weltweit versichert." },
-  { title: "Käuferschutz", description: "Geld-zurück-Garantie bei Nicht-Authentizität." },
-];
-
+// Texte aus dem CMS (home.trust.*), Standard in src/content/home.ts.
 const TrustBanner = () => {
+  const { trust } = useSiteContent("home");
   return (
     <section className="nero-stripe" aria-label="Authentizitätsgarantie">
       <div className="cap flex items-center justify-between gap-6 overflow-hidden border-b border-avorio/35 px-4 py-3.5 text-xs md:px-10">
         <span>
-          <span className="text-rosso">Perché Calcio Classics</span> · Authentizitätsgarantie
+          <span className="text-rosso">{trust.eyebrow}</span> · {trust.label}
         </span>
-        {TICKER.map((item) => (
+        {trust.ticker.map((item) => (
           <span key={item} className="hidden items-center gap-6 whitespace-nowrap lg:flex">
             <span aria-hidden>◆</span>
             {item}
@@ -24,7 +18,7 @@ const TrustBanner = () => {
         ))}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4">
-        {FEATURES.map((feature, index) => (
+        {trust.features.map((feature, index) => (
           <div
             key={feature.title}
             className={`px-4 pb-10 pt-8 md:px-10 md:pb-14 md:pt-11 ${index > 0 ? "md:border-l md:border-avorio/35" : ""} ${index % 2 === 1 ? "border-l border-avorio/35 md:border-l" : ""}`}

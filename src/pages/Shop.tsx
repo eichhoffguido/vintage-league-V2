@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import TrustBanner from "@/components/TrustBanner";
 import JerseyCard from "@/components/JerseyCard";
 import { JerseyCardSkeleton } from "@/components/JerseyCardSkeleton";
@@ -33,6 +34,7 @@ const fetchJerseys = async () => {
 };
 
 const Shop = () => {
+  const page = useSiteContent("shop");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -76,10 +78,9 @@ const Shop = () => {
       {/* Seitenkopf: schwarzes Band (Hell/Dunkel-Rhythmus, Skill cc-design §5.1) */}
       <PageHeader
         tone="nero"
-        eyebrow="Il mercato · Marktplatz"
-        title="Der"
-        hollowWord="Marktplatz."
-        subline="Authentische Trikots von Sammlern für Sammler — jedes Stück geprüft und fair eingeordnet."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
       />
 
       {/* Main Content */}

@@ -7,6 +7,7 @@ import { useCreateTradeRating, useUpdateTradeStatus, useConfirmTradeCompletion }
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import TradeShirts from "@/components/trade/TradeShirts";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,6 +63,7 @@ const TradeSide = ({ label, jersey }: { label: string; jersey: any }) => {
 };
 
 const Trades = () => {
+  const page = useSiteContent("trades");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -294,10 +296,9 @@ const Trades = () => {
       {/* Seitenkopf nero mit Trikot-Silhouetten (Skill cc-design §5.1) */}
       <PageHeader
         tone="nero"
-        eyebrow="Lo scambio · Tausch-Anfragen"
-        title="Meine Tausch-"
-        hollowWord="Anfragen."
-        subline="Eingehende und ausgehende Anfragen — annehmen, abschließen, bewerten."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
         aside={<TradeShirts />}
       >
         <Button variant="outline" className="border-avorio text-avorio hover:bg-avorio hover:text-nero" onClick={() => navigate("/trade")}>

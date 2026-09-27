@@ -14,6 +14,8 @@ import ImageUploader from "@/components/ImageUploader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/layout/PageHeader";
+import Headline from "@/components/brand/Headline";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -50,6 +52,7 @@ const ACCENTS = [
 const accentFor = (id: string) => ACCENTS[[...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % ACCENTS.length];
 
 const Community = () => {
+  const page = useSiteContent("community");
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -199,10 +202,9 @@ const Community = () => {
       {/* Seitenkopf: schwarzes Band (Skill cc-design §5.1) */}
       <PageHeader
         tone="nero"
-        eyebrow="La comunità · Community"
-        title="Wissen"
-        hollowWord="teilen."
-        subline="Tipps zur Restaurierung, Pflege und Lagerung — von Sammlern für Sammler."
+        eyebrow={page.header.eyebrow}
+        headline={page.header.headline}
+        subline={page.header.subline}
       >
         <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetDialog(); setDialogOpen(open); }}>
           <DialogTrigger asChild>
@@ -258,12 +260,12 @@ const Community = () => {
               <div className="relative overflow-hidden border-2 border-nero bg-card p-6 md:p-10">
                 <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-giallo md:-right-14 md:-top-14 md:h-44 md:w-44" />
                 <div className="relative max-w-2xl">
-                  <div className="cap text-[11px] text-rosso">Solo membri · Nur für Mitglieder</div>
+                  <div className="cap text-[11px] text-rosso">{page.teaser.eyebrow}</div>
                   <h2 className="display mt-3 text-[32px] md:text-[52px]">
-                    Mitreden, <span className="hollow-dark">mitsammeln.</span>
+                    <Headline text={page.teaser.headline} />
                   </h2>
                   <p className="mt-4 text-base text-muted-foreground md:text-lg">
-                    Die Community ist für angemeldete Sammler.{" "}
+                    {page.teaser.text}{" "}
                     {postCount ? (
                       <>Schon <span className="num text-lg text-nero">{postCount}</span> Beiträge zu Restaurierung, Pflege, Echtheit und Fundstücken warten auf dich.</>
                     ) : (
@@ -278,7 +280,7 @@ const Community = () => {
                     </div>
                   )}
                   <Button className="mt-8" onClick={() => navigate(authPath("/community"))}>
-                    Anmelden und mitlesen →
+                    {page.teaser.cta}
                   </Button>
                 </div>
               </div>

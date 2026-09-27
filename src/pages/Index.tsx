@@ -32,32 +32,17 @@ const fetchFeaturedJerseys = async () => {
   return data || [];
 };
 
-const fetchStats = async (): Promise<HomeStats> => {
-  const [jerseysRes, profilesRes, tradesRes] = await Promise.all([
-    supabase
-      .from("user_jerseys")
-      .select("*", { count: "exact", head: true })
-      .eq("verification_status", "verified")
-      .is("deleted_at", null),
-    supabase.from("profiles").select("*", { count: "exact", head: true }).is("deleted_at", null),
-    // Hinweis: Gäste dürfen trade_requests nicht lesen → Zahl nur für eingeloggte Nutzer (öffentliche Kennzahl folgt mit CC-C1)
-    supabase.from("trade_requests").select("*", { count: "exact", head: true }).eq("status", "completed"),
-  ]);
+interface PublicStats extends HomeStats {
+  tradeable: number;
+}
 
-  return {
-    jerseys: jerseysRes.count || 0,
-    profiles: profilesRes.count || 0,
-    trades: tradesRes.count || 0,
-  };
-};
-
-const fetchTradeCount = async (): Promise<number> => {
-  const { count } = await supabase
-    .from("user_jerseys")
-    .select("*", { count: "exact", head: true })
-    .in("listing_type", ["both", "trade_only"])
-    .is("deleted_at", null);
-  return count || 0;
+// Öffentliche Kennzahlen (CC-C1: homepage_stats) — funktioniert auch für Gäste, liefert nur Zahlen.
+const fetchStats = async (): Promise<PublicStats> => {
+  const { data, error } = await supabase.rpc("homepage_stats");
+  if (error) throw error;
+  const n = (v: unknown) => (typeof v === "number" ? v : 0);
+  const d = (data ?? {}) as Record<string, unknown>;
+  return { jerseys: n(d.jerseys), profiles: n(d.profiles), trades: n(d.trades), tradeable: n(d.tradeable) };
 };
 
 const Index = () => {
@@ -69,7 +54,7 @@ const Index = () => {
 
   const { data: jerseys = [], isLoading } = useQuery({ queryKey: ["featured-jerseys", FEATURED_POOL], queryFn: fetchFeaturedJerseys });
   const { data: stats } = useQuery({ queryKey: ["homepage-stats"], queryFn: fetchStats });
-  const { data: tradeCount } = useQuery({ queryKey: ["homepage-trade-count"], queryFn: fetchTradeCount });
+  const tradeCount = stats?.tradeable;
 
   useEffect(() => {
     if (location.hash !== "#faq") return;

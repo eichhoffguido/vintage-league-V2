@@ -45,8 +45,7 @@ const AlbumSection = ({ content, jerseys, loading, onQuickBuy }: AlbumSectionPro
     <section className="container mx-auto px-4 pt-14 md:px-10 md:pt-[104px]">
       <SectionHeader
         eyebrow={content.eyebrow}
-        title={content.title}
-        hollowWord={content.hollowWord}
+        headline={content.headline}
         subline={content.subline}
         link={{ label: content.allLabel, to: allLink }}
       />

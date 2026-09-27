@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       asks: {
@@ -57,33 +82,33 @@ export type Database = {
       }
       bid_ask_matches: {
         Row: {
-          ask_id: string
-          bid_id: string
+          ask_id: string | null
+          bid_id: string | null
           created_at: string
           id: string
-          jersey_id: string
+          jersey_id: string | null
           matched_price_cents: number
           status: string
           stripe_payment_intent_id: string | null
           updated_at: string
         }
         Insert: {
-          ask_id: string
-          bid_id: string
+          ask_id?: string | null
+          bid_id?: string | null
           created_at?: string
           id?: string
-          jersey_id: string
+          jersey_id?: string | null
           matched_price_cents: number
           status?: string
           stripe_payment_intent_id?: string | null
           updated_at?: string
         }
         Update: {
-          ask_id?: string
-          bid_id?: string
+          ask_id?: string | null
+          bid_id?: string | null
           created_at?: string
           id?: string
-          jersey_id?: string
+          jersey_id?: string | null
           matched_price_cents?: number
           status?: string
           stripe_payment_intent_id?: string | null
@@ -153,6 +178,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_active: boolean
+          question: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean
+          question: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_active?: boolean
+          question?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       forum_categories: {
         Row: {
@@ -249,6 +307,13 @@ export type Database = {
             referencedRelation: "forum_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "forum_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       forum_posts: {
@@ -297,6 +362,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hero_slides: {
+        Row: {
+          caption: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          image_alt: string
+          image_path: string | null
+          is_active: boolean
+          label: string
+          sort: number
+          stamp: string[]
+          subline: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          image_alt?: string
+          image_path?: string | null
+          is_active?: boolean
+          label?: string
+          sort?: number
+          stamp?: string[]
+          subline?: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          image_alt?: string
+          image_path?: string | null
+          is_active?: boolean
+          label?: string
+          sort?: number
+          stamp?: string[]
+          subline?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       jersey_favorites: {
         Row: {
@@ -369,41 +479,319 @@ export type Database = {
         }
         Relationships: []
       }
+      jersey_sold_notifications: {
+        Row: {
+          amount_cents: number
+          buyer_id: string | null
+          created_at: string
+          id: string
+          jersey_id: string
+          read_at: string | null
+          recipient_id: string
+          type: string
+        }
+        Insert: {
+          amount_cents: number
+          buyer_id?: string | null
+          created_at?: string
+          id?: string
+          jersey_id: string
+          read_at?: string | null
+          recipient_id: string
+          type?: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_id?: string | null
+          created_at?: string
+          id?: string
+          jersey_id?: string
+          read_at?: string | null
+          recipient_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jersey_sold_notifications_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          average_rating: number | null
           bio: string | null
           created_at: string
           deleted_at: string | null
           display_name: string | null
           favorite_team: string | null
           id: string
+          is_admin: boolean
           onboarding_completed: boolean
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           favorite_team?: string | null
           id: string
+          is_admin?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           created_at?: string
           deleted_at?: string | null
           display_name?: string | null
           favorite_team?: string | null
           id?: string
+          is_admin?: boolean
           onboarding_completed?: boolean
           updated_at?: string
         }
         Relationships: []
+      }
+      sales_history: {
+        Row: {
+          buyer_user_id: string | null
+          condition: number
+          id: string
+          jersey_id: string | null
+          league: string
+          sale_price_cents: number
+          seller_user_id: string | null
+          sold_at: string
+          team: string
+          trade_request_id: string | null
+          year: string
+        }
+        Insert: {
+          buyer_user_id?: string | null
+          condition: number
+          id?: string
+          jersey_id?: string | null
+          league: string
+          sale_price_cents: number
+          seller_user_id?: string | null
+          sold_at?: string
+          team: string
+          trade_request_id?: string | null
+          year: string
+        }
+        Update: {
+          buyer_user_id?: string | null
+          condition?: number
+          id?: string
+          jersey_id?: string | null
+          league?: string
+          sale_price_cents?: number
+          seller_user_id?: string | null
+          sold_at?: string
+          team?: string
+          trade_request_id?: string | null
+          year?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_history_jersey_id_fkey"
+            columns: ["jersey_id"]
+            isOneToOne: false
+            referencedRelation: "user_jerseys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_history_trade_request_id_fkey"
+            columns: ["trade_request_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_payout_accounts: {
+        Row: {
+          charges_enabled: boolean
+          created_at: string
+          details_submitted: boolean
+          payouts_enabled: boolean
+          stripe_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          stripe_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          charges_enabled?: boolean
+          created_at?: string
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          stripe_account_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_payout_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_content: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      stripe_events: {
+        Row: {
+          error: string | null
+          id: string
+          livemode: boolean
+          processed_at: string | null
+          received_at: string
+          type: string
+        }
+        Insert: {
+          error?: string | null
+          id: string
+          livemode: boolean
+          processed_at?: string | null
+          received_at?: string
+          type: string
+        }
+        Update: {
+          error?: string | null
+          id?: string
+          livemode?: boolean
+          processed_at?: string | null
+          received_at?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      team_name_aliases: {
+        Row: {
+          alias: string
+          canonical_name: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          alias: string
+          canonical_name: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          alias?: string
+          canonical_name?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      trade_confirmations: {
+        Row: {
+          confirmed_at: string | null
+          id: string
+          trade_id: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          id?: string
+          trade_id: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          id?: string
+          trade_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_confirmations_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trade_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rated_user_id: string | null
+          rater_user_id: string | null
+          rating: number
+          trade_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id?: string | null
+          rater_user_id?: string | null
+          rating: number
+          trade_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rated_user_id?: string | null
+          rater_user_id?: string | null
+          rating?: number
+          trade_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_ratings_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trade_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       trade_requests: {
         Row: {
@@ -456,36 +844,51 @@ export type Database = {
       transactions: {
         Row: {
           amount_cents: number
-          buyer_id: string
+          buyer_id: string | null
+          checkout_expires_at: string | null
           created_at: string
           id: string
-          jersey_id: string
+          jersey_id: string | null
+          jersey_snapshot: Json | null
+          livemode: boolean
           platform_fee_cents: number
-          seller_id: string
+          seller_id: string | null
           status: string
+          stripe_payment_intent_id: string | null
           stripe_session_id: string
+          updated_at: string
         }
         Insert: {
           amount_cents: number
-          buyer_id: string
+          buyer_id?: string | null
+          checkout_expires_at?: string | null
           created_at?: string
           id?: string
-          jersey_id: string
+          jersey_id?: string | null
+          jersey_snapshot?: Json | null
+          livemode?: boolean
           platform_fee_cents: number
-          seller_id: string
+          seller_id?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
           stripe_session_id: string
+          updated_at?: string
         }
         Update: {
           amount_cents?: number
-          buyer_id?: string
+          buyer_id?: string | null
+          checkout_expires_at?: string | null
           created_at?: string
           id?: string
-          jersey_id?: string
+          jersey_id?: string | null
+          jersey_snapshot?: Json | null
+          livemode?: boolean
           platform_fee_cents?: number
-          seller_id?: string
+          seller_id?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
           stripe_session_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -508,6 +911,7 @@ export type Database = {
           image_url: string | null
           image_urls: string[]
           is_featured: boolean
+          last_sale_price_cents: number | null
           league: string
           listing_type: string | null
           name: string
@@ -532,6 +936,7 @@ export type Database = {
           image_url?: string | null
           image_urls?: string[]
           is_featured?: boolean
+          last_sale_price_cents?: number | null
           league?: string
           listing_type?: string | null
           name: string
@@ -556,6 +961,7 @@ export type Database = {
           image_url?: string | null
           image_urls?: string[]
           is_featured?: boolean
+          last_sale_price_cents?: number | null
           league?: string
           listing_type?: string | null
           name?: string
@@ -577,16 +983,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      community_post_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      soft_delete_user_jersey: {
-        Args: {
-          p_jersey_id: string
-        }
-        Returns: undefined
-      }
+      community_post_count: { Args: never; Returns: number }
+      delete_account_data: { Args: { p_user_id: string }; Returns: undefined }
       get_price_intelligence: {
         Args: {
           p_condition?: string
@@ -601,7 +999,30 @@ export type Database = {
           fair_value_min_cents: number
         }[]
       }
+      get_recent_sales_by_team_year: {
+        Args: { p_limit?: number; p_team: string; p_year: string }
+        Returns: {
+          condition: number
+          id: string
+          jersey_id: string
+          league: string
+          sale_price_cents: number
+          sold_at: string
+          team: string
+          year: string
+        }[]
+      }
+      homepage_stats: { Args: never; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
+      seller_can_receive_payments: {
+        Args: { p_seller: string }
+        Returns: boolean
+      }
+      soft_delete_user_jersey: {
+        Args: { p_jersey_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       trade_status: "pending" | "accepted" | "declined" | "completed"
@@ -621,12 +1042,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -650,11 +1071,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -675,11 +1096,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -700,11 +1121,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -717,11 +1138,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -731,6 +1152,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       trade_status: ["pending", "accepted", "declined", "completed"],

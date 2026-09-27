@@ -13,7 +13,7 @@ const CommunityBand = ({ content }: { content: HomeContent["community"] }) => (
       </div>
     </div>
     <div className="flex flex-col justify-between px-4 pb-10 pt-7 md:px-10 md:pb-16 md:pt-20 lg:order-1 lg:border-r-2 lg:border-nero lg:pr-12">
-      <SectionHeader eyebrow={content.eyebrow} title={content.title} hollowWord={content.hollowWord} subline={content.text} size="md" />
+      <SectionHeader eyebrow={content.eyebrow} headline={content.headline} subline={content.text} size="md" />
       <div className="mt-8 md:mt-10">
         <ul className="hidden md:block">
           {content.topics.map((topic) => (

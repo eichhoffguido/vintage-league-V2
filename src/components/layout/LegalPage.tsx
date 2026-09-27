@@ -11,7 +11,7 @@ interface LegalPageProps {
 
 /**
  * Gerüst für Rechtstexte (Impressum, Datenschutz): avorio-Kopf + verde Footer genügen (Skill cc-design §5.1).
- * Fließtext im prose-cc-Stil, Abschnitte durch 1-px-Linien getrennt.
+ * Fließtext im prose-cc-Stil, Abschnitte durch 1-px-Linien getrennt (<section> oder CMS-HTML mit h2).
  */
 const LegalPage = ({ title, subline, children }: LegalPageProps) => (
   <div className="flex min-h-screen flex-col bg-background">
@@ -19,7 +19,7 @@ const LegalPage = ({ title, subline, children }: LegalPageProps) => (
     <PageHeader tone="avorio" eyebrow="Note legali · Rechtliches" title={title} subline={subline} />
     <main className="flex-1">
       <div className="container mx-auto px-4 py-10 md:px-10 md:py-16">
-        <div className="prose prose-cc max-w-3xl space-y-8 [&_h2]:mb-4 [&_h2]:mt-0 [&_h2]:text-[21px] md:[&_h2]:text-2xl [&_section+section]:border-t [&_section+section]:border-nero [&_section+section]:pt-8">
+        <div className="prose prose-cc max-w-3xl space-y-8 [&_h2]:mb-4 [&_h2]:mt-0 [&_h2]:text-[21px] md:[&_h2]:text-2xl [&_section+section]:border-t [&_section+section]:border-nero [&_section+section]:pt-8 [&>div>h2:not(:first-child)]:mt-10 [&>div>h2:not(:first-child)]:border-t [&>div>h2:not(:first-child)]:border-nero [&>div>h2:not(:first-child)]:pt-8">
           {children}
         </div>
       </div>
