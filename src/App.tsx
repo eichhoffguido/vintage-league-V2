@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { retryAsync } from "@/utils/retry";
+import { takePostLoginPath } from "@/utils/postLoginRedirect";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
@@ -59,8 +60,9 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
 
           // If onboarding is complete, redirect to collection
           // Otherwise, redirect to onboarding
+          const next = takePostLoginPath();
           if (data?.onboarding_completed) {
-            navigate("/collection");
+            navigate(next ?? "/collection");
           } else {
             navigate("/onboarding");
           }

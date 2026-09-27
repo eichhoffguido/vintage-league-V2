@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { authPath } from "@/utils/postLoginRedirect";
 import type { Tables } from "@/integrations/supabase/types";
 import { authorName } from "@/utils/authorName";
 
@@ -49,7 +50,7 @@ const ACCENTS = [
 const accentFor = (id: string) => ACCENTS[[...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % ACCENTS.length];
 
 const Community = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -111,6 +112,19 @@ const Community = () => {
 
       return data.map((p) => ({ ...p, profiles: profileMap[p.user_id] || null, comment_count: countMap[p.id] || 0 }));
     },
+    // Beiträge nur für Mitglieder (RLS erlaubt Gästen kein Lesen, Migration 20260928100000)
+    enabled: !!user,
+  });
+
+  // Gäste sehen nur die Anzahl (öffentliche Funktion, keine Inhalte)
+  const { data: postCount } = useQuery({
+    queryKey: ["community-post-count"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("community_post_count");
+      if (error) throw error;
+      return data ?? 0;
+    },
+    enabled: !authLoading && !user,
   });
 
   const postIds = useMemo(() => postsRaw.map((p) => p.id), [postsRaw]);
@@ -192,7 +206,7 @@ const Community = () => {
       >
         <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetDialog(); setDialogOpen(open); }}>
           <DialogTrigger asChild>
-            <Button variant="light" onClick={() => { if (!user) navigate("/auth"); }}>
+            <Button variant="light" onClick={() => { if (!user) navigate(authPath("/community")); }}>
               <Plus className="h-4 w-4" /> Beitrag erstellen
             </Button>
           </DialogTrigger>
@@ -236,7 +250,43 @@ const Community = () => {
         </Dialog>
       </PageHeader>
 
-      {/* Werkzeugleiste + Beiträge */}
+      {!user ? (
+        /* Gäste: Mitglieder-Teaser statt Beiträgen */
+        <section className="py-10 md:py-16">
+          <div className="container mx-auto px-4 md:px-10">
+            {!authLoading && (
+              <div className="relative overflow-hidden border-2 border-nero bg-card p-6 md:p-10">
+                <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-giallo md:-right-14 md:-top-14 md:h-44 md:w-44" />
+                <div className="relative max-w-2xl">
+                  <div className="cap text-[11px] text-rosso">Solo membri · Nur für Mitglieder</div>
+                  <h2 className="display mt-3 text-[32px] md:text-[52px]">
+                    Mitreden, <span className="hollow-dark">mitsammeln.</span>
+                  </h2>
+                  <p className="mt-4 text-base text-muted-foreground md:text-lg">
+                    Die Community ist für angemeldete Sammler.{" "}
+                    {postCount ? (
+                      <>Schon <span className="num text-lg text-nero">{postCount}</span> Beiträge zu Restaurierung, Pflege, Echtheit und Fundstücken warten auf dich.</>
+                    ) : (
+                      "Tipps zu Restaurierung, Pflege und Echtheit warten auf dich."
+                    )}
+                  </p>
+                  {categories.length > 0 && (
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {categories.map((cat) => (
+                        <span key={cat.id} className={cn(TAG, "border-nero text-nero")}>{cat.name}</span>
+                      ))}
+                    </div>
+                  )}
+                  <Button className="mt-8" onClick={() => navigate(authPath("/community"))}>
+                    Anmelden und mitlesen →
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      ) : (
+      /* Werkzeugleiste + Beiträge */
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 md:px-10">
           {/* Suche · Sortierung (wie Marktplatz) */}
@@ -379,6 +429,7 @@ const Community = () => {
           )}
         </div>
       </section>
+      )}
 
       <Footer />
     </div>

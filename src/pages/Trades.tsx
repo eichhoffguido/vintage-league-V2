@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import { authPath } from "@/utils/postLoginRedirect";
 
 const TAG = "inline-flex items-center border px-[7px] py-1 font-body text-[10px] font-medium uppercase leading-none tracking-[0.14em]";
 const CHIP = "cap flex shrink-0 items-center gap-2 border border-nero px-3.5 py-2.5 text-[11px] transition-colors md:text-xs";
@@ -73,7 +74,7 @@ const Trades = () => {
   const confirmCompletion = useConfirmTradeCompletion();
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/auth");
+    if (!authLoading && !user) navigate(authPath("/trades"));
   }, [authLoading, user, navigate]);
 
   const { data: trades = [], isLoading } = useQuery({
