@@ -74,7 +74,7 @@ export const HOME_CONTENT: HomeContent = {
       {
         label: "Maglie",
         subline:
-          "Authentische Vintage-Trikots kaufen, verkaufen und tauschen. Jedes Stück geprüft, jeder Preis fair eingeordnet — wie ein Stickeralbum, nur mit echten Stücken.",
+          "Authentische Vintage-Trikots kaufen und verkaufen. Jedes Stück geprüft, jeder Preis fair eingeordnet — wie ein Stickeralbum, nur mit echten Stücken.",
         image: heroMaglia,
         imageAlt: "Gestreiftes Vintage-Trikot auf einem Holztisch",
         caption: "Maglia N° 001 · Anni '70",
@@ -109,7 +109,7 @@ export const HOME_CONTENT: HomeContent = {
   trust: {
     eyebrow: "Perché Calcio Classics",
     label: "Authentizitätsgarantie",
-    ticker: ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Tauschen", "Hosting in der EU"],
+    ticker: ["Jedes Stück geprüft", "22.000+ Referenzpreise", "Kaufen · Bieten · Sammeln", "Hosting in der EU"],
     features: [
       { title: "Echtheitszertifikat", description: "Jedes Stück wird von Experten geprüft und zertifiziert." },
       { title: "Sammlerstücke", description: "Kuratierte Auswahl seltener und historischer Trikots." },
@@ -165,17 +165,12 @@ export const HOME_CONTENT: HomeContent = {
       {
         question: "Was ist Calcio Classics?",
         answer:
-          "Ein Marktplatz von Sammlern für Sammler: authentische Vintage-Fußballtrikots kaufen, verkaufen, tauschen — mit Community und Preistransparenz.",
+          "Ein Marktplatz von Sammlern für Sammler: authentische Vintage-Fußballtrikots kaufen und verkaufen — mit Community und Preistransparenz.",
       },
       {
         question: "Wie funktioniert das Kaufen?",
         answer:
           "Trikot finden, „Sofort kaufen“ oder ein Gebot abgeben. Der Verkäufer nimmt an — bezahlt wird sicher über unseren Zahlungspartner.",
-      },
-      {
-        question: "Wie funktioniert das Tauschen?",
-        answer:
-          "Trikots mit „Tausch möglich“ kannst du gegen ein Trikot aus deiner Sammlung anfragen. Der Besitzer entscheidet.",
       },
       {
         question: "Was bedeutet die Prüfung?",

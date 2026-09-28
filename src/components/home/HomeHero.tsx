@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { HomeContent } from "@/content/home";
 import { cn } from "@/lib/utils";
 import Headline from "@/components/brand/Headline";
+import { FEATURES } from "@/config/features";
 
 export interface HomeStats {
   jerseys: number;
@@ -37,7 +38,7 @@ const HeroActions = ({ content, stats, onSell, tone }: HomeHeroProps & { tone: "
     ? ([
         [stats.jerseys, content.stats.jerseys],
         [stats.profiles, content.stats.profiles],
-        [stats.trades, content.stats.trades],
+        ...(FEATURES.trade ? ([[stats.trades, content.stats.trades]] as const) : []),
       ] as const).filter(([value]) => value > 0)
     : [];
 

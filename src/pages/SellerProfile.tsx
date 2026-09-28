@@ -15,6 +15,7 @@ import { AlertCircle, Shirt } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { getPrimaryImage } from "@/utils/jerseyImage";
 import { FavoriteTeamBadge } from "@/components/FavoriteTeamBadge";
+import { FEATURES } from "@/config/features";
 
 type ProfileData = Tables<"profiles">;
 type JerseyData = Tables<"user_jerseys">;
@@ -78,7 +79,8 @@ const SellerProfile = () => {
         .from("user_jerseys")
         .select("*")
         .eq("user_id", userId!)
-        .or("available_for_trade.eq.true,sale_price_cents.not.is.null")
+        // Ohne Tausch (src/config/features.ts) nur Trikots mit Verkaufspreis
+        .or(FEATURES.trade ? "available_for_trade.eq.true,sale_price_cents.not.is.null" : "sale_price_cents.not.is.null")
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
 
@@ -242,7 +244,7 @@ const SellerProfile = () => {
             </dd>
           </div>
           <div className="border-b border-l border-avorio/35 py-4 pl-4 md:border-b-0 md:py-5">
-            <dt className="cap text-[11px] text-avorio/70">Abgeschlossene Tausche</dt>
+            <dt className="cap text-[11px] text-avorio/70">{FEATURES.trade ? "Abgeschlossene Tausche" : "Verkäufe"}</dt>
             <dd className="num mt-2 text-[30px] leading-none md:text-[38px]">{completedSalesCount}</dd>
           </div>
           <div className="py-4 pr-3 md:border-l md:border-avorio/35 md:py-5 md:pl-4">

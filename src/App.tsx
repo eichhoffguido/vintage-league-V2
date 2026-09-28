@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,6 +34,7 @@ import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import MyBids from "./pages/MyBids.tsx";
 import Orders from "./pages/Orders.tsx";
+import { FEATURES } from "@/config/features";
 
 const queryClient = new QueryClient();
 
@@ -128,8 +129,9 @@ const App = () => (
               <Route path="/jersey/:id" element={<JerseyDetail />} />
               <Route path="/success" element={<PaymentSuccess />} />
               <Route path="/seller/:userId" element={<SellerProfile />} />
-              <Route path="/trade" element={<Trade />} />
-              <Route path="/trades" element={<Trades />} />
+              {/* Tausch vorerst aus (src/config/features.ts) → alte Links führen in den Shop */}
+              <Route path="/trade" element={FEATURES.trade ? <Trade /> : <Navigate to="/shop" replace />} />
+              <Route path="/trades" element={FEATURES.trade ? <Trades /> : <Navigate to="/shop" replace />} />
               <Route path="/community" element={<Community />} />
               <Route path="/community/:id" element={<CommunityPost />} />
               <Route path="/my-bids" element={<MyBids />} />

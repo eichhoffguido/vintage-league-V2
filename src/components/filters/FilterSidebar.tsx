@@ -8,6 +8,7 @@ import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
 import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
 import { CONDITION_OPTIONS as CONDITIONS } from "@/data/condition";
+import { FEATURES } from "@/config/features";
 
 interface FilterSidebarProps {
   filters: FilterState;
@@ -242,18 +243,20 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Tausch">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="sidebar-tradeable"
-              checked={filters.tradeable}
-              onCheckedChange={handleTradeableChange}
-            />
-            <Label htmlFor="sidebar-tradeable" className="cursor-pointer text-sm flex-1">
-              Tauschbar
-            </Label>
-          </div>
-        </CollapsibleSection>
+        {FEATURES.trade && (
+          <CollapsibleSection title="Tausch">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="sidebar-tradeable"
+                checked={filters.tradeable}
+                onCheckedChange={handleTradeableChange}
+              />
+              <Label htmlFor="sidebar-tradeable" className="cursor-pointer text-sm flex-1">
+                Tauschbar
+              </Label>
+            </div>
+          </CollapsibleSection>
+        )}
       </div>
     </aside>
   );

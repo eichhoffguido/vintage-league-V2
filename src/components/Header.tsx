@@ -18,6 +18,7 @@ import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import { HEADER_CATEGORY_CHIPS, categoryToShopUrl, isCategoryChipActive, isJustDroppedActive } from "@/data/categoryFilters";
 import { parseFiltersFromParams } from "@/hooks/useFilterState";
 import { cn } from "@/lib/utils";
+import { FEATURES } from "@/config/features";
 
 const JUST_DROPPED_CHIP = { label: "Just Dropped", url: "/shop?sort=newest" };
 
@@ -106,7 +107,7 @@ const Header = () => {
           {/* Desktop-Navigation */}
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Hauptnavigation">
             <Link to="/shop" className={NAV_LINK}>Marktplatz</Link>
-            <Link to="/shop?tradeable=true" className={NAV_LINK}>Tauschen</Link>
+            {FEATURES.trade && <Link to="/shop?tradeable=true" className={NAV_LINK}>Tauschen</Link>}
             <Link to="/community" className={NAV_LINK}>Community</Link>
             {user && <Link to="/collection" className={NAV_LINK}>Sammlung</Link>}
             <Link to="/#faq" className={NAV_LINK}>FAQ</Link>
@@ -266,7 +267,7 @@ const Header = () => {
           <nav className="flex flex-col pt-2" aria-label="Mobile Navigation">
             {[
               { to: "/shop", label: "Marktplatz" },
-              { to: "/shop?tradeable=true", label: "Tauschen" },
+              ...(FEATURES.trade ? [{ to: "/shop?tradeable=true", label: "Tauschen" }] : []),
               { to: "/community", label: "Community" },
               ...(user
                 ? [

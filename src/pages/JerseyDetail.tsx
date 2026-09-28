@@ -24,6 +24,7 @@ import { getPrimaryImage } from "@/utils/jerseyImage";
 import { getAgeTier, getVintageBonus } from "@/utils/priceIntelligence";
 import { cn } from "@/lib/utils";
 import { startCheckout } from "@/lib/checkout";
+import { FEATURES } from "@/config/features";
 
 type JerseyWithProfile = Tables<"user_jerseys"> & {
   profiles?: Tables<"profiles"> | null;
@@ -294,7 +295,7 @@ const JerseyDetail = () => {
                         <ShieldCheck className="h-3.5 w-3.5" /> Verificato
                       </span>
                     )}
-                    {jersey.available_for_trade && !isSold && (
+                    {FEATURES.trade && jersey.available_for_trade && !isSold && (
                       <span className="inline-flex border border-rosso bg-card px-2 py-1 font-body text-[11px] font-medium uppercase leading-none tracking-[0.14em] text-rosso">
                         Tausch möglich
                       </span>
@@ -418,12 +419,12 @@ const JerseyDetail = () => {
                     >
                       Gebot abgeben
                     </Button>
-                    {jersey.available_for_trade && (
+                    {FEATURES.trade && jersey.available_for_trade && (
                       <Button variant="outline" size="lg" className="w-full border-rosso text-rosso hover:bg-rosso hover:text-avorio" onClick={() => navigate(user ? `/trade?jersey=${jersey.id}` : "/auth")}>
                         ⇄ Tausch vorschlagen
                       </Button>
                     )}
-                    {!jersey.sale_price_cents && !jersey.available_for_trade && (
+                    {!jersey.sale_price_cents && (!FEATURES.trade || !jersey.available_for_trade) && (
                       <p className="py-2 text-center text-sm text-muted-foreground">Dieses Trikot ist derzeit nicht verfügbar</p>
                     )}
                   </>

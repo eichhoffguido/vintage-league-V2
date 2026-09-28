@@ -11,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { FEATURES } from "@/config/features";
 
 export interface DeleteJerseyTarget {
   id: string;
@@ -51,7 +52,7 @@ const DeleteJerseyDialog = ({ jersey, onClose, onDeleted }: DeleteJerseyDialogPr
           <AlertDialogTitle>Trikot wirklich entfernen?</AlertDialogTitle>
           <AlertDialogDescription>
             {jersey && <>„{jersey.team} {jersey.name}“ verschwindet aus deiner Sammlung und vom Marktplatz. </>}
-            Offene Gebote auf dieses Trikot werden zurückgezogen, offene Tausch-Anfragen abgelehnt.
+            Offene Gebote auf dieses Trikot werden zurückgezogen{FEATURES.trade ? ", offene Tausch-Anfragen abgelehnt" : ""}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

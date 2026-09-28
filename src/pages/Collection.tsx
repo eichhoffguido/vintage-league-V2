@@ -28,6 +28,21 @@ import { useEffect } from "react";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { getPrimaryImage } from "@/utils/jerseyImage";
 import DeleteJerseyDialog, { type DeleteJerseyTarget } from "@/components/DeleteJerseyDialog";
+import { FEATURES } from "@/config/features";
+
+// Einstell-Optionen: ohne Tausch (src/config/features.ts) „Nur Sammlung“ statt „Zum Tauschen“ / „Beides“
+type ListingChoice = "trade" | "sell" | "both" | "collection";
+const LISTING_OPTIONS: { value: ListingChoice; label: string }[] = FEATURES.trade
+  ? [
+      { value: "trade", label: "Zum Tauschen" },
+      { value: "sell", label: "Zum Verkaufen" },
+      { value: "both", label: "Beides" },
+    ]
+  : [
+      { value: "collection", label: "Nur Sammlung" },
+      { value: "sell", label: "Zum Verkaufen" },
+    ];
+const DEFAULT_LISTING_TYPE: ListingChoice = FEATURES.trade ? "trade" : "collection";
 
 // Rahmenfarbe rotiert rein dekorativ, stabil pro Trikot (Skill cc-design §2, wie Figurina)
 const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
@@ -58,7 +73,7 @@ const Collection = () => {
   const [form, setForm] = useState({
     name: "", team: "", league: "", year: "", condition: "3", size: "M",
     available_for_trade: false,
-    listingType: "trade" as "trade" | "sell" | "both",
+    listingType: DEFAULT_LISTING_TYPE as ListingChoice,
     description: "",
     sale_price: "",
   });
@@ -99,14 +114,15 @@ const Collection = () => {
   const addJersey = useMutation({
     mutationFn: async () => {
       const isForSale = form.listingType === "sell" || form.listingType === "both";
-      const availableForTrade = form.listingType === "trade" || form.listingType === "both";
+      const availableForTrade = FEATURES.trade && (form.listingType === "trade" || form.listingType === "both");
       const salePriceCents = isForSale ? eurosToCents(form.sale_price) : null;
 
       // Map listingType to database listing_type enum
-      const listingTypeMap: Record<"trade" | "sell" | "both", "trade_only" | "buy_now" | "both"> = {
+      const listingTypeMap: Record<ListingChoice, "trade_only" | "buy_now" | "both" | "unlisted"> = {
         trade: "trade_only",
         sell: "buy_now",
         both: "both",
+        collection: "unlisted",
       };
 
       const { error } = await supabase.from("user_jerseys").insert({
@@ -128,7 +144,7 @@ const Collection = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-jerseys"] });
       setDialogOpen(false);
-      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", available_for_trade: false, listingType: "trade", description: "", sale_price: "" });
+      setForm({ name: "", team: "", league: "", year: "", condition: "3", size: "M", available_for_trade: false, listingType: DEFAULT_LISTING_TYPE, description: "", sale_price: "" });
       setImageUrls([]);
       toast.success("Trikot hinzugefügt!");
     },
@@ -396,12 +412,8 @@ const Collection = () => {
               <div className="space-y-4 border-t border-nero pt-5">
                 <div className="space-y-2">
                   <Label className={LABEL}>Listingtyp</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { value: "trade" as const, label: "Zum Tauschen" },
-                      { value: "sell" as const, label: "Zum Verkaufen" },
-                      { value: "both" as const, label: "Beides" },
-                    ].map((option) => (
+                  <div className={cn("grid gap-2", LISTING_OPTIONS.length === 3 ? "grid-cols-3" : "grid-cols-2")}>
+                    {LISTING_OPTIONS.map((option) => (
                       <Button
                         key={option.value}
                         type="button"
@@ -529,7 +541,7 @@ const Collection = () => {
                       {/* 5 · Status-Tags */}
                       <div className="flex flex-wrap gap-1">
                         {!!jersey.sale_price_cents && <span className={cn(TAG, "border-nero text-nero")}>Verkauf</span>}
-                        {jersey.available_for_trade && <span className={cn(TAG, "border-rosso text-rosso")}>Tausch</span>}
+                        {FEATURES.trade && jersey.available_for_trade && <span className={cn(TAG, "border-rosso text-rosso")}>Tausch</span>}
                         {jersey.verification_status === "verified" && (
                           <span className={cn(TAG, "gap-1 border-verde text-verde")}>
                             <ShieldCheck className="h-3 w-3" /> Verifiziert
@@ -555,23 +567,25 @@ const Collection = () => {
                             <span className="num text-[20px] leading-none md:text-[24px]">{formatEuros(jersey.sale_price_cents)}</span>
                           </div>
                         )}
-                        <div
-                          className="flex min-h-11 items-center gap-2"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Switch
-                            checked={jersey.available_for_trade}
-                            onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
-                            aria-label="Zum Tausch anbieten"
-                          />
-                          <span className="cap text-[10px] leading-tight text-muted-foreground">
-                            {jersey.available_for_trade ? (
-                              <span className="flex items-center gap-1 text-rosso">
-                                <ArrowLeftRight className="h-3 w-3" /> Im Tausch
-                              </span>
-                            ) : "Zum Tausch anbieten"}
-                          </span>
-                        </div>
+                        {FEATURES.trade && (
+                          <div
+                            className="flex min-h-11 items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Switch
+                              checked={jersey.available_for_trade}
+                              onCheckedChange={(v) => toggleTrade.mutate({ id: jersey.id, available: v })}
+                              aria-label="Zum Tausch anbieten"
+                            />
+                            <span className="cap text-[10px] leading-tight text-muted-foreground">
+                              {jersey.available_for_trade ? (
+                                <span className="flex items-center gap-1 text-rosso">
+                                  <ArrowLeftRight className="h-3 w-3" /> Im Tausch
+                                </span>
+                              ) : "Zum Tausch anbieten"}
+                            </span>
+                          </div>
+                        )}
                         <div
                           className="flex min-h-11 items-center gap-2"
                           onClick={(e) => e.stopPropagation()}

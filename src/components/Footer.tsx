@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Monogram } from "@/components/brand/Logo";
 import { categoryToShopUrl } from "@/data/categoryFilters";
 import { useLegalContent, useSiteContent } from "@/hooks/useSiteContent";
+import { FEATURES } from "@/config/features";
 
 type FooterLink = { label: string; to?: string; href?: string };
 
@@ -23,8 +24,12 @@ const buildColumns = (instagram: { handle: string; url: string }, hasTerms: bool
   {
     title: "Sammler",
     links: [
-      { label: "Tauschbörse", to: "/shop?tradeable=true" },
-      { label: "Meine Tausch-Anfragen", to: "/trades" },
+      ...(FEATURES.trade
+        ? [
+            { label: "Tauschbörse", to: "/shop?tradeable=true" },
+            { label: "Meine Tausch-Anfragen", to: "/trades" },
+          ]
+        : []),
       { label: "Meine Sammlung", to: "/collection" },
       { label: "Mein Profil", to: "/profile" },
       { label: "Community", to: "/community" },

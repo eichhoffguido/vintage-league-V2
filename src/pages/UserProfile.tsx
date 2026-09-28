@@ -29,6 +29,7 @@ import { ProfilePageSkeleton } from "@/components/ProfilePageSkeleton";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import DeleteJerseyDialog, { type DeleteJerseyTarget } from "@/components/DeleteJerseyDialog";
 import DeleteAccountSection from "@/components/profile/DeleteAccountSection";
+import { FEATURES } from "@/config/features";
 
 // Figurina-Optik für die eigene Sammlung (Skill cc-design §6). Rahmenfarbe rein dekorativ, stabil pro Trikot.
 const FRAME_COLORS = ["border-verde", "border-azzurro", "border-giallo", "border-rosso"] as const;
@@ -203,7 +204,7 @@ const UserProfile = () => {
   const stats = [
     { label: "Trikots in Sammlung", value: String(jerseys.length) },
     { label: "Gesamtwert", value: formatEuros(totalValue) },
-    { label: "Zum Tausch verfügbar", value: String(jerseys.filter(j => j.available_for_trade).length) },
+    ...(FEATURES.trade ? [{ label: "Zum Tausch verfügbar", value: String(jerseys.filter(j => j.available_for_trade).length) }] : []),
   ];
 
   return (
@@ -455,7 +456,7 @@ const UserProfile = () => {
                   {jersey.condition}/5 · {conditionLabels[jersey.condition]}
                 </div>
 
-                {jersey.available_for_trade && (
+                {FEATURES.trade && jersey.available_for_trade && (
                   <div className="flex flex-wrap gap-1">
                     <span className={`${TAG} gap-1 border-rosso text-rosso`}>
                       <ArrowLeftRight className="h-3 w-3" /> Tauschbar
@@ -531,7 +532,7 @@ const UserProfile = () => {
 
                   {/* Action Buttons */}
                   <div className="space-y-3">
-                    {selectedJersey.available_for_trade ? (
+                    {FEATURES.trade && selectedJersey.available_for_trade ? (
                       <Badge variant="tag-rosso" className="w-full justify-center py-3.5 text-[11px]">
                         <ArrowLeftRight className="mr-1 h-4 w-4" /> Im Tausch
                       </Badge>

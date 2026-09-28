@@ -20,12 +20,14 @@ import { FilterSidebar } from "@/components/filters/FilterSidebar";
 import { FilterDrawer } from "@/components/filters/FilterDrawer";
 import { ActiveFilterChips } from "@/components/filters/ActiveFilterChips";
 import { startCheckout } from "@/lib/checkout";
+import { FEATURES } from "@/config/features";
 
 const fetchJerseys = async () => {
   const { data, error } = await supabase
     .from("user_jerseys")
     .select("*")
-    .in("listing_type", ["buy_now", "both", "trade_only"])
+    // „Nur Tausch“ nur, solange der Tausch eingeschaltet ist (src/config/features.ts)
+    .in("listing_type", FEATURES.trade ? ["buy_now", "both", "trade_only"] : ["buy_now", "both"])
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
