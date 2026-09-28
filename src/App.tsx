@@ -10,6 +10,7 @@ import { retryAsync } from "@/utils/retry";
 import { takePostLoginPath } from "@/utils/postLoginRedirect";
 import { AUTH_MESSAGES, authErrorFromUrl } from "@/lib/authErrors";
 import Index from "./pages/Index.tsx";
+import RouteSeo from "@/components/RouteSeo";
 import Auth from "./pages/Auth.tsx";
 import AuthReset from "./pages/AuthReset.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
@@ -111,6 +112,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthLinkErrorRedirect />
+          <RouteSeo />
           <ProfileGuard>
             <Routes>
               <Route path="/" element={<Index />} />
