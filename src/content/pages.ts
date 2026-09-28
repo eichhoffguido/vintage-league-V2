@@ -23,6 +23,12 @@ export interface AuthContent {
   points: string[];
   formEyebrow: string;
   formTitle: string;
+  /** Tab „Registrieren“ (CC-D2) */
+  signup: { eyebrow: string; headline: string; formEyebrow: string; formTitle: string };
+  /** Nach der Registrierung / nach „Passwort vergessen“ */
+  checkMail: { headline: string; text: string; resetText: string };
+  /** Seite /auth/reset — neues Passwort setzen */
+  reset: { eyebrow: string; headline: string; text: string };
 }
 export interface OnboardingContent {
   header: { eyebrow: string; headline: string };
@@ -98,6 +104,22 @@ export const AUTH_CONTENT: AuthContent = {
   ],
   formEyebrow: "Accesso · Login",
   formTitle: "Melde dich an, um deine Sammlung zu verwalten.",
+  signup: {
+    eyebrow: "Benvenuto · Willkommen",
+    headline: "Willkommen\nim *Album.*",
+    formEyebrow: "Registrazione · Registrieren",
+    formTitle: "Leg dein Konto an und starte dein Album.",
+  },
+  checkMail: {
+    headline: "Schau in dein Postfach.",
+    text: "Wir haben dir einen Link geschickt. Klick darauf, um deine E-Mail-Adresse zu bestätigen — danach geht es direkt los.",
+    resetText: "Falls ein Konto mit dieser Adresse existiert, haben wir dir einen Link für ein neues Passwort geschickt.",
+  },
+  reset: {
+    eyebrow: "Sicurezza · Passwort",
+    headline: "Neues\n*Passwort.*",
+    text: "Wähle ein neues Passwort für dein Konto. Danach bist du direkt angemeldet.",
+  },
 };
 
 export const ONBOARDING_CONTENT: OnboardingContent = {

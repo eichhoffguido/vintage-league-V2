@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,8 +8,10 @@ import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { retryAsync } from "@/utils/retry";
 import { takePostLoginPath } from "@/utils/postLoginRedirect";
+import { AUTH_MESSAGES, authErrorFromUrl } from "@/lib/authErrors";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
+import AuthReset from "./pages/AuthReset.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
@@ -82,6 +84,25 @@ const ProfileGuard = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
+// Fehler aus einem Mail-Link (Supabase hängt ihn an die Adresse, z. B. #error_code=otp_expired) — einmal beim Laden lesen.
+const initialAuthLinkError = authErrorFromUrl(window.location.hash, window.location.search);
+
+/** Abgelaufener/benutzter Bestätigungslink landet sonst stumm auf der Startseite → zur Anmeldung mit Hinweis. */
+const AuthLinkErrorRedirect = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const handledRef = useRef(false);
+
+  useEffect(() => {
+    // /auth/reset zeigt den Fehler selbst an
+    if (!initialAuthLinkError || handledRef.current || pathname === "/auth/reset") return;
+    handledRef.current = true;
+    navigate("/auth", { replace: true, state: { linkError: AUTH_MESSAGES.signupLinkUsed } });
+  }, [navigate, pathname]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -89,10 +110,12 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AuthLinkErrorRedirect />
           <ProfileGuard>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/reset" element={<AuthReset />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/profile" element={<UserProfile />} />
