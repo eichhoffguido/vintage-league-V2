@@ -21,12 +21,12 @@ export const SEO_DEFAULT_IMAGE = "/og-calcio-classics.jpg";
 export const SEO_CONTENT: SeoContent = {
   default: {
     title: "Calcio Classics – Marktplatz für Vintage-Fußballtrikots",
-    description: "Authentische Vintage-Fußballtrikots kaufen, verkaufen und tauschen. Jedes Stück geprüft, jeder Preis fair eingeordnet.",
+    description: "Authentische Vintage-Fußballtrikots kaufen und verkaufen. Jedes Stück geprüft, jeder Preis fair eingeordnet.",
     image: "",
   },
   home: {
     title: "Calcio Classics – Marktplatz für Vintage-Fußballtrikots",
-    description: "Authentische Vintage-Fußballtrikots kaufen, verkaufen und tauschen. Jedes Stück geprüft, jeder Preis fair eingeordnet.",
+    description: "Authentische Vintage-Fußballtrikots kaufen und verkaufen. Jedes Stück geprüft, jeder Preis fair eingeordnet.",
     image: "",
   },
   shop: {

@@ -15,6 +15,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { startCheckout } from "@/lib/checkout";
+import { FEATURES } from "@/config/features";
 
 // Genug Angebote laden, damit die Kategorie-Chips auf der Startseite sinnvoll filtern können.
 const FEATURED_POOL = 48;
@@ -93,7 +94,7 @@ const Index = () => {
           <TrustBanner />
         </div>
         <DealerSection content={content.dealer} />
-        <SwapStripe content={content.swap} tradeCount={tradeCount} />
+        {FEATURES.trade && <SwapStripe content={content.swap} tradeCount={tradeCount} />}
         <CommunityBand content={content.community} />
         <FaqSection content={content.faq} />
       </main>

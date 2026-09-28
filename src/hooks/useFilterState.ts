@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { FEATURES } from "@/config/features";
 
 export interface FilterState {
   search: string | null;
@@ -72,7 +73,8 @@ export function parseFiltersFromParams(searchParams: URLSearchParams): FilterSta
     eraTo,
     eraPreset,
     verified: searchParams.get("verified") === "true",
-    tradeable: searchParams.get("tradeable") === "true",
+    // Alte Links /shop?tradeable=true filtern nicht ins Leere, solange der Tausch aus ist
+    tradeable: FEATURES.trade && searchParams.get("tradeable") === "true",
     sortBy: searchParams.get("sort") || "newest",
   };
 }

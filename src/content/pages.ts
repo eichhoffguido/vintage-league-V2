@@ -81,7 +81,7 @@ export const COLLECTION_CONTENT: CollectionContent = {
   header: {
     eyebrow: "La mia collezione · Sammlung",
     headline: "Meine *Sammlung.*",
-    subline: "Alle deine Trikots an einem Ort. Lege fest, welche Trikots du tauschst und welche du verkaufst.",
+    subline: "Alle deine Trikots an einem Ort. Lege fest, welche du verkaufst und welche nur in deiner Sammlung bleiben.",
   },
   empty: "Noch keine Trikots in deiner Sammlung",
 };
@@ -99,7 +99,7 @@ export const AUTH_CONTENT: AuthContent = {
   headline: "Willkommen\n*zurück.*",
   points: [
     "Deine Sammlung verwalten und Trikots einstellen.",
-    "Merkliste, Gebote und Tauschanfragen im Blick.",
+    "Merkliste, Gebote, Käufe und Verkäufe im Blick.",
     "Mit der Community Wissen teilen.",
   ],
   formEyebrow: "Accesso · Login",
@@ -129,7 +129,7 @@ export const ONBOARDING_CONTENT: OnboardingContent = {
     intro: "Die Community-erste Plattform für den Handel mit Vintage-Fußballtrikots",
     features: [
       { title: "Deine Sammlung", text: "Katalogisiere deine Lieblings-Trikots und verwalte deine Sammlung" },
-      { title: "Community", text: "Verbinde dich mit anderen Sammlern und tausche Trikots" },
+      { title: "Community", text: "Verbinde dich mit anderen Sammlern und teile dein Wissen" },
       { title: "Marktplatz", text: "Entdecke Trikots von anderen Sammlern im Marktplatz" },
     ],
   },

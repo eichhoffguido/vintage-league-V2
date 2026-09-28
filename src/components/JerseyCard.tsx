@@ -11,6 +11,7 @@ import { usePriceIntelligence } from "@/hooks/usePriceIntelligence";
 import { getAgeTier, getPriceVerdict, type PriceVerdict } from "@/utils/priceIntelligence";
 import { CONDITION_LABELS as conditionLabels } from "@/data/condition";
 import { cn } from "@/lib/utils";
+import { FEATURES } from "@/config/features";
 
 interface JerseyCardProps {
   id: string;
@@ -203,8 +204,8 @@ const JerseyCard = ({
       {/* 5 · Status-Tags */}
       <div className="flex flex-wrap gap-1">
         {isSold && <span className={cn(TAG, "border-nero bg-nero text-avorio")}>Verkauft</span>}
-        {isTradeOnly && <span className={cn(TAG, "border-rosso text-rosso")}>Nur Tausch</span>}
-        {available_for_trade && !isTradeOnly && !isSold && <span className={cn(TAG, "border-rosso text-rosso")}>Tausch möglich</span>}
+        {FEATURES.trade && isTradeOnly && <span className={cn(TAG, "border-rosso text-rosso")}>Nur Tausch</span>}
+        {FEATURES.trade && available_for_trade && !isTradeOnly && !isSold && <span className={cn(TAG, "border-rosso text-rosso")}>Tausch möglich</span>}
         {!!sale_price_cents && !isSold && <span className={cn(TAG, "border-nero text-nero")}>Sofort kaufen</span>}
         {!!sale_price_cents && !isSold && (
           <PriceIntelligence
@@ -225,7 +226,7 @@ const JerseyCard = ({
         </div>
         <div className="flex items-end justify-between gap-2">
           <span className="num text-[20px] leading-none md:text-[24px]">
-            {isTradeOnly && !sale_price_cents ? "Nur Tausch" : shownPriceCents > 0 ? formatEuros(shownPriceCents) : "–"}
+            {isTradeOnly && !sale_price_cents ? (FEATURES.trade ? "Nur Tausch" : "Nicht im Verkauf") : shownPriceCents > 0 ? formatEuros(shownPriceCents) : "–"}
           </span>
           {verdict && rpcData && (
             <VerdictInline

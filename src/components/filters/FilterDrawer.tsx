@@ -16,6 +16,7 @@ import { PriceRangeSlider } from "@/components/filters/PriceRangeSlider";
 import { PRICE_RANGE_MIN_CENTS, PRICE_RANGE_MAX_CENTS } from "@/components/filters/priceRangeConfig";
 import { FilterState, ERA_PRESETS } from "@/hooks/useFilterState";
 import { CONDITION_OPTIONS as CONDITIONS } from "@/data/condition";
+import { FEATURES } from "@/config/features";
 
 interface FilterDrawerProps {
   open: boolean;
@@ -199,16 +200,18 @@ export const FilterDrawer: React.FC<FilterDrawerProps> = ({
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <Label htmlFor="drawer-tradeable" className="text-sm font-semibold">
-                Tauschbar
-              </Label>
-              <Switch
-                id="drawer-tradeable"
-                checked={filters.tradeable}
-                onCheckedChange={handleTradeableChange}
-              />
-            </div>
+            {FEATURES.trade && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="drawer-tradeable" className="text-sm font-semibold">
+                  Tauschbar
+                </Label>
+                <Switch
+                  id="drawer-tradeable"
+                  checked={filters.tradeable}
+                  onCheckedChange={handleTradeableChange}
+                />
+              </div>
+            )}
           </div>
         </ScrollArea>
 
