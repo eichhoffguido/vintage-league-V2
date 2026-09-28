@@ -254,6 +254,7 @@ async function completePaidSession(
           stripe_session_id: session.id,
           stripe_payment_intent_id: piId,
           status: "completed",
+          paid_at: new Date().toISOString(),
           livemode: session.livemode,
         },
         { onConflict: "stripe_session_id", ignoreDuplicates: true },
@@ -292,7 +293,8 @@ async function completePaidSession(
   // pending (normal), or expired/failed (paid right at the reservation deadline)
   const { data: updated, error: updateError } = await supabase
     .from("transactions")
-    .update({ status: "completed", stripe_payment_intent_id: piId ?? tx.stripe_payment_intent_id })
+    // paid_at nur beim Übergang auf completed — Wiederholungen des Webhooks ändern ihn nicht mehr.
+    .update({ status: "completed", paid_at: new Date().toISOString(), stripe_payment_intent_id: piId ?? tx.stripe_payment_intent_id })
     .eq("id", tx.id)
     .in("status", ["pending", "expired", "failed"])
     .select(TX_COLUMNS);
