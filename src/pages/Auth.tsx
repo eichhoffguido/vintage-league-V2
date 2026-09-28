@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { rememberPostLoginPath } from "@/utils/postLoginRedirect";
 import { useLegalContent, useSiteContent } from "@/hooks/useSiteContent";
 import { useAuth } from "@/hooks/useAuth";
 import { useCooldown } from "@/hooks/useCooldown";
-import { AUTH_MESSAGES, PASSWORD_MIN_LENGTH, authErrorFromUrl, authErrorMessage, isEmailNotConfirmed } from "@/lib/authErrors";
+import { AUTH_MESSAGES, PASSWORD_MIN_LENGTH, authErrorMessage, isEmailNotConfirmed } from "@/lib/authErrors";
 import AuthShell from "@/components/auth/AuthShell";
 import PasswordInput from "@/components/auth/PasswordInput";
 import { Button } from "@/components/ui/button";
@@ -19,21 +19,22 @@ type Sent = { kind: "signup" | "reset"; email: string } | null;
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
-// Fehler aus einem abgelaufenen Bestätigungslink (Supabase hängt ihn an die Adresse) — einmal beim Laden lesen.
-const initialLinkError = authErrorFromUrl(window.location.hash, window.location.search);
-
 const Auth = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  // Abgelaufener Bestätigungslink: AuthLinkErrorRedirect (App.tsx) schickt hierher und übergibt die Meldung.
+  const linkError = (useLocation().state as { linkError?: string } | null)?.linkError ?? null;
   const mode: Mode = searchParams.get("mode") === "signup" ? "signup" : searchParams.get("mode") === "forgot" ? "forgot" : "login";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(initialLinkError);
+  const [error, setError] = useState<string | null>(linkError);
   const [unconfirmed, setUnconfirmed] = useState(false);
   const [sent, setSent] = useState<Sent>(null);
   const cooldown = useCooldown();
+  // Rote Felder nur bei Eingabefehlern, nicht beim Hinweis auf einen abgelaufenen Link
+  const fieldInvalid = !!error && error !== linkError;
 
   const { signIn, signUp, signInWithGoogle, requestPasswordReset, resendConfirmation } = useAuth();
   const navigate = useNavigate();
@@ -255,7 +256,7 @@ const Auth = () => {
               placeholder="deine@email.de"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(null); }}
-              className={cn("h-12 pl-10", error && "border-rosso")}
+              className={cn("h-12 pl-10", fieldInvalid && "border-rosso")}
               required
               maxLength={255}
               autoComplete="email"
@@ -278,7 +279,7 @@ const Auth = () => {
               value={password}
               onChange={(v) => { setPassword(v); setError(null); }}
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              invalid={!!error}
+              invalid={fieldInvalid}
               minLength={mode === "signup" ? PASSWORD_MIN_LENGTH : undefined}
               describedBy={mode === "signup" ? "password-hint" : undefined}
             />

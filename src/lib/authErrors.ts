@@ -18,6 +18,8 @@ export const AUTH_MESSAGES = {
   invalidEmail: "Bitte gib eine gültige E-Mail-Adresse ein.",
   signupDisabled: "Die Registrierung per E-Mail ist gerade nicht möglich. Melde dich bitte mit Google an.",
   linkExpired: "Der Link ist abgelaufen oder wurde schon benutzt. Fordere einfach einen neuen an.",
+  // Bestätigungslinks öffnen manche Firmen-Mailscanner vorab — dann ist die Adresse meist schon bestätigt.
+  signupLinkUsed: "Der Link ist abgelaufen oder wurde schon benutzt. Melde dich einfach mit E-Mail und Passwort an — ist deine Adresse noch nicht bestätigt, kannst du dir dort einen neuen Link schicken lassen.",
   generic: "Etwas ist schiefgelaufen. Bitte versuch es erneut.",
 } as const;
 
