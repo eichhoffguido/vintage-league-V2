@@ -218,6 +218,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
+          is_active: boolean
           name: string
           sort_order: number
         }
@@ -226,6 +227,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           name: string
           sort_order?: number
         }
@@ -234,6 +236,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           name?: string
           sort_order?: number
         }
@@ -1043,10 +1046,6 @@ export type Database = {
       homepage_stats: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
-      seller_can_receive_payments: {
-        Args: { p_seller: string }
-        Returns: boolean
-      }
       mark_order_shipped: {
         Args: {
           p_carrier: string
@@ -1054,6 +1053,10 @@ export type Database = {
           p_transaction_id: string
         }
         Returns: undefined
+      }
+      seller_can_receive_payments: {
+        Args: { p_seller: string }
+        Returns: boolean
       }
       soft_delete_user_jersey: {
         Args: { p_jersey_id: string }
