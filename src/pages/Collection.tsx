@@ -366,7 +366,7 @@ const Collection = () => {
                     <PriceIntelligence
                       team={form.team}
                       year={parseInt(form.year) || 0}
-                      condition={parseInt(form.condition) || 3}
+                      condition={String(parseInt(form.condition) || 3)}
                       size={form.size}
                       compact={false}
                     />

@@ -18,8 +18,10 @@ export interface PriceIntelligenceRpcData {
   comparable_count: number;
 }
 
+// reason ist im zuverlässigen Fall explizit undefined: tsconfig.app.json hat strictNullChecks aus, dort grenzt
+// TypeScript die Union über `reliable` sonst nicht ein und `.reason` wäre ein Typfehler.
 export type PriceReliability =
-  | { reliable: true }
+  | { reliable: true; reason?: undefined }
   | { reliable: false; reason: "no-data" | "insufficient" | "outlier" };
 
 export function assessPriceReliability(
