@@ -177,6 +177,23 @@ async function handleEvent(event: Stripe.Event, stripe: StripeClient, supabase: 
   }
 }
 
+/** CC-ORDERS: Lieferadresse aus Stripe Checkout (shipping_address_collection) für den Verkäufer. */
+function shippingFields(session: Stripe.Checkout.Session): { shipping_name?: string; shipping_address?: Record<string, string> } {
+  const details = session.shipping_details;
+  if (!details?.address) return {};
+  const a = details.address;
+  return {
+    shipping_name: details.name ?? session.customer_details?.name ?? undefined,
+    shipping_address: {
+      line1: a.line1 ?? "",
+      line2: a.line2 ?? "",
+      postal_code: a.postal_code ?? "",
+      city: a.city ?? "",
+      country: a.country ?? "",
+    },
+  };
+}
+
 function paymentIntentId(session: Stripe.Checkout.Session): string | null {
   const pi = session.payment_intent;
   if (!pi) return null;
@@ -255,6 +272,7 @@ async function completePaidSession(
           stripe_payment_intent_id: piId,
           status: "completed",
           paid_at: new Date().toISOString(),
+          ...shippingFields(session),
           livemode: session.livemode,
         },
         { onConflict: "stripe_session_id", ignoreDuplicates: true },
@@ -294,7 +312,12 @@ async function completePaidSession(
   const { data: updated, error: updateError } = await supabase
     .from("transactions")
     // paid_at nur beim Übergang auf completed — Wiederholungen des Webhooks ändern ihn nicht mehr.
-    .update({ status: "completed", paid_at: new Date().toISOString(), stripe_payment_intent_id: piId ?? tx.stripe_payment_intent_id })
+    .update({
+      status: "completed",
+      paid_at: new Date().toISOString(),
+      ...shippingFields(session),
+      stripe_payment_intent_id: piId ?? tx.stripe_payment_intent_id,
+    })
     .eq("id", tx.id)
     .in("status", ["pending", "expired", "failed"])
     .select(TX_COLUMNS);
@@ -361,6 +384,32 @@ async function applySoldSideEffects(
   sendNotifications: boolean,
 ): Promise<void> {
   const amountCents = tx.amount_cents;
+
+  // CC-ORDERS: Schnappschuss des Trikots — Käufer dürfen verkaufte Trikots per RLS nicht mehr lesen,
+  // „Käufe & Verkäufe“ zeigt deshalb diese Kopie. Nicht kritisch, nur einmal (jersey_snapshot IS NULL).
+  const { data: jersey } = await supabase
+    .from("user_jerseys")
+    .select("team, name, league, year, size, condition, image_urls, image_url")
+    .eq("id", tx.jersey_id)
+    .maybeSingle();
+  if (jersey) {
+    const { error: snapshotError } = await supabase
+      .from("transactions")
+      .update({
+        jersey_snapshot: {
+          team: jersey.team,
+          name: jersey.name,
+          league: jersey.league,
+          year: jersey.year,
+          size: jersey.size,
+          condition: jersey.condition,
+          image: jersey.image_urls?.[0] ?? jersey.image_url ?? null,
+        },
+      })
+      .eq("id", tx.id)
+      .is("jersey_snapshot", null);
+    if (snapshotError) console.error("[stripe-webhook] jersey snapshot failed (non-fatal):", snapshotError);
+  }
 
   const { error: jerseyError } = await supabase
     .from("user_jerseys")

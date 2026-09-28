@@ -148,11 +148,12 @@ const Content = ({ state }: { state: ViewState }) => {
         <CheckCircle2 className="mx-auto mb-6 h-12 w-12 text-verde" aria-hidden />
         <Title>Zahlung erfolgreich.</Title>
         <p className="mb-8 text-base text-muted-foreground md:text-lg">
-          Du hast {formatEuro(state.amountCents)} bezahlt. Das Trikot gehört dir — der Verkäufer wurde benachrichtigt.
+          Du hast {formatEuro(state.amountCents)} bezahlt. Das Trikot gehört dir — der Verkäufer verschickt es an deine
+          Lieferadresse. Den Versand verfolgst du unter „Käufe &amp; Verkäufe“.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Button asChild>
-            <Link to={jerseyLink}>Zum Trikot →</Link>
+            <Link to="/orders?tab=bought">Zu deinen Käufen →</Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/shop">Weiter stöbern →</Link>

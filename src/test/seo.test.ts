@@ -44,6 +44,7 @@ describe("Seiten", () => {
     expect(isPrivatePath("/collection")).toBe(true);
     expect(isPrivatePath("/auth/reset")).toBe(true);
     expect(isPrivatePath("/admin/cms")).toBe(true);
+    expect(isPrivatePath("/orders?tab=sold")).toBe(true);
     expect(isPrivatePath("/community/abc")).toBe(true);
     expect(isPrivatePath("/community")).toBe(false);
     expect(isPrivatePath("/shop")).toBe(false);

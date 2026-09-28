@@ -157,6 +157,8 @@ serve(async (req) => {
         },
       ],
       client_reference_id: user.id,
+      // CC-ORDERS: Lieferadresse für den Verkäufer (Beta: nur Deutschland). Der Webhook speichert sie.
+      shipping_address_collection: { allowed_countries: ["DE"] },
       metadata,
       payment_intent_data: { metadata },
       expires_at: checkoutExpiresAtUnix(),

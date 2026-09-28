@@ -154,6 +154,10 @@ export interface ProfileContent {
   empty: string;
 }
 export interface BidsContent { header: { eyebrow: string; headline: string } }
+export interface OrdersContent {
+  header: { eyebrow: string; headline: string; subline: string };
+  empty: { sold: string; bought: string };
+}
 export interface SellerContent {
   eyebrow: string;
   jerseys: { eyebrow: string; headline: string; empty: string };
@@ -206,6 +210,18 @@ export const PROFILE_CONTENT: ProfileContent = {
 
 export const BIDS_CONTENT: BidsContent = {
   header: { eyebrow: "Le mie offerte · Gebote", headline: "Meine *Gebote.*" },
+};
+
+export const ORDERS_CONTENT: OrdersContent = {
+  header: {
+    eyebrow: "I miei ordini · Käufe & Verkäufe",
+    headline: "Käufe & *Verkäufe.*",
+    subline: "Was du versenden musst und was gerade zu dir unterwegs ist.",
+  },
+  empty: {
+    sold: "Du hast noch nichts verkauft.",
+    bought: "Du hast noch nichts gekauft.",
+  },
 };
 
 export const SELLER_CONTENT: SellerContent = {

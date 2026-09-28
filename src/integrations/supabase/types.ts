@@ -218,6 +218,7 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
+          is_active: boolean
           name: string
           sort_order: number
         }
@@ -226,6 +227,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           name: string
           sort_order?: number
         }
@@ -234,6 +236,7 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           name?: string
           sort_order?: number
         }
@@ -851,11 +854,19 @@ export type Database = {
           jersey_id: string | null
           jersey_snapshot: Json | null
           livemode: boolean
+          paid_at: string | null
           platform_fee_cents: number
+          received_at: string | null
+          received_by: string | null
           seller_id: string | null
+          shipped_at: string | null
+          shipping_address: Json | null
+          shipping_carrier: string | null
+          shipping_name: string | null
           status: string
           stripe_payment_intent_id: string | null
           stripe_session_id: string
+          tracking_number: string | null
           updated_at: string
         }
         Insert: {
@@ -867,11 +878,19 @@ export type Database = {
           jersey_id?: string | null
           jersey_snapshot?: Json | null
           livemode?: boolean
+          paid_at?: string | null
           platform_fee_cents: number
+          received_at?: string | null
+          received_by?: string | null
           seller_id?: string | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_carrier?: string | null
+          shipping_name?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id: string
+          tracking_number?: string | null
           updated_at?: string
         }
         Update: {
@@ -883,11 +902,19 @@ export type Database = {
           jersey_id?: string | null
           jersey_snapshot?: Json | null
           livemode?: boolean
+          paid_at?: string | null
           platform_fee_cents?: number
+          received_at?: string | null
+          received_by?: string | null
           seller_id?: string | null
+          shipped_at?: string | null
+          shipping_address?: Json | null
+          shipping_carrier?: string | null
+          shipping_name?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string
+          tracking_number?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -984,6 +1011,10 @@ export type Database = {
     }
     Functions: {
       community_post_count: { Args: never; Returns: number }
+      confirm_order_received: {
+        Args: { p_transaction_id: string }
+        Returns: undefined
+      }
       delete_account_data: { Args: { p_user_id: string }; Returns: undefined }
       get_price_intelligence: {
         Args: {
@@ -1015,6 +1046,14 @@ export type Database = {
       homepage_stats: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
       is_jersey_owner: { Args: { _jersey_id: string }; Returns: boolean }
+      mark_order_shipped: {
+        Args: {
+          p_carrier: string
+          p_tracking_number: string
+          p_transaction_id: string
+        }
+        Returns: undefined
+      }
       seller_can_receive_payments: {
         Args: { p_seller: string }
         Returns: boolean

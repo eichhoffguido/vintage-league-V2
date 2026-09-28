@@ -89,8 +89,9 @@ const DeleteAccountSection = () => {
                   <li>Abgeschlossene Käufe und Verkäufe bleiben ohne Bezug zu dir erhalten (Aufbewahrungspflicht).</li>
                 </ul>
                 <p>
-                  Nicht möglich, solange ein Kauf, eine Gebotszahlung oder ein vereinbarter Tausch offen ist, und
-                  in den ersten 30 Tagen nach einem Kauf oder Verkauf (Versand, Rückfragen).
+                  Nicht möglich, solange ein Kauf, eine Gebotszahlung oder ein vereinbarter Tausch offen ist — auch
+                  nicht, solange ein gekauftes oder verkauftes Trikot noch nicht als erhalten bestätigt ist
+                  (siehe „Käufe &amp; Verkäufe“).
                 </p>
               </div>
             </AlertDialogDescription>

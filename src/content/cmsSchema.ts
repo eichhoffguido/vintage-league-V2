@@ -325,6 +325,28 @@ export const CMS_PAGES: CmsPage[] = [
     sections: [{ id: "header", title: "Seitenkopf", where: "Grünes Band oben bei „Meine Gebote“.", fields: [eyebrow("header.eyebrow"), headline("header.headline", "verde")] }],
   },
   {
+    page: "orders",
+    title: "Käufe & Verkäufe",
+    url: "/orders",
+    sections: [
+      {
+        id: "header",
+        title: "Seitenkopf",
+        where: "Grünes Band oben bei „Käufe & Verkäufe“.",
+        fields: [eyebrow("header.eyebrow"), headline("header.headline", "verde"), subline("header.subline")],
+      },
+      {
+        id: "empty",
+        title: "Leere Listen",
+        where: "Erscheint, wenn es in einem Reiter noch keine Bestellung gibt.",
+        fields: [
+          { path: "empty.sold", label: "Reiter „Verkauft“ leer", type: "text", max: 80 },
+          { path: "empty.bought", label: "Reiter „Gekauft“ leer", type: "text", max: 80 },
+        ],
+      },
+    ],
+  },
+  {
     page: "seller",
     title: "Verkäuferprofil",
     url: "/shop",
