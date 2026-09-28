@@ -61,6 +61,18 @@ const cta = (path: string, label: string): CmsField[] => [
 ];
 const header = (path: string, ground: CmsGround): CmsField[] => [eyebrow(`${path}.eyebrow`), headline(`${path}.headline`, ground), subline(`${path}.subline`)];
 
+// CC-C5 — ein Abschnitt je Seite: Titel, Beschreibung, Vorschaubild
+const seoSection = (key: string, title: string, where: string): CmsSection => ({
+  id: key,
+  title,
+  where,
+  fields: [
+    { path: `${key}.title`, label: "Titel", hint: "Erscheint im Browser-Tab, bei Google und in der Link-Vorschau. Ideal: bis 60 Zeichen.", type: "text", max: 70 },
+    { path: `${key}.description`, label: "Beschreibung", hint: "Text unter dem Titel bei Google und in WhatsApp & Co. Ideal: 120–155 Zeichen.", type: "textarea", max: 170 },
+    { path: `${key}.image`, label: "Vorschaubild", hint: "Querformat, ideal 1200 × 630 Pixel. Leer = Standardbild mit Logo.", type: "image" },
+  ],
+});
+
 export const CMS_PAGES: CmsPage[] = [
   {
     page: "home",
@@ -457,6 +469,21 @@ export const CMS_PAGES: CmsPage[] = [
           { path: "contact.instagramUrl", label: "Instagram-Link", type: "link" },
         ],
       },
+    ],
+  },
+  {
+    page: "seo",
+    title: "SEO & Link-Vorschau",
+    url: "/",
+    sections: [
+      seoSection("default", "Standard", "Gilt für alle Seiten ohne eigenen Eintrag. Trikot-Seiten erzeugen Titel, Text und Bild automatisch aus dem Trikot."),
+      seoSection("home", "Startseite", "Wenn jemand calcioclassics.de teilt oder sucht."),
+      seoSection("shop", "Marktplatz", "Seite /shop — auch mit Filtern."),
+      seoSection("community", "Community", "Seite /community (Beiträge selbst sind nur für Mitglieder und werden nicht von Google erfasst)."),
+      seoSection("trade", "Tauschbörse", "Seite /trade."),
+      seoSection("imprint", "Impressum", "Seite /imprint."),
+      seoSection("privacy", "Datenschutz", "Seite /privacy."),
+      seoSection("terms", "AGB", "Seite /agb."),
     ],
   },
 ];

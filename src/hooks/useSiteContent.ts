@@ -34,6 +34,7 @@ import {
   type TradesContent,
   type WatchlistContent,
 } from "@/content/pages";
+import { SEO_CONTENT, type SeoContent } from "@/content/seo";
 import { IMPRINT_DEFAULT, PRIVACY_DEFAULT_HTML, TERMS_DEFAULT_HTML, type ImprintContent } from "@/content/legal";
 
 // ---------------------------------------------------------------------------
@@ -59,6 +60,8 @@ export interface SiteContentMap {
   footer: FooterContent;
   /** Seitenübergreifend: Kontakt, Social, Hinweisband */
   site: SiteSettings;
+  /** Titel, Beschreibung, Vorschaubild je Seite (CC-C5) */
+  seo: SeoContent;
 }
 export type SitePage = keyof SiteContentMap;
 
@@ -79,6 +82,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
   notfound: NOTFOUND_CONTENT,
   footer: FOOTER_CONTENT,
   site: SITE_SETTINGS,
+  seo: SEO_CONTENT,
 };
 
 export interface SiteContentRow {
