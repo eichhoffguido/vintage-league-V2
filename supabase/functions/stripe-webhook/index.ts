@@ -177,9 +177,23 @@ async function handleEvent(event: Stripe.Event, stripe: StripeClient, supabase: 
   }
 }
 
-/** CC-ORDERS: Lieferadresse aus Stripe Checkout (shipping_address_collection) für den Verkäufer. */
-function shippingFields(session: Stripe.Checkout.Session): { shipping_name?: string; shipping_address?: Record<string, string> } {
-  const details = session.shipping_details;
+type ShippingFields = { shipping_name?: string; shipping_address?: Record<string, string> };
+
+interface ShippingDetailsLike {
+  name?: string | null;
+  address?: Stripe.Address | null;
+}
+
+/**
+ * CC-ORDERS: Lieferadresse aus Stripe Checkout (shipping_address_collection) für den Verkäufer.
+ * Neuere Stripe-API-Versionen (Webhook-Events kommen in der Version des Endpoints!) liefern sie unter
+ * collected_information.shipping_details statt shipping_details — beide Stellen lesen.
+ */
+function shippingFields(session: Stripe.Checkout.Session): ShippingFields {
+  const collected = (session as Stripe.Checkout.Session & {
+    collected_information?: { shipping_details?: ShippingDetailsLike | null } | null;
+  }).collected_information?.shipping_details;
+  const details: ShippingDetailsLike | null | undefined = collected ?? session.shipping_details;
   if (!details?.address) return {};
   const a = details.address;
   return {
@@ -192,6 +206,18 @@ function shippingFields(session: Stripe.Checkout.Session): { shipping_name?: str
       country: a.country ?? "",
     },
   };
+}
+
+/** Adresse aus dem Event; fehlt sie dort, die Sitzung mit unserer festen API-Version direkt abfragen. */
+async function resolveShipping(session: Stripe.Checkout.Session, stripe: StripeClient): Promise<ShippingFields> {
+  const fromEvent = shippingFields(session);
+  if (fromEvent.shipping_address) return fromEvent;
+  try {
+    return shippingFields(await stripe.checkout.sessions.retrieve(session.id));
+  } catch (err) {
+    console.error(`[stripe-webhook] could not load shipping details for ${session.id}:`, errorMessage(err));
+    return {};
+  }
 }
 
 function paymentIntentId(session: Stripe.Checkout.Session): string | null {
@@ -250,6 +276,7 @@ async function completePaidSession(
   }
 
   let tx = await findTransactionBySession(supabase, session.id);
+  const shipping = await resolveShipping(session, stripe);
 
   if (!tx) {
     // Legacy session created before CC-S2 (no pending reservation row) → insert idempotently.
@@ -272,7 +299,7 @@ async function completePaidSession(
           stripe_payment_intent_id: piId,
           status: "completed",
           paid_at: new Date().toISOString(),
-          ...shippingFields(session),
+          ...shipping,
           livemode: session.livemode,
         },
         { onConflict: "stripe_session_id", ignoreDuplicates: true },
@@ -304,6 +331,9 @@ async function completePaidSession(
   if (tx.status === "completed") {
     // Already completed (earlier delivery). Re-apply the idempotent follow-ups in case
     // a previous attempt failed half-way; notifications are not re-sent.
+    if (shipping.shipping_address) {
+      await supabase.from("transactions").update(shipping).eq("id", tx.id).is("shipping_address", null);
+    }
     await applySoldSideEffects(tx, meta, supabase, piId, false);
     return;
   }
@@ -315,7 +345,7 @@ async function completePaidSession(
     .update({
       status: "completed",
       paid_at: new Date().toISOString(),
-      ...shippingFields(session),
+      ...shipping,
       stripe_payment_intent_id: piId ?? tx.stripe_payment_intent_id,
     })
     .eq("id", tx.id)
