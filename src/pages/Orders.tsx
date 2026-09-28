@@ -36,6 +36,7 @@ import {
   needsAction,
   orderStage,
   parseSnapshot,
+  sendOrderEmail,
   trackingLink,
   type CarrierId,
   type OrderRow,
@@ -115,7 +116,8 @@ const OrderCard = ({ order, role, counterpart, open, onChanged }: OrderCardProps
       toast.error(error.message || "Speichern fehlgeschlagen.");
       return;
     }
-    toast.success("Als versendet markiert. Der Käufer sieht jetzt die Sendungsnummer.");
+    sendOrderEmail((name, options) => supabase.functions.invoke(name, options), order.id, "shipped");
+    toast.success("Als versendet markiert. Der Käufer bekommt die Sendungsnummer per Mail.");
     onChanged();
   };
 
@@ -128,6 +130,7 @@ const OrderCard = ({ order, role, counterpart, open, onChanged }: OrderCardProps
       toast.error(error.message || "Bestätigen fehlgeschlagen.");
       return;
     }
+    sendOrderEmail((name, options) => supabase.functions.invoke(name, options), order.id, "received");
     toast.success("Danke! Der Kauf ist abgeschlossen.");
     onChanged();
   };

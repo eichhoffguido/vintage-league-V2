@@ -15,6 +15,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createServiceClient, createStripe, Stripe } from "../_shared/clients.ts";
 import { PG_UNIQUE_VIOLATION } from "../_shared/payments.ts";
+import { notifyOrder } from "../_shared/orderNotify.ts";
 
 type StripeClient = ReturnType<typeof createStripe>;
 
@@ -471,6 +472,9 @@ async function applySoldSideEffects(
   if (notifError) {
     console.error("[stripe-webhook] notification insert failed (non-fatal):", notifError);
   }
+
+  // CC-ORDER-MAILS: Kaufbestätigung an den Käufer, „Verkauft – bitte versenden“ an den Verkäufer (nie fatal)
+  await notifyOrder(supabase, tx.id, "paid");
 }
 
 // ── payment_intent.succeeded → only remember the PaymentIntent id ────────────
