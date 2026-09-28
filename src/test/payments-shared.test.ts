@@ -4,6 +4,8 @@ import {
   checkoutExpiresAtUnix,
   isAllowedOrigin,
   PLATFORM_FEE_BPS,
+  canResumeCheckout,
+  reservedMessage,
   resolveSiteUrl,
   toPublicCheckoutStatus,
 } from "../../supabase/functions/_shared/payments.ts";
@@ -87,5 +89,26 @@ describe("toPublicCheckoutStatus", () => {
   it("treats a pending row past its reservation as expired", () => {
     expect(toPublicCheckoutStatus("pending", new Date(now + 60_000).toISOString(), now)).toBe("pending");
     expect(toPublicCheckoutStatus("pending", new Date(now - 60_000).toISOString(), now)).toBe("expired");
+  });
+});
+
+describe("reservedMessage", () => {
+  it("nennt bei Reservierungen die Uhrzeit in Berliner Zeit", () => {
+    expect(reservedMessage("pending", "2026-09-28T15:13:29Z")).toContain("spätestens um 17:13 Uhr wieder frei");
+  });
+  it("sagt bei verkauften Trikots „bereits verkauft“", () => {
+    expect(reservedMessage("completed", null)).toBe("Dieses Trikot ist bereits verkauft.");
+  });
+});
+
+describe("canResumeCheckout", () => {
+  const open = { status: "open", url: "https://checkout.stripe.com/x", amount_total: 20000 };
+  it("setzt eine offene Sitzung mit gleichem Betrag fort", () => {
+    expect(canResumeCheckout(open, 20000)).toBe(true);
+  });
+  it("nicht bei geändertem Preis oder abgelaufener Sitzung", () => {
+    expect(canResumeCheckout(open, 18000)).toBe(false);
+    expect(canResumeCheckout({ ...open, status: "expired" }, 20000)).toBe(false);
+    expect(canResumeCheckout({ ...open, url: null }, 20000)).toBe(false);
   });
 });
