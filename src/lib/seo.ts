@@ -55,6 +55,7 @@ const PRIVATE_PREFIXES = [
   "/watchlist",
   "/favorites",
   "/my-bids",
+  "/orders",
   "/admin",
   "/trades",
   "/success",

@@ -1,4 +1,4 @@
-import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown, ShieldCheck, PenLine } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, LogOut, Heart, Gavel, ChevronDown, ShieldCheck, PenLine, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useOpenOrderCount } from "@/hooks/useOrders";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import Logo from "@/components/brand/Logo";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
@@ -32,6 +33,8 @@ const Header = () => {
   const [mobileHeaderSearch, setMobileHeaderSearch] = useState("");
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
+  // Bestellungen, bei denen der Nutzer etwas tun muss (versenden / Erhalt bestätigen)
+  const openOrders = useOpenOrderCount(user?.id);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -141,7 +144,13 @@ const Header = () => {
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger className={cn(NAV_LINK, "flex items-center gap-1.5 px-2 outline-none")}>
-                    <User className="h-4 w-4" /> Konto <ChevronDown className="h-3.5 w-3.5" />
+                    <User className="h-4 w-4" /> Konto
+                    {openOrders > 0 && (
+                      <span className="num inline-flex h-4 min-w-4 items-center justify-center bg-rosso px-1 text-[11px] leading-none text-avorio" aria-label={`${openOrders} offene Bestellungen`}>
+                        {openOrders}
+                      </span>
+                    )}
+                    <ChevronDown className="h-3.5 w-3.5" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="min-w-[200px] border-2 border-nero bg-card p-1">
                     <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/profile")}>
@@ -152,6 +161,10 @@ const Header = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/my-bids")}>
                       <Gavel className="mr-2 h-4 w-4" /> Gebote
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/orders")}>
+                      <Package className="mr-2 h-4 w-4" /> Käufe & Verkäufe
+                      {openOrders > 0 && <span className="num ml-auto bg-rosso px-1.5 text-xs text-avorio">{openOrders}</span>}
                     </DropdownMenuItem>
                     <DropdownMenuItem className="cap cursor-pointer py-2.5 text-xs" onSelect={() => navigate("/watchlist")}>
                       <Heart className="mr-2 h-4 w-4" /> Merkliste
@@ -260,6 +273,7 @@ const Header = () => {
                     { to: "/collection", label: "Sammlung" },
                     { to: "/watchlist", label: "Merkliste" },
                     { to: "/my-bids", label: "Meine Gebote" },
+                    { to: "/orders", label: openOrders > 0 ? `Käufe & Verkäufe (${openOrders} offen)` : "Käufe & Verkäufe" },
                     { to: "/profile", label: "Profil" },
                     ...(isAdmin ? [{ to: "/admin", label: "Admin" }, { to: "/admin/cms", label: "CMS" }] : []),
                   ]

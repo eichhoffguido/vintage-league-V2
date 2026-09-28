@@ -33,6 +33,7 @@ import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import MyBids from "./pages/MyBids.tsx";
+import Orders from "./pages/Orders.tsx";
 
 const queryClient = new QueryClient();
 
@@ -132,6 +133,7 @@ const App = () => (
               <Route path="/community" element={<Community />} />
               <Route path="/community/:id" element={<CommunityPost />} />
               <Route path="/my-bids" element={<MyBids />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/cms" element={<AdminCms />} />
               <Route path="/imprint" element={<Imprint />} />

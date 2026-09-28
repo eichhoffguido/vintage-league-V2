@@ -14,6 +14,7 @@ import {
   DETAIL_CONTENT,
   PROFILE_CONTENT,
   BIDS_CONTENT,
+  ORDERS_CONTENT,
   SELLER_CONTENT,
   NOTFOUND_CONTENT,
   FOOTER_CONTENT,
@@ -21,6 +22,7 @@ import {
   type DetailContent,
   type ProfileContent,
   type BidsContent,
+  type OrdersContent,
   type SellerContent,
   type NotFoundContent,
   type FooterContent,
@@ -55,6 +57,7 @@ export interface SiteContentMap {
   detail: DetailContent;
   profile: ProfileContent;
   bids: BidsContent;
+  orders: OrdersContent;
   seller: SellerContent;
   notfound: NotFoundContent;
   footer: FooterContent;
@@ -78,6 +81,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContentMap = {
   detail: DETAIL_CONTENT,
   profile: PROFILE_CONTENT,
   bids: BIDS_CONTENT,
+  orders: ORDERS_CONTENT,
   seller: SELLER_CONTENT,
   notfound: NOTFOUND_CONTENT,
   footer: FOOTER_CONTENT,

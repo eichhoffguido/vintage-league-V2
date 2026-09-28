@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ShieldCheck, CheckCircle, XCircle, Loader2, Star } from "lucide-react";
 import { getPrimaryImage } from "@/utils/jerseyImage";
+import AdminOpenOrders from "@/components/admin/AdminOpenOrders";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -285,6 +286,8 @@ const Admin = () => {
             ))}
           </div>
         )}
+
+        <AdminOpenOrders />
       </div>
       <Footer />
     </div>
