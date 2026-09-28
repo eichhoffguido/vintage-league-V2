@@ -81,7 +81,7 @@ export const COLLECTION_CONTENT: CollectionContent = {
   header: {
     eyebrow: "La mia collezione · Sammlung",
     headline: "Meine *Sammlung.*",
-    subline: "Dein persönliches Album. Lege fest, welche Trikots du tauschst und welche du verkaufst.",
+    subline: "Alle deine Trikots an einem Ort. Lege fest, welche Trikots du tauschst und welche du verkaufst.",
   },
   empty: "Noch keine Trikots in deiner Sammlung",
 };
@@ -106,9 +106,9 @@ export const AUTH_CONTENT: AuthContent = {
   formTitle: "Melde dich an, um deine Sammlung zu verwalten.",
   signup: {
     eyebrow: "Benvenuto · Willkommen",
-    headline: "Willkommen\nim *Album.*",
+    headline: "Willkommen bei\n*Calcio Classics.*",
     formEyebrow: "Registrazione · Registrieren",
-    formTitle: "Leg dein Konto an und starte dein Album.",
+    formTitle: "Leg dein Konto an und starte deine Sammlung.",
   },
   checkMail: {
     headline: "Schau in dein Postfach.",
