@@ -106,3 +106,12 @@ export function addressLines(name: string | null, address: Json | null): string[
   const country = str(address.country);
   return [name ?? "", str(address.line1), str(address.line2), cityLine, country && country !== "DE" ? country : ""].filter(Boolean);
 }
+
+/** Stößt die Bestell-Mail eines Schritts an (Edge Function order-email). Wartet nicht und wirft nie. */
+export function sendOrderEmail(invoke: (name: string, options: { body: Record<string, string> }) => Promise<{ error: unknown }>, transactionId: string, event: "shipped" | "received"): void {
+  invoke("order-email", { body: { transaction_id: transactionId, event } })
+    .then(({ error }) => {
+      if (error) console.warn("[order-email] Mail nicht verschickt:", error);
+    })
+    .catch((err) => console.warn("[order-email] Mail nicht verschickt:", err));
+}

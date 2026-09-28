@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { formatEuros } from "@/utils/currency";
-import { carrierById, orderStage, parseSnapshot, trackingLink, type OrderRow } from "@/lib/orders";
+import { carrierById, orderStage, parseSnapshot, sendOrderEmail, trackingLink, type OrderRow } from "@/lib/orders";
 
 const COLUMNS =
   "id, status, buyer_id, seller_id, jersey_id, amount_cents, paid_at, created_at, shipped_at, shipping_carrier, tracking_number, received_at, shipping_name, shipping_address, jersey_snapshot";
@@ -61,6 +61,7 @@ const AdminOpenOrders = () => {
       toast.error(error.message || "Speichern fehlgeschlagen.");
       return;
     }
+    sendOrderEmail((name, options) => supabase.functions.invoke(name, options), target.id, "received");
     toast.success("Als erhalten markiert.");
     queryClient.invalidateQueries({ queryKey: ["admin-open-orders"] });
     queryClient.invalidateQueries({ queryKey: ["orders"] });
