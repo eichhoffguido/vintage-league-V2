@@ -7,17 +7,19 @@
 //   ~30 min) a 'pending' transactions row is inserted. The partial unique index
 //   transactions_one_active_sale_per_jersey (CC-S1) guarantees at most one
 //   pending/completed sale per jersey; on conflict the session is expired and 409
-//   is returned.
+//   is returned. The same buyer re-clicking "Kaufen" resumes their own open session instead (CC-fix 28.09.).
 // - Still NO Stripe Connect / transfer (that is CC-S3).
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createServiceClient, createStripe, getAuthenticatedUser } from "../_shared/clients.ts";
 import { errorResponse, jsonResponse, preflightResponse } from "../_shared/http.ts";
 import {
   calculatePlatformFeeCents,
+  canResumeCheckout,
   type CheckoutFlow,
   checkoutExpiresAtUnix,
   ONE_ACTIVE_SALE_INDEX,
   PG_UNIQUE_VIOLATION,
+  reservedMessage,
   resolveSiteUrl,
 } from "../_shared/payments.ts";
 
@@ -114,9 +116,11 @@ serve(async (req) => {
     // Non-fatal: the unique index below is still the authoritative guard.
   }
 
+  const stripe = createStripe();
+
   const { data: activeTx, error: activeTxError } = await supabase
     .from("transactions")
-    .select("id")
+    .select("id, status, buyer_id, stripe_session_id, checkout_expires_at")
     .eq("jersey_id", plan.jerseyId)
     .in("status", ["pending", "completed"])
     .limit(1);
@@ -124,8 +128,35 @@ serve(async (req) => {
     console.error("[create-checkout-session] active transaction lookup failed:", activeTxError);
     return errorResponse(req, "Der Bezahlvorgang konnte nicht gestartet werden.", 500);
   }
-  if (activeTx && activeTx.length > 0) {
-    return errorResponse(req, MSG_RESERVED, 409);
+  const active = activeTx?.[0];
+  if (active) {
+    // Eigene offene Reservierung (z. B. Bezahlseite geschlossen und nochmal auf „Kaufen“): dort weitermachen
+    // statt den Käufer 30 Minuten auszusperren.
+    if (active.status === "pending" && active.buyer_id === user.id) {
+      let released = false;
+      try {
+        const existing = await stripe.checkout.sessions.retrieve(active.stripe_session_id);
+        if (canResumeCheckout(existing, plan.amountCents)) {
+          return jsonResponse(req, { url: existing.url }, 200);
+        }
+        // Preis geändert oder Sitzung nicht mehr offen → alte Sitzung beenden, Reservierung freigeben
+        if (existing.status === "open") await stripe.checkout.sessions.expire(existing.id);
+        if (existing.status !== "complete") {
+          const { error: releaseError } = await supabase
+            .from("transactions")
+            .update({ status: "expired" })
+            .eq("id", active.id)
+            .eq("status", "pending");
+          if (releaseError) throw releaseError;
+          released = true; // weiter unten neue Sitzung
+        }
+      } catch (err) {
+        console.error("[create-checkout-session] could not resume own checkout:", err);
+      }
+      if (!released) return errorResponse(req, "Deine Zahlung wird gerade verarbeitet. Bitte versuch es in ein paar Minuten erneut.", 409);
+    } else {
+      return errorResponse(req, reservedMessage(active.status, active.checkout_expires_at), 409);
+    }
   }
 
   // ── 6. Create the Stripe Checkout Session ──────────────────────────────────
@@ -141,7 +172,6 @@ serve(async (req) => {
   if (plan.bidId) metadata.bid_id = plan.bidId;
   if (plan.askId) metadata.ask_id = plan.askId;
 
-  const stripe = createStripe();
   let session: Awaited<ReturnType<typeof stripe.checkout.sessions.create>>;
   try {
     session = await stripe.checkout.sessions.create({

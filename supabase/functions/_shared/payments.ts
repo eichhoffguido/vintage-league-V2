@@ -92,6 +92,30 @@ export function toPublicCheckoutStatus(
   }
 }
 
+/**
+ * Meldung, wenn ein Trikot nicht gekauft werden kann, weil schon ein Kauf läuft oder abgeschlossen ist.
+ * Bei einer Reservierung nennt sie die Uhrzeit (Berlin), zu der das Trikot spätestens wieder frei ist.
+ */
+export function reservedMessage(status: string, checkoutExpiresAt: string | null): string {
+  if (status === "completed") return "Dieses Trikot ist bereits verkauft.";
+  if (!checkoutExpiresAt) return "Dieses Trikot ist gerade im Bezahlvorgang eines anderen Käufers.";
+  const time = new Intl.DateTimeFormat("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" }).format(
+    new Date(checkoutExpiresAt),
+  );
+  return `Dieses Trikot ist gerade im Bezahlvorgang eines anderen Käufers. Kommt der Kauf nicht zustande, ist es spätestens um ${time} Uhr wieder frei.`;
+}
+
+/**
+ * Darf ein Käufer seinen eigenen, noch offenen Bezahlvorgang fortsetzen? Nur wenn die Stripe-Sitzung offen ist
+ * und der Betrag noch stimmt (sonst wird sie beendet und eine neue angelegt).
+ */
+export function canResumeCheckout(
+  session: { status: string | null; url: string | null; amount_total: number | null },
+  amountCents: number,
+): boolean {
+  return session.status === "open" && !!session.url && session.amount_total === amountCents;
+}
+
 /** Postgres unique_violation error code. */
 export const PG_UNIQUE_VIOLATION = "23505";
 export const ONE_ACTIVE_SALE_INDEX = "transactions_one_active_sale_per_jersey";
