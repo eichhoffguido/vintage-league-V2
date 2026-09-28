@@ -16,7 +16,7 @@ const EmailVerificationBanner = () => {
     !loading &&
     session &&
     !session.user.email_confirmed_at &&
-    location.pathname !== "/auth" &&
+    !location.pathname.startsWith("/auth") &&
     location.pathname !== "/onboarding" &&
     !dismissed;
 
@@ -31,6 +31,7 @@ const EmailVerificationBanner = () => {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: session.user.email,
+        options: { emailRedirectTo: window.location.origin },
       });
       if (error) {
         toast({

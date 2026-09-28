@@ -350,6 +350,33 @@ export const CMS_PAGES: CmsPage[] = [
           { path: "formTitle", label: "Formular: Überschrift", type: "text", max: 80 },
         ],
       },
+      {
+        id: "signup",
+        title: "Registrieren",
+        where: "Tab „Registrieren“ auf der Login-Seite: grüne Hälfte und Überschrift über dem Formular.",
+        fields: [
+          eyebrow("signup.eyebrow"),
+          headline("signup.headline", "verde"),
+          { ...eyebrow("signup.formEyebrow"), label: "Formular: kleine Zeile" },
+          { path: "signup.formTitle", label: "Formular: Überschrift", type: "text", max: 80 },
+        ],
+      },
+      {
+        id: "checkMail",
+        title: "Hinweis „Postfach prüfen“",
+        where: "Erscheint nach der Registrierung und nach „Passwort vergessen?“ anstelle des Formulars.",
+        fields: [
+          { path: "checkMail.headline", label: "Überschrift", type: "text", max: 60 },
+          { path: "checkMail.text", label: "Text nach der Registrierung", type: "textarea", max: 280 },
+          { path: "checkMail.resetText", label: "Text nach „Passwort vergessen?“", type: "textarea", max: 280 },
+        ],
+      },
+      {
+        id: "reset",
+        title: "Neues Passwort",
+        where: "Seite, auf die der Link aus der Mail „Neues Passwort“ führt (grüne Hälfte).",
+        fields: [eyebrow("reset.eyebrow"), headline("reset.headline", "verde"), subline("reset.text")],
+      },
     ],
   },
   {

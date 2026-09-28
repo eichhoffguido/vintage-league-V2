@@ -10,6 +10,7 @@ import { retryAsync } from "@/utils/retry";
 import { takePostLoginPath } from "@/utils/postLoginRedirect";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
+import AuthReset from "./pages/AuthReset.tsx";
 import Onboarding from "./pages/Onboarding.tsx";
 import Collection from "./pages/Collection.tsx";
 import UserProfile from "./pages/UserProfile.tsx";
@@ -93,6 +94,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/reset" element={<AuthReset />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/collection" element={<Collection />} />
               <Route path="/profile" element={<UserProfile />} />
